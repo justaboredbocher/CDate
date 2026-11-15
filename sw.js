@@ -39,7 +39,7 @@ self.addEventListener('fetch', (e) => {
   const isApp = r.mode === 'navigate' || u.pathname === scope.pathname || u.pathname === scope.pathname + 'index.html';
   const isHy = u.pathname === scope.pathname + 'hayomyom-en.json'; // the English Hayom Yom text: same treatment, so it works offline
   // Siddur pages (siddur/p/N.webp) never change: once a page was seen it is kept on the phone and answered from there (works offline).
-  if (/\/siddur\/p\/\d+\.webp$/.test(u.pathname) && u.pathname.startsWith(scope.pathname)) {
+  if (/\/siddur\/[pq]\/\d+\.webp$/.test(u.pathname) && u.pathname.startsWith(scope.pathname)) {
     e.respondWith((async () => {
       const cache = await caches.open('cdate-siddur-v1');
       const saved = await cache.match(r.url, { ignoreSearch: true });

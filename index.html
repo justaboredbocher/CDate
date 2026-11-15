@@ -2289,7 +2289,7 @@ function sdShowBook(p){const C=sdBookCol();sdSet(C,'book',null,(C.pt[sdIdx(p)]||
 function sdItem(it){const s=SD.s,w=SD.w,n=document.createElement(it.t?'b':'i');
  let c='top:'+(it.y*s).toFixed(1)+'px;height:'+(it.h*s).toFixed(1)+'px';
  if(it.t){n.className='sd-hd';n.innerHTML=`<u style="width:${(161*s).toFixed(1)}px;height:${(35*s).toFixed(1)}px;-webkit-mask-size:${w}px ${(1861*s).toFixed(1)}px;mask-size:${w}px ${(1861*s).toFixed(1)}px;-webkit-mask-position:${(-463*s).toFixed(1)}px ${(-126*s).toFixed(1)}px;mask-position:${(-463*s).toFixed(1)}px ${(-126*s).toFixed(1)}px"></u><span style="font-size:${(34*s).toFixed(1)}px">${it.t}</span>`}
- else{const u='url(siddur/p/'+(it.i+1)+'.webp)',ms=w+'px '+(1861*s).toFixed(1)+'px',mp='0 '+(-it.a*s).toFixed(1)+'px';c+=`;-webkit-mask-image:${u};mask-image:${u};-webkit-mask-size:${ms};mask-size:${ms};-webkit-mask-position:${mp};mask-position:${mp}`}
+ else{const u='url('+sdU(it.i)+')',ms=w+'px '+(1861*s).toFixed(1)+'px',mp='0 '+(-it.a*s).toFixed(1)+'px';c+=`;-webkit-mask-image:${u};mask-image:${u};-webkit-mask-size:${ms};mask-size:${ms};-webkit-mask-position:${mp};mask-position:${mp}`}
  n.style.cssText=c;return n}
 function sdDraw(){const C=SD.C;if(!C)return;const s=SD.s,top=SD.pos/s,lo=top-SD.H/s,hi=top+SD.H/s*2.2,el=$('#sdC');
  el.style.transform='translate3d(0,'+(-SD.pos).toFixed(1)+'px,0)';
@@ -2331,8 +2331,11 @@ function sdUp(e){const g=SD.drag;if(!g||e.pointerId!==g.id)return;SD.drag=null;c
  try{H.tap()}catch(x){}sdFling(v>0?1:-1)}
 function sdWheel(e){if(!SD.C)return;e.preventDefault();cancelAnimationFrame(SD.raf);SD.raf=0;sdTo(SD.pos+e.deltaY*(e.deltaMode?40:1));clearTimeout(SD.wT);SD.wT=setTimeout(sdSettle,200)}
 // the siddur keeps every page it has seen (service worker); the rest of the open tefillah is fetched quietly in the background
+// v114 (owner: the PDF's grey boxes should go): pages that had a grey shaded box are served from siddur/q/ with the shading taken out
+// (its faint alpha level 17 removed and the rest rescaled; scratchpad au/boxpages.json), so only the app's own blue box remains.
+const SD_QP=new Set([0,1,2,4,5,7,22,34,42,43,44,45,46,47,48,49,50,51,62,64,65,66,71,72,73,76,78,85,86,87,88,89,91,92,95,96,98,99,100,101,102,103,104,105,106,107,108,111,112,113,120,121,122,124,125,126,127,128,129,130,131,132,141,142,143,154,156,157,161,163,165,166,167,168,169,170,172,175,176,198,199,207,208,209,210,211,212,213,214,215,216,217,218,219,225,226,227,228,231,232,233,234,235,236,237,238,240,242,245,256,257,258,259,260,261,262,263,265,293,308,310,312,313,314,315,317,320,321,322,325,326,328,329,330,331,332,333,337,338,339,340,341,342,343,344,345,346,353,355,356,357,365,366,367,368,378,384,387,388,389,390,391,392,393,402,405,445,446,455,456,461,464,465,466,467,468,469,470,471,472,473,474,475,476,477,478,479,480,481,482,483,484,485,486,487,488,489,490,491,492,493,494,495,496,497,498,499,500,501,502,503,504,505,506,507,508,509,510,511,512,513,516,517,518,519,520,521,522,524,525,526,527,528,529,530,531,532,533,534,535,536,537,538,539,540,541,542,543,544,545,546,547,548,549,550,551,552,553,554,555,556,557,558,559,560,561,562,563,564,565,566,567,569,574,581,582,583,584,585,586,587,588,589,590,591,592,593,594,595,596,597,598,599,600,601,602,603,604,605,606,607,608,609,610,611,612,613,614,615,616]),sdU=i=>'siddur/'+(SD_QP.has(i)?'q':'p')+'/'+(i+1)+'.webp';
 const SD_GOT=new Set();let SD_Q=[],SD_QN=0;
-function sdFetch(i){if(SD_GOT.has(i))return Promise.resolve();SD_GOT.add(i);return fetch('siddur/p/'+(i+1)+'.webp').then(r=>r.blob()).catch(()=>{SD_GOT.delete(i)})}
+function sdFetch(i){if(SD_GOT.has(i))return Promise.resolve();SD_GOT.add(i);return fetch(sdU(i)).then(r=>r.blob()).catch(()=>{SD_GOT.delete(i)})}
 function sdQ(){while(SD_QN<3&&SD_Q.length){const i=SD_Q.shift();if(SD_GOT.has(i))continue;SD_QN++;sdFetch(i).then(()=>{SD_QN--;setTimeout(sdQ,30)})}}
 function sdWarm(){if(SD.m!=='flow'||!SD.C)return;const top=SD.pos/SD.s,I=SD.C.I.filter(x=>!x.t),k=Math.max(0,I.findIndex(x=>x.y+x.h>=top));SD_Q=[...new Set([...I.slice(k),...I.slice(0,k)].map(x=>x.i))];setTimeout(sdQ,600)}
 function sdHead(){const C=SD.C;if(!C)return;const top=(SD.pos+SD.H*.12)/SD.s,bot=(SD.pos+SD.H)/SD.s;let it=null,sl='';const P=new Set();
@@ -3879,8 +3882,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=113;
+const CC_VER=114;
 const CC_LOG=[
+ {v:114,new:['Siddur: the grey boxes printed in the siddur are gone; only today’s additions get the app’s blue box.']},
  {v:113,new:['Siddur: the box around today’s additions is a soft blue now, to match the app.']},
  {v:112,new:['Siddur: today’s special additions (Yaaleh V’yavo, Al HaNissim, Aneinu, the Ten Days lines, Borchi Nafshi, L’Dovid, the Omer…) sit in a softly darkened box, and a glowing ring goes around it once when you reach it, so you don’t miss it.']},
  {v:111,mid:1,new:['Siddur: scroll smoothly from page to page. A quick swipe moves about one screen and stops at the start of a paragraph, so you never fly past where you are.','Siddur: each section starts with its title right where it begins, with no empty half-pages, and the contents list is short: Brachos, Korbanos, Hodu … Rabbeinu Tam, Korbanos for Mincha, Maariv.','Siddur: notes about what’s skipped on other days are gone, and those paragraphs follow the day.']},
