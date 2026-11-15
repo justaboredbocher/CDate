@@ -2126,7 +2126,7 @@ function sdFlows(){const {day,eve}=sdDays(),yt=sdYT(day),fri=day.getDay()===5,eY
  return{sh:yt?{t:'Shacharis',seg:[[5,26],[181,247]],opt:[['Morning blessings',5],['Korbanos',12],['Hodu',181],['Pesukei D’zimra',191],['Shemoneh Esrei',211],['Reading of the Torah',222],['Musaf',234]]}
    :{t:'Shacharis',seg:[[5,84]],wk:1,opt:[['Morning blessings',5],['Korbanos',12],['Hodu',27],['Pesukei D’zimra',30],['Shemoneh Esrei',45]]},
   mi:yt?{t:'Mincha',seg:[[250,269]],opt:[['Korbanos',250],['Ashrei',253],['Reading of the Torah',256],['Shemoneh Esrei',260]]}
-   :fri?{t:'Mincha',seg:[[148,151]],opt:[]}:{t:'Mincha',seg:[[99,117]],wk:1,opt:[['Korbanos',99],['Ashrei',101],['Shemoneh Esrei',103]]},
+   :{t:'Mincha',seg:[[99,117]],wk:1,fri,opt:[['Korbanos',99],['Ashrei',101],['Shemoneh Esrei',103]]},
   ma:eSh?{t:'Kabbalas Shabbos',seg:[[154,180]],opt:[['Kabbalas Shabbos',154],['Maariv',161],['Shemoneh Esrei',166],['Kiddush',178]]}
    :eY?{t:'Maariv',seg:[[161,175]],opt:[]}:{t:'Maariv',seg:[[118,135]],wk:1,opt:[['Maariv',118],['Shema',120],['Shemoneh Esrei',123]]},
   be:{t:'Bentching',seg:[[88,95]],opt:[]},bs:{t:'Shema at bedtime',seg:[[141,147]],opt:[]}}}
@@ -2138,7 +2138,7 @@ function sdNoTach(d){const h=hd(d),k=h.k,x=h.d;return x===30||(x===1&&k!=='Ti')|
 function sdCx(fk){const s=sdDays(),day=fk==='ma'?s.eve:s.day,h=hd(day),ev=infoBase(day).ev,wd=day.getDay(),yt=strictYT(h),
   rc=(h.d===30||h.d===1)&&!(h.k==='Ti'&&h.d===1),ch=chIdx({h,dt:day}),chm=(h.k==='Ti'&&h.d>=17&&h.d<=21)||(h.k==='N'&&h.d>=17&&h.d<=20)||ev.some(e=>/Chol Hamoed/.test(e.t)),pur=ev.some(e=>e.t==='Purim'),
   tb=h.k==='Av'&&(h.d===9||(h.d===10&&wd===0)),fast=ev.some(e=>e.k==='fs')&&!(h.k==='Ti'&&h.d===10);
- return{s,day,h,ev,wd,yt,rc,ch,chm,pur,tb,fast,noT:sdNoTach(day)||yt||chm,mt:wd===1||wd===4,td:h.k==='Ti'&&h.d<=10,
+ return{s,day,h,ev,wd,yt,rc,ch,chm,pur,tb,fast,noT:sdNoTach(day)||yt||chm||(fk==='mi'&&(wd===5||sdYT(ad(day,1)))),mt:wd===1||wd===4,td:h.k==='Ti'&&h.d<=10,
   ld:h.k==='E'||(h.k==='Av'&&h.d===30)||(h.k==='Ti'&&h.d<=21),mevar:ev.some(e=>e.id==='sp-mev'),om:omerIdx(h),ms:wd===0}}
 /* ===== v87 (owner): the siddur "cut to today". A tefillah is a list of pieces {i:image, a,b: rows} cut out of the page images;
    paragraphs that don't apply today are cut out and today's additions (Hallel, the Torah reading, Musaf, Sefirah, the Nasi…) are
@@ -2172,9 +2172,19 @@ const SD_SONG=[[71,70.9,72,24.95],[72,27.6,72,74.5],[72,77.1,73,19],[73,22.7,74,
 function sdSong(wd,ho){const d=SD_SONG[Math.min(wd,5)],a=wd===0?sdR(71,67.1,72,24.95):[...sdR(71,67.1,71,70.9),...sdR(d[0],d[1],d[2],d[3])];return ho?[...a,...sdR(75,12,75,34.25)]:a}
 // Hallel; on Chanukah it ends with Half Kaddish and the Torah reading follows, on Rosh Chodesh / Chol Hamoed with the full Kaddish
 // v103 (owner): Half Hallel (Rosh Chodesh, the last six days of Pesach) leaves out "Lo lanu" and "Ahavti"; the intro and the "omit" notes go
+// v116: Sukkos Chol Hamoed / Hoshana Rabbah: the lulav blessings before Hallel, the Hoshanos after it (p.312: "Hoshanot are recited at
+// this point"): the opening lines, today's section (after a Shabbos in Sukkos, Shabbos's section first), the common ending; Hoshana
+// Rabbah: all seven sections with their additions, then its own long order and the aravos.
+const SD_HO=[[368,58.2,369,21.2],[369,32.8,369,87],[370,14.5,370,64.6],[370,75,371,43.2],[371,54.8,372,21.8],[372,37.6,372,85.4]],
+ SD_HOB=[[369,22.8,369,31.6],[370,4.6,370,13.6],[370,65.8,370,74.2],[371,45.3,371,54],[372,23.5,372,37],[372,87.6,372,95.5]];
+function sdHosh(c){if(c.h.k!=='Ti'||c.h.d<15||c.h.d>21||c.wd===6)return[];const n=c.h.d-14,o=sdR(368,39.6,368,57.6);
+ if(n===7)return[...o,...SD_HO.flatMap((r,k)=>[...sdRd(r),...sdRd(SD_HOB[k])]),...sdR(373,null,374,[71.4]),...sdR(375,20.5,382,67.5),...sdR(382,69.5,382,100)];
+ const dd=[n];if(n>1&&ad(c.day,-1).getDay()===6)dd.unshift(n-1);
+ return[...o,...dd.flatMap(k=>sdRd(SD_HO[k-1])),...sdR(374,17.5,374,[71.4]),...sdR(374,[75.0],375,[15.6])]}
+const sdLulav=c=>c.h.k==='Ti'&&c.h.d>=15&&c.h.d<=21&&c.wd!==6?lab(sdR(306,[60.8],306,100),'Lulav'):[];
 const sdHal=c=>{const half=(c.rc&&!c.ch)||(c.h.k==='N'&&c.h.d>=17);let L=sdR(307,null,311,null);L=sdCut(L,307,12.15,307,37.3);
   if(half){L=sdCut(L,308,[11.45],308,47.2);L=sdCut(L,308,[69.16],309,12.5)}else{L=sdCut(L,308,[11.45],308,12.45);L=sdCut(L,308,[69.16],308,70.1)}
-  return[...L,...(c.rc?sdR(312,8.45,312,20.8):[]),...sdR(312,20.8,312,56.25),...(c.rc||c.chm?sdR(312,60.9,312,86.25):[])]};
+  const ho=sdHosh(c);return[...sdLulav(c),...L,...(ho.length?lab(ho,'Hoshanos'):[]),...(c.rc?sdR(312,8.45,312,20.8):[]),...sdR(312,20.8,312,56.25),...(c.rc||c.chm?sdR(312,60.9,312,86.25):[])]};
 // Chol Hamoed readings (pp. 475–478 Sukkos by day, 502–506 Pesach). Pesach: the weekday days read Kadesh, Im kesef, Pesal, Vayedaber in order;
 // when a Shabbos falls in Chol Hamoed, Pesal is read on Shabbos, so the weekdays read Kadesh, Im kesef, Vayedaber.
 const SD_CHS=[[475,44.25,475,96.8],[476,4.5,476,51.05],[476,54.4,477,11.05],[477,14.35,477,65.15],[477,68.75,478,26.35]];
@@ -2183,6 +2193,8 @@ function sdChm(c){const h=c.h;if(h.k==='Ti'&&h.d>=17&&h.d<=21)return SD_CHS[h.d-
  if(h.k==='N'&&h.d>=17&&h.d<=20){const d17=ad(c.day,17-h.d),days=[0,1,2,3].map(j=>ad(d17,j)),shab=days.some(d=>d.getDay()===6),wk=days.filter(d=>d.getDay()!==6),
   n=wk.findIndex(d=>ds(d)===ds(c.day)),order=shab?['k','i','v']:['k','i','p','v'];return n>=0?SD_CHP[order[n]]:null}return null}
 const sdRd=r=>r?sdR(r[0],r[1],r[2],r[3]):null;
+// Hallel with its title (after the lulav blessings when there are any)
+const sdHalL=c=>{const A=sdHal(c),k=sdLulav(c).length;return k?[...A.slice(0,k),...lab(A.slice(k),'Hallel')]:lab(A,'Hallel')};
 /* v109 (owner): the printed section titles (ornament + capitals) are cut out of the pages; each one starts a new section, which begins
    on its own screen under our own title in the same style (sdPaint). SD_TT = [image, first row, last row, label] (scratchpad tt/). */
 const SD_TT=[[1,105,198,'Upon arising'],[1,552,645,'Morning blessings'],[5,1209,1302,'Tzitzis'],[6,123,216,'Tallis'],[7,123,216,'Tefillin'],[8,123,216,'Morning prayer'],[9,107,136,'The Akeidah'],[13,1517,1546,'Korbanos'],[15,274,303,'Ketores'],[18,1325,1353,'Mishnah'],[21,97,125,'Beraisa'],[23,141,234,'Hodu'],[26,97,125,'Pesukei D’zimra'],[35,848,877,'Blessings of the Shema'],[38,367,460,'Shema'],[41,1033,1126,'Shemoneh Esrei'],[50,958,987,'Tachanun'],[57,123,216,'Reading of the Torah'],[59,90,119,'Blessings over the Torah'],[60,107,171,'Birkas HaGomel'],[60,531,560,'Bar Mitzvah blessing'],[60,741,770,'After a birth'],[61,98,126,'For the sick'],[61,1177,1206,'Raising the Torah'],[65,1459,1488,'Returning the Torah'],[67,1271,1300,'Song of the Day'],[78,1006,1099,'Rabbeinu Tam’s tefillin'],[80,1172,1265,'The Six Remembrances'],[81,889,982,'Tefillas HaDerech'],[82,123,216,'Blessings for various occasions'],[84,94,126,'Bentching'],[92,123,216,'Al HaMichya'],[93,97,126,'Borei Nefashos'],[93,374,516,'Bentching at a bris'],[94,123,264,'Sheva Brachos'],[95,116,261,'Mincha'],[95,1014,1043,'Ketores'],[97,1000,1027,'Ashrei'],[99,123,216,'Shemoneh Esrei'],[108,919,948,'Tachanun'],[114,123,216,'Maariv'],[116,93,121,'Shema'],[119,880,973,'Shemoneh Esrei'],[132,123,216,'Sefiras HaOmer'],[137,123,216,'Shema at bedtime'],[303,123,215,'Hallel'],[309,123,216,'Musaf for Rosh Chodesh'],[335,699,831,'Musaf'],[387,767,860,'The Nasi'],[464,123,216,'Torah readings'],[464,275,302,'Rosh Chodesh reading'],[464,1475,1503,'Fast day reading'],[465,1304,1332,'Haftarah for fast days'],[471,704,733,'Chol Hamoed reading'],[486,400,429,'Chanukah reading'],[491,1175,1204,'Purim reading'],[492,268,297,'Pesach reading'],[498,114,143,'Chol Hamoed reading']];
@@ -2201,6 +2213,7 @@ function sdMk(L,bp,pct,t,br){const i=sdIdx(bp),y=pct==null?SD.G[i][0]:sdY(i,pct)
 const lab=(A,t)=>A&&A.length?[{...A[0],sec:t,brk:true},...A.slice(1)]:A;
 function sdWeekly(day){const p=parsha(day);if(!p||!p.p||!p.p[0])return null;const nm=p.p[0][0];let k=PN.findIndex(x=>x[0]===nm);if(nm===VZ[0])k=53;return k>=0?SD_WK[k]:null}
 const sdPieces=fk=>{let L=sdTT(sdPieces0(fk));const f=sdFlows()[fk];if(!f.wk)for(const o of f.opt)if(o[1]>=148)L=sdMk(L,o[1],null,o[0],0);if(fk==='be'&&L.length&&!L[0].sec)L[0]={...L[0],sec:'Bentching',brk:true};return L};
+const sdAvm=c=>!c.noT&&(c.fast||(c.h.k==='Ti'&&c.h.d>=3&&c.h.d<=9));
 function sdPieces0(fk){const f=sdFlows()[fk];if(!f.wk){let L=f.seg.flatMap(s=>sdR(s[0],null,s[1],null));
   // Shabbos & Yom Tov: "Hashem Hashem… Ribono shel olam" when the Ark is opened only on a Yom Tov that falls on a weekday (owner)
   if(fk==='sh'&&f.seg.some(s=>s[0]===181)){const c=sdCx(fk);if(!(c.yt&&c.wd!==6))L=sdCut(L,222,47.65,223,14.3)}return L}const c=sdCx(fk);let L,I=[],M=[],AD=[];const cut=(...a)=>{L=sdCut(L,...a)},ins=(...a)=>I.push(a);
@@ -2212,20 +2225,23 @@ function sdPieces0(fk){const f=sdFlows()[fk];if(!f.wk){let L=f.seg.flatMap(s=>sd
   // Pesach or Erev Yom Kippur)
   cut(26,[80.5],26,100);cut(27,0,27,[7.0]);
   if(c.tb)cut(7,0,7,13.75);else cut(7,0,7,[6.25]);
+  if(c.tb)cut(10,0,11,100);   // v116: no tallis and tefillin at Shacharis on Tisha B'Av (worn at Mincha)
   if(c.noT){cut(12,[67.6],12,100);cut(18,[35.15],18,53.1);cut(14,[47.95],15,57.5);cut(22,[34.65],22,[71.2])}
   else{cut(12,[67.6],12,[69.0]);cut(18,[35.15],18,[36.9]);cut(14,[47.95],14,[49.33]);cut(22,[34.65],22,[36.0]);cut(67,[5.1],67,[6.2]);cut(70,[27.85],70,[29.3])}
   if((c.h.k==='N'&&c.h.d>=14)||(c.h.k==='Ti'&&c.h.d===9))cut(30,[71.25],30,100);else cut(30,[71.25],30,[74.2]);
   // Amidah: the Ten Days, Aneinu (fasts), Yaaleh V'yavo (Rosh Chodesh, Chol Hamoed), Al HaNissim (Chanukah, Purim)
   TD([[46,5.6,46,17.9],[46,72.3,46,81.6],[47,44,47,49],[49,16.4,49,21.4],[52,52.1,52,62.7],[53,29.4,53,45.7],[54,9.3,54,12.6]]);
-  opt(c.fast,48,23.3,48,49.9);opt(c.rc||c.chm,50,55.7,50,96.5);opt(c.ch||c.pur,51,73.4,52,43.6);
+  if(!c.fast)cut(48,23.3,48,49.9);opt(c.rc||c.chm,50,55.7,50,96.5);opt(c.ch||c.pur,51,73.4,52,43.6);
   // Tachanun (with the Monday/Thursday additions) or Hallel
   if(c.noT)cut(54,43.2,60,37.5);else{cut(54,43.2,54,50);cut(56,4.3,56,12.3);if(!(c.mt||c.fast))cut(56,12.3,59,73.55);cut(59,45.6,59,49.65);cut(59,73.55,59,77.6)}
+  // v116: Avinu Malkeinu replaces the short "Avinu malkeinu chaneinu" at the end of Tachanun (p.59 / p.114 notes); Selichos cue (sdCues)
+  if(sdAvm(c)){cut(59,77.6,59,100);ins(59,77.6,lab(sdR(454,[52.9],456,[95.1]),'Avinu Malkeinu'))}
   const hal=c.rc||c.ch||c.chm,rd=c.mt||c.rc||c.fast||c.ch||c.chm||c.pur;
   cut(60,74.8,60,78.9);if(!(c.mt&&!c.noT))cut(60,78.9,60,92.5);
   // the reading of the Torah: only on reading days, with today's reading cut in after the blessing
   if(!rd){cut(60,74.8,66,14.3);cut(69,76.9,70,18.55)}
   else{cut(61,12.2,61,16.2);cut(62,84.4,62,100);cut(63,56,63,64.2);cut(64,0,65,61.5);if(!(c.pur||c.tb))cut(66,8.4,66,14.25);
-   const r=c.ch?SD_CH[c.ch-1]:c.rc?[468,13.6,468,74.2]:c.fast&&!c.tb?[468,78.9,469,63.3]:c.chm?sdChm(c):c.pur?[495,62.3,496,7.75]:c.mt?sdWeekly(c.day):null;if(r)ins(63,37.3,sdRd(r))}
+   const r=c.ch===7&&c.rc?[492,78.25,494,16.4]:c.ch?SD_CH[c.ch-1]:c.rc?[468,13.6,468,74.2]:c.fast&&!c.tb?[468,78.9,469,63.3]:c.chm?sdChm(c):c.pur?[495,62.3,496,7.75]:c.mt?sdWeekly(c.day):null;if(r)ins(63,37.3,sdRd(r))}
   opt(c.td,69,65.3,69,68.45);cut(68,87.3,68,91.2);cut(70,18.55,70,27.15);
   if(c.noT){cut(67,4.5,67,34.1);cut(70,27.15,70,92)}
   // Song of the Day (today's only), Borchi Nafshi (Rosh Chodesh), L'Dovid (Elul to Hoshana Rabbah)
@@ -2233,21 +2249,21 @@ function sdPieces0(fk){const f=sdFlows()[fk];if(!f.wk){let L=f.seg.flatMap(s=>sd
   if(c.rc||c.chm){// Rosh Chodesh / Chol Hamoed: after Hallel the Song of the Day … Kaddish, then the Torah reading; Musaf after the Torah returns
    cut(69,0,69,76.9);   // v115: no weekday Complete Kaddish before the Torah goes back (Half Kaddish + Musaf follow)
    const tail=[...lab(sdR(71,null,71,67.1),'Beis Yaakov'),...sdSong(c.wd,1),...(c.rc?adf(sdR(75,41.15,76,37.2)):[]),...(c.ld?adf(sdR(76,37.2,76,93.4)):[]),...sdR(77,null,77,75.3)];
-   cut(71,0,77,75.3);cut(60,37.5,60,74.8);ins(54,43.2,[...lab(sdHal(c),'Hallel'),...tail]);ins(70,18.55,[...lab(c.rc?sdR(313,null,318,null):sdR(339,null,350,71.85),'Musaf'),...sdR(312,20.8,312,56.25),...sdR(312,60.9,312,86.25)])}
-  else{if(hal){ins(54,43.2,lab(sdHal(c),'Hallel'));cut(60,37.5,60,74.8)}ins(71,67.1,lab(sdSong(c.wd),'Song of the Day'))}
+   cut(71,0,77,75.3);cut(60,37.5,60,74.8);ins(54,43.2,[...sdHalL(c),...tail]);ins(70,18.55,[...lab(c.rc?sdR(313,null,318,null):sdR(339,null,350,71.85),'Musaf'),...sdR(312,20.8,312,56.25),...sdR(312,60.9,312,86.25)])}
+  else{if(hal){ins(54,43.2,sdHalL(c));cut(60,37.5,60,74.8)}ins(71,67.1,lab(sdSong(c.wd),'Song of the Day'))}
   // the Nasi (1–13 Nissan) at the end
   if(c.h.k==='N'&&c.h.d<=13){const n=SD_NASI[c.h.d-1];L.push(...lab(adf(sdRd(n)),'The Nasi').map(q=>({...q,x:1})))}
   M=[[66,14.3,'Ashrei · Uva Letziyon']]}
- if(fk==='mi'){L=sdR(99,null,117,null);
+ if(fk==='mi'){L=[...(f.fri?lab(sdR(148,[11.6],151,[92.4]),'Hodu · Pasach Eliyahu'):[]),...sdR(99,null,117,null)];
   TD([[103,47.1,103,58.6],[104,13,104,22],[104,69.1,104,74.2],[106,50,106,54.9],[110,52.1,110,62.7],[111,27.1,111,43.2],[112,9.3,112,12.6],[115,24.3,115,27.45]]);
   opt(c.fast,105,53.6,105,80.7);opt(c.fast,108,19.3,108,39.4);opt(c.fast,110,77,110,94.7);opt(c.tb,107,38.5,107,40.35);opt(c.tb,107,45.25,107,80.15);
   opt(c.rc||c.chm,108,62,108,96.3);opt(c.ch||c.pur,109,73.4,110,43.5);
-  if(c.noT)cut(112,42.7,114,51.75);else cut(112,42.7,112,48.4);
+  if(c.noT)cut(112,42.7,114,51.75);else{cut(112,42.7,112,48.4);if(sdAvm(c)){cut(114,0,114,21.12);ins(114,21.12,lab(sdR(454,[52.9],456,[95.1]),'Avinu Malkeinu'))}else cut(114,0,114,7.63)}
   opt(c.ld,115,35.85,115,92.2);opt(c.ch,116,4.3,116,8);}
  if(fk==='ma'){L=sdR(118,null,135,null);
   TD([[124,5.6,124,17.9],[124,67.6,124,76.9],[124,85.2,124,90.2],[126,50.3,126,55.4],[129,77.6,129,86.1],[130,35.6,130,50.7],[131,8.9,131,12.2],[134,10,134,13.2],[135,61.7,135,64.85]]);
   opt(c.ms,125,9.3,125,32.4);opt(c.rc||c.chm,128,5.6,128,49.5);opt(c.ch||c.pur,129,5.4,129,70);
-  cut(131,29.8,c.ms?131:133,c.ms?31.85:40.4);if(c.ms)AD.push([131,31.85,133,40.4]);opt(c.pur,134,19.9,134,24.45);cut(134,24.45,134,26.5);
+  /* v116: no Vihi Noam when a Yom Tov falls in the coming week (p.131) */const vn=c.ms&&![0,1,2,3,4,5].some(j=>strictYT(hd(ad(c.day,j))));cut(131,29.8,vn?131:133,vn?31.85:40.4);if(vn)AD.push([131,31.85,133,40.4]);opt(c.pur,134,19.9,134,24.45);cut(134,24.45,134,26.5);
   if(c.om)ins(134,26.5,lab(adf([...sdR(136,44.05,136,52.2),...sdOmer(c.om),...sdR(139,79.5,140,92.75)]),'Sefiras HaOmer'));}
  for(const r of AD)L=sdFlag(L,...r);for(const a of I)L=sdIns(L,...a);for(const m of M)L=sdMk(L,m[0],m[1],m[2],m[3]);return L}
 // lay the pieces out on screens (split only on blank lines)
@@ -2350,11 +2366,14 @@ function sdHead(){const C=SD.C;if(!C)return;const top=(SD.pos+SD.H*.12)/SD.s,bot
  sdCueShow([...P])}
 // cue cards: what the cut-to-today siddur can't do by itself (Shabbos & Yom Tov additions, Havdalah, the Megillah, Chol Hamoed readings)
 function sdCues(P){if(!SD.fk)return null;const c=sdCx(SD.fk),{h,s,rc,ch,chm,pur,yt,mevar}=c,shab=c.wd===6,C=[],add=(a,b,o)=>{if(P.some(p=>p>=a&&p<=b))C.push(o)};
+ const mz=h.k==='Ti'&&(h.d<=2||h.d===10);if(mz)add(1,700,{t:'<b>'+(h.d===10?'Yom Kippur':'Rosh Hashanah')+'</b> · the Amidah and the special prayers are in the Machzor.'});
  if(SD.fk==='sh'){
-  if(!sdYT(c.day)){if(c.tb)add(61,63,{t:'<b>Tisha B’Av</b> · today’s Torah reading (Devarim 4:25–40) isn’t printed in this siddur.'})}
+  if(!sdYT(c.day)){if(c.tb){add(5,30,{t:'<b>Tisha B’Av</b> · no tallis and tefillin this morning; they’re put on for Mincha.'});add(61,70,{t:'<b>Tisha B’Av</b> · today’s Torah reading (Devarim 4:25–40) and the Kinos aren’t printed in this siddur.'})}
+   if(c.fast&&!c.noT)add(454,456,{t:'<b>Fast day</b> · Selichos are said after Avinu Malkeinu.',b:'Selichos',go:409});if(pur)add(66,69,{t:'<b>Purim</b> · the Megillah is read after the Torah reading.',b:'Megillah',go:390})}
   else{
    if(yt)add(211,211,{t:'<b>Yom Tov</b> · say the Amidah for Yom Tov.',b:'Amidah',go:332,end:336,ret:217});
-   if(yt||rc||ch||chm)add(217,218,{t:'<b>'+(yt?'Yom Tov':ch?'Chanukah':chm?'Chol Hamoed':'Rosh Chodesh')+'</b> · Hallel now.',b:'Hallel',go:307,end:312,ret:yt?222:218});
+   const suk=h.k==='Ti'&&h.d>=15&&h.d<=21&&c.wd!==6;if(suk)add(217,218,{t:'<b>Sukkos</b> · the lulav blessings, Hallel, then the Hoshanos (p. 368).',b:'Lulav',go:306,end:312,ret:222});
+   else if(yt||rc||ch||chm)add(217,218,{t:'<b>'+(yt?'Yom Tov':ch?'Chanukah':chm?'Chol Hamoed':'Rosh Chodesh')+'</b> · Hallel now.',b:'Hallel',go:307,end:312,ret:yt?222:218});
    if(mevar)add(230,231,{t:'<b>Shabbos Mevarchim</b> · bless the new month.',b:'Go',go:231});
    if(rc&&shab&&!yt)add(233,234,{t:'<b>Shabbos Rosh Chodesh</b> · say this Musaf instead.',b:'Musaf',go:319,end:326,ret:245});
    if(yt||chm)add(233,234,{t:'<b>'+(yt?'Yom Tov':'Chol Hamoed')+'</b> · Musaf for Yom Tov.',b:'Musaf',go:339,end:350,ret:245});
@@ -2391,8 +2410,8 @@ function sdTabs(){const f=sdFlows();$('#sdTabs').innerHTML=['sh','mi','ma','be',
  $('#sdTabs .sd-more').onclick=()=>{H.tap();sdToc()}}
 // v111 (owner: "the index should be simplified … Brachos, Korbanot, Hodu, Rabbeinu Tam, Korbanot for Mincha, Maariv"): a short list of
 // the places people start from, only those said today (Hallel instead of Tachanun …); the whole book by section is one tap further.
-const SD_MAIN={sh:[['Upon arising','Brachos'],['Morning prayer','Korbanos'],['Hodu','Hodu'],['Shemoneh Esrei','Shemoneh Esrei'],['Tachanun','Tachanun'],['Hallel','Hallel'],['Reading of the Torah','Torah reading'],['Musaf','Musaf'],['Song of the Day','Song of the Day'],['Rabbeinu Tam’s tefillin','Rabbeinu Tam']],
- mi:[['Mincha','Korbanos for Mincha'],['Ashrei','Ashrei'],['Shemoneh Esrei','Shemoneh Esrei'],['Tachanun','Tachanun']],
+const SD_MAIN={sh:[['Upon arising','Brachos'],['Morning prayer','Korbanos'],['Hodu','Hodu'],['Shemoneh Esrei','Shemoneh Esrei'],['Tachanun','Tachanun'],['Avinu Malkeinu','Avinu Malkeinu'],['Lulav','Lulav'],['Hallel','Hallel'],['Hoshanos','Hoshanos'],['Reading of the Torah','Torah reading'],['Musaf','Musaf'],['Song of the Day','Song of the Day'],['Rabbeinu Tam’s tefillin','Rabbeinu Tam']],
+ mi:[['Hodu · Pasach Eliyahu','Hodu · Pasach Eliyahu'],['Mincha','Korbanos for Mincha'],['Ashrei','Ashrei'],['Shemoneh Esrei','Shemoneh Esrei'],['Tachanun','Tachanun'],['Avinu Malkeinu','Avinu Malkeinu']],
  ma:[['Maariv','Maariv'],['Shema','Shema'],['Shemoneh Esrei','Shemoneh Esrei'],['Sefiras HaOmer','Sefiras HaOmer']]};
 function sdMain(k){const f=sdFlows()[k];if(!f.wk)return f.opt.map(o=>({t:o[0]==='Morning blessings'?'Brachos':o[0],f:k,p:o[1]}));
  const C=sdColOf(k);return SD_MAIN[k].map(([l,t])=>{const x=C.sec.find(z=>z.t===l);return x?{t,f:k,y:x.y,p:x.p}:null}).filter(Boolean).sort((a,b)=>a.y-b.y)}
@@ -3884,8 +3903,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=115;
+const CC_VER=116;
 const CC_LOG=[
+ {v:116,mid:1,new:['Siddur: Friday Mincha now continues into the whole Mincha (it stopped after Yedid Nefesh).','Siddur: Avinu Malkeinu on fast days and the Ten Days; the lulav blessings and the day’s Hoshanos on Chol Hamoed Sukkos and Hoshana Rabbah; Rosh Chodesh on the 7th day of Chanukah.','Siddur: reminder cards for Selichos, the Megillah on Purim, and the Machzor on Rosh Hashanah and Yom Kippur.']},
  {v:115,new:['Siddur fixes for Rosh Chodesh and days without Tachanun: two more paragraphs that aren’t said are left out (in Korbanos and before the Mishnah), the weekday Kaddish before returning the Torah is skipped on Rosh Chodesh, and Ashrei · Uva Letziyon and Beis Yaakov get their own titles.']},
  {v:114,new:['Siddur: the grey boxes printed in the siddur are gone; only today’s additions get the app’s blue box.']},
  {v:113,new:['Siddur: the box around today’s additions is a soft blue now, to match the app.']},
