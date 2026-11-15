@@ -2212,7 +2212,8 @@ function sdPieces0(fk){const f=sdFlows()[fk];if(!f.wk){let L=f.seg.flatMap(s=>sd
   // Pesach or Erev Yom Kippur)
   cut(26,[80.5],26,100);cut(27,0,27,[7.0]);
   if(c.tb)cut(7,0,7,13.75);else cut(7,0,7,[6.25]);
-  if(c.noT){cut(12,[67.6],12,100);cut(18,[35.15],18,53.1)}else{cut(12,[67.6],12,[69.0]);cut(18,[35.15],18,[36.9])}
+  if(c.noT){cut(12,[67.6],12,100);cut(18,[35.15],18,53.1);cut(14,[47.95],15,57.5);cut(22,[34.65],22,[71.2])}
+  else{cut(12,[67.6],12,[69.0]);cut(18,[35.15],18,[36.9]);cut(14,[47.95],14,[49.33]);cut(22,[34.65],22,[36.0]);cut(67,[5.1],67,[6.2]);cut(70,[27.85],70,[29.3])}
   if((c.h.k==='N'&&c.h.d>=14)||(c.h.k==='Ti'&&c.h.d===9))cut(30,[71.25],30,100);else cut(30,[71.25],30,[74.2]);
   // Amidah: the Ten Days, Aneinu (fasts), Yaaleh V'yavo (Rosh Chodesh, Chol Hamoed), Al HaNissim (Chanukah, Purim)
   TD([[46,5.6,46,17.9],[46,72.3,46,81.6],[47,44,47,49],[49,16.4,49,21.4],[52,52.1,52,62.7],[53,29.4,53,45.7],[54,9.3,54,12.6]]);
@@ -2230,12 +2231,13 @@ function sdPieces0(fk){const f=sdFlows()[fk];if(!f.wk){let L=f.seg.flatMap(s=>sd
   // Song of the Day (today's only), Borchi Nafshi (Rosh Chodesh), L'Dovid (Elul to Hoshana Rabbah)
   cut(71,67.1,75,12);cut(75,34.25,75,41.15);opt(c.rc,75,41.15,76,37.2);opt(c.ld,76,37.2,76,93.4);cut(77,75.3,77,100);
   if(c.rc||c.chm){// Rosh Chodesh / Chol Hamoed: after Hallel the Song of the Day … Kaddish, then the Torah reading; Musaf after the Torah returns
-   const tail=[...sdR(71,null,71,67.1),...sdSong(c.wd,1),...(c.rc?adf(sdR(75,41.15,76,37.2)):[]),...(c.ld?adf(sdR(76,37.2,76,93.4)):[]),...sdR(77,null,77,75.3)];
+   cut(69,0,69,76.9);   // v115: no weekday Complete Kaddish before the Torah goes back (Half Kaddish + Musaf follow)
+   const tail=[...lab(sdR(71,null,71,67.1),'Beis Yaakov'),...sdSong(c.wd,1),...(c.rc?adf(sdR(75,41.15,76,37.2)):[]),...(c.ld?adf(sdR(76,37.2,76,93.4)):[]),...sdR(77,null,77,75.3)];
    cut(71,0,77,75.3);cut(60,37.5,60,74.8);ins(54,43.2,[...lab(sdHal(c),'Hallel'),...tail]);ins(70,18.55,[...lab(c.rc?sdR(313,null,318,null):sdR(339,null,350,71.85),'Musaf'),...sdR(312,20.8,312,56.25),...sdR(312,60.9,312,86.25)])}
   else{if(hal){ins(54,43.2,lab(sdHal(c),'Hallel'));cut(60,37.5,60,74.8)}ins(71,67.1,lab(sdSong(c.wd),'Song of the Day'))}
   // the Nasi (1–13 Nissan) at the end
   if(c.h.k==='N'&&c.h.d<=13){const n=SD_NASI[c.h.d-1];L.push(...lab(adf(sdRd(n)),'The Nasi').map(q=>({...q,x:1})))}
-  M=[[66,14.3,'Ashrei · Uva Letziyon',0]]}
+  M=[[66,14.3,'Ashrei · Uva Letziyon']]}
  if(fk==='mi'){L=sdR(99,null,117,null);
   TD([[103,47.1,103,58.6],[104,13,104,22],[104,69.1,104,74.2],[106,50,106,54.9],[110,52.1,110,62.7],[111,27.1,111,43.2],[112,9.3,112,12.6],[115,24.3,115,27.45]]);
   opt(c.fast,105,53.6,105,80.7);opt(c.fast,108,19.3,108,39.4);opt(c.fast,110,77,110,94.7);opt(c.tb,107,38.5,107,40.35);opt(c.tb,107,45.25,107,80.15);
@@ -3882,8 +3884,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=114;
+const CC_VER=115;
 const CC_LOG=[
+ {v:115,new:['Siddur fixes for Rosh Chodesh and days without Tachanun: two more paragraphs that aren’t said are left out (in Korbanos and before the Mishnah), the weekday Kaddish before returning the Torah is skipped on Rosh Chodesh, and Ashrei · Uva Letziyon and Beis Yaakov get their own titles.']},
  {v:114,new:['Siddur: the grey boxes printed in the siddur are gone; only today’s additions get the app’s blue box.']},
  {v:113,new:['Siddur: the box around today’s additions is a soft blue now, to match the app.']},
  {v:112,new:['Siddur: today’s special additions (Yaaleh V’yavo, Al HaNissim, Aneinu, the Ten Days lines, Borchi Nafshi, L’Dovid, the Omer…) sit in a softly darkened box, and a glowing ring goes around it once when you reach it, so you don’t miss it.']},
