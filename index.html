@@ -874,9 +874,10 @@ html.cc-boot,html.cc-boot body{background:#0a0b10!important}html.cc-boot #accoun
 #sdr .sd-col>i{position:absolute;left:0;width:100%;display:block;background:var(--ink);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
 #sdr .sd-col>b.sd-hd{position:absolute;left:0;width:100%}
 #sdr .sd-col>i,#sdr .sd-col>b{z-index:1}
-#sdr .sd-ad{position:absolute;left:-6px;right:-6px;z-index:0;border-radius:14px;background:color-mix(in srgb,var(--ink) 7%,transparent);pointer-events:none}
+#sdr{--sdad:#5d6ff2;--sdadr:#5468f0}:root:not([data-theme="light"]) #sdr{--sdad:#8ea0ff;--sdadr:#a9b6ff}
+#sdr .sd-ad{position:absolute;left:-6px;right:-6px;z-index:0;border-radius:14px;background:color-mix(in srgb,var(--sdad) 13%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--sdad) 22%,transparent);pointer-events:none}
 #sdr .sd-ad svg{position:absolute;inset:0;overflow:visible}
-#sdr .sd-ad path{fill:none;stroke:var(--acc,#8c94ef);stroke-dasharray:1;stroke-dashoffset:1;stroke-linejoin:round;opacity:0}
+#sdr .sd-ad path{fill:none;stroke:var(--sdadr);stroke-dasharray:1;stroke-dashoffset:1;stroke-linejoin:round;opacity:0}
 #sdr .sd-ad path.l{stroke-width:2.2}#sdr .sd-ad path.g{stroke-width:9;stroke-opacity:.28}
 #sdr .sd-ad.go path{animation:sdRing 1.7s cubic-bezier(.45,.05,.35,1) forwards,sdRingF 1.1s ease 2.6s forwards}
 @keyframes sdRing{0%{stroke-dashoffset:1;opacity:1}100%{stroke-dashoffset:0;opacity:1}}
@@ -3878,8 +3879,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=112;
+const CC_VER=113;
 const CC_LOG=[
+ {v:113,new:['Siddur: the box around today’s additions is a soft blue now, to match the app.']},
  {v:112,new:['Siddur: today’s special additions (Yaaleh V’yavo, Al HaNissim, Aneinu, the Ten Days lines, Borchi Nafshi, L’Dovid, the Omer…) sit in a softly darkened box, and a glowing ring goes around it once when you reach it, so you don’t miss it.']},
  {v:111,mid:1,new:['Siddur: scroll smoothly from page to page. A quick swipe moves about one screen and stops at the start of a paragraph, so you never fly past where you are.','Siddur: each section starts with its title right where it begins, with no empty half-pages, and the contents list is short: Brachos, Korbanos, Hodu … Rabbeinu Tam, Korbanos for Mincha, Maariv.','Siddur: notes about what’s skipped on other days are gone, and those paragraphs follow the day.']},
  {v:110,new:['Siddur: tidier pages: no single stranded lines, instructions and headings (like Kaddish) stay with their text, grey boxes aren’t cut in half, and a blessing that continues from another page no longer looks like a new paragraph.']},
