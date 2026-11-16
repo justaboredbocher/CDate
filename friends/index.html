@@ -990,10 +990,8 @@ let kitLast="";
 function kitBridge(){try{const C=window.Capacitor;if(!C||!C.isNativePlatform||!C.isNativePlatform()||tour.real)return;
  const P=(C.Plugins&&C.Plugins.KitWidget)||(C.registerPlugin&&C.registerPlugin("KitWidget"));if(!P)return;
  const seen=new Set(),ppl=[];
- // 1) my list (saved): s=1 · 2) members of communities I joined (not the 330-person Shluchim directory itself), labelled with the community
- saved.forEach(v=>{if(!v.name)return;const k=fk(v);if(seen.has(k))return;seen.add(k);const ph=vPhone(v).replace(/\D/g,"");seen.add("p"+ph);ppl.push({n:v.name,c:String(v.city).replace(/ ·$/,""),tz:v.tz,p:ph,f:favs.has(k)?1:0,s:1})});
- DIRG.filter(g=>g.comm).forEach(g=>g.people.forEach(n=>{const k=n+"|"+g.city,ph=phoneOf(n,g.city).replace(/\D/g,"");if(seen.has(k)||(ph&&seen.has("p"+ph)))return;seen.add(k);if(ph)seen.add("p"+ph);
-  ppl.push({n,c:g.city.split(" · ")[0],tz:g.tz,p:ph,f:favs.has(k)?1:0,s:0,g:g.country})}));
+ // owner: the widgets only ever show SAVED contacts (my list), never community members I haven't saved
+ saved.forEach(v=>{if(!v.name)return;const k=fk(v);if(seen.has(k))return;seen.add(k);ppl.push({n:v.name,c:String(v.city).replace(/ ·$/,"").split(" · ")[0],tz:v.tz,p:vPhone(v).replace(/\D/g,""),f:favs.has(k)?1:0,s:1,g:v.cm&&CM_DOCS[v.cm]?CM_DOCS[v.cm].name:""})});
  const d=JSON.stringify({v:2,me:me&&me.match?me.match.name:"",ppl});if(d==kitLast)return;kitLast=d;P.save({data:d}).catch(()=>{kitLast=""})}catch(e){}}
 function toast(msg,act,lab,ms){const t=$("toast");t.innerHTML="<span>"+esc(msg)+"</span>"+(act?"<button>"+(lab||"Undo")+"</button>":"");const b=t.querySelector("button");if(b)b.onclick=()=>{act();t.classList.remove("on")};t.classList.add("on");clearTimeout(tT);tT=setTimeout(()=>t.classList.remove("on"),ms||(act?6000:4500))}
 // ---------- guided tour (hands-on): what the colours mean → search a bochur → save him → your list → back to the globe
@@ -1150,7 +1148,7 @@ sync()})();
 // neither = SMALL (looks, tweaks, fixes) → only a little round "i" in the corner, version X.Y.Z.
 // adm:1 = admin-only change → counts as a small update in the version number, but NO notification at all (owner). The shown version is worked out from these sizes.
 // apk:N = this needs app version N (a new download); the app then also shows "Update the app".
-const KIT_VER=32,KIT_APK=2;
+const KIT_VER=33,KIT_APK=2;
 const KIT_LOG=[
  {v:1,big:1,t:"Home-screen widgets",d:"See who’s awake without opening the app, with Call and WhatsApp buttons, filters and sorting.",go:"widgets"},
  {v:2,mid:1,t:"Add widgets from inside the app",d:"Menu → Home-screen widgets → Add. No more digging through your phone’s widget list.",go:"widgets",apk:1},
@@ -1177,7 +1175,8 @@ const KIT_LOG=[
  {v:29,big:1,t:"Add your own friends and family",d:"Menu → Add a friend or family. Type their name, number and city: they get a pin on your globe and show in your list. Only you can see them.",go:"addfriend"},
  {v:30,big:1,t:"For everyone, not only yeshivas",d:"Anyone can now sign up, even if they’re not in a yeshiva. And when someone you added joins, they’re offered to add you back."},
  {v:31,big:1,t:"Communities",d:"Create a community for your family, friends or a group, or join one with a link. Everyone in it sees each other on the globe without saving anyone. Menu → Communities."},
- {v:32,mid:1,apk:2,t:"Widgets now show your communities too",d:"The widgets show your own list and the people in your communities, each labelled with their community. The filters are now Awake, Favs, My list and All."}
+ {v:32,mid:1,apk:2,t:"Widgets fit the new app",d:"The widgets show only the people you saved, and the filters are now Awake, Favs and All."},
+ {v:33,mid:1,t:"Small communities are saved for you",d:"Communities of up to 10 people are saved as favourites automatically. For bigger ones you choose: save everyone, or only some people."}
 ];
 function kitVerStr(b){let M=0,m=0,p=0;const by={};KIT_LOG.forEach(x=>{const l=x.big?3:x.mid?2:1;by[x.v]=Math.max(by[x.v]||0,l)});
  Object.keys(by).map(Number).sort((a,c)=>a-c).forEach(v=>{if(v>b)return;if(by[v]==3){M++;m=0;p=0}else if(by[v]==2){m++;p=0}else p++});return M+"."+m+"."+p}
@@ -1457,7 +1456,7 @@ function cmRebuild(){const showS=!me||!me.match||isShlMember(),mine=me&&me.match
 async function cmRefresh(){if(!me||!me.match)return;const ids=cmList().map(x=>x.id);if(isShlMember()&&!ids.includes("shluchim"))ids.push("shluchim");
  const l=cmList();let ch=false;
  await Promise.all(ids.map(async id=>{const d=await cmFetch(id);if(d){CM_DOCS[id]=d;const e=l.find(x=>x.id==id);if(e){const st=d.members[cmFk()]?"member":(d.pending[cmFk()]?"pending":"none");if(st!=e.st&&!(st=="none"&&e.st=="claim")){e.st=st;ch=true}}}}));
- if(ch)cmSave(l.filter(x=>x.st!="none"));cmRebuild();cmMenu()}
+ if(ch)cmSave(l.filter(x=>x.st!="none"));cmRebuild();cmMenu();try{if(!document.body.classList.contains("tour")&&sheet.style.display!="block")cmAutoSave();else cmList().forEach(e=>{if(e.st=="member"&&e.all&&e.all!="no")cmSaveMembers(e.id)})}catch(x){}}
 function cmMenu(){const el=$("cmL");if(!el)return;const rows=[];const l=cmList();
  if(me&&me.match&&isShlMember())rows.push({id:"shluchim",name:"Shluchim",n:DIRP0.length+Object.keys((CM_DOCS.shluchim||{}).members||{}).filter(k=>!DIRP0.some(x=>x.name==((CM_DOCS.shluchim.members[k]||{}).n))).length});
  l.forEach(e=>{if(e.id=="shluchim")return;const d=CM_DOCS[e.id];rows.push({id:e.id,name:d?d.name:"…",n:d?Object.keys(d.members).length:0,pend:e.st=="pending"})});
@@ -1470,7 +1469,7 @@ async function cmOpen(id){sheet._gs=null;let d=CM_DOCS[id]||await cmFetch(id);if
  const mem=Object.entries(d.members||{}).sort((a,b)=>a[1].n.localeCompare(b[1].n));
  const total=isS?DIRP0.length+mem.filter(([k,m])=>!DIRP0.some(x=>x.name==m.n)).length:mem.length;
  let h='<div class="cm"><h3>'+esc(d.name)+(amAdmin?'<span class="cmb">Admin</span>':'')+'</h3><p>'+total+' member'+(total==1?'':'s')+(e&&e.st=="pending"?' · your request is waiting for approval':'')+'</p>';
- h+='<div class="row2"><button class="btn p" id="cmSh">Share invite link</button></div><div class="code">'+esc(id)+'</div><div class="note">Anyone with this link or code '+(d.mode=="approve"?'can ask to join; an admin approves them.':'can join straight away.')+'</div>';
+ h+='<div class="row2"><button class="btn p" id="cmSh">Share invite link</button>'+(e&&e.st=="member"||isS&&!me.gen?'<button class="btn" id="cmAll">★ Save everyone</button>':'')+'</div><div class="code">'+esc(id)+'</div><div class="note">Anyone with this link or code '+(d.mode=="approve"?'can ask to join; an admin approves them.':'can join straight away.')+'</div>';
  if(amAdmin){h+='<div class="sh">Who can join</div><div class="seg"><button data-md="open"'+(d.mode!="approve"?' class="on"':'')+'>Anyone with the link</button><button data-md="approve"'+(d.mode=="approve"?' class="on"':'')+'>Needs my approval</button></div>';
   const pend=Object.entries(d.pending||{});if(pend.length)h+='<div class="sh">Waiting to join · '+pend.length+'</div>'+pend.map(([k,m])=>'<div class="mm"><span><b>'+esc(m.n)+'</b><small>'+esc((m.c||"").replace(/ ·$/,""))+'</small></span><button class="ok" data-ap="'+k+'">Approve</button><button data-dc="'+k+'">Decline</button></div>').join("")}
  if(isS&&!amAdmin&&typeof isAdmin=="function"&&isAdmin())h+='<div class="row2"><button class="btn" id="cmClaim">Manage Shluchim (admin code)</button></div>';
@@ -1479,7 +1478,7 @@ async function cmOpen(id){sheet._gs=null;let d=CM_DOCS[id]||await cmFetch(id);if
  h+='<div class="btns"><button class="btn" id="cmX">Close</button></div></div>';
  sheet.innerHTML=h;sheet.style.display="block";const sec=(e||{}).s;
  const act=async(op,extra,msg)=>{try{await cmPost(op,Object.assign({id,fk:mine,s:sec},extra));hap(10);if(msg)toast(msg);CM_DOCS[id]=await cmFetch(id)||CM_DOCS[id];cmRebuild();cmMenu();cmOpen(id)}catch(x){toast("Couldn’t do that. Try again.")}};
- $("cmX").onclick=()=>sheet.style.display="none";$("cmSh").onclick=()=>cmShare(id,d.name);
+ $("cmX").onclick=()=>sheet.style.display="none";$("cmSh").onclick=()=>cmShare(id,d.name);{const ab=$("cmAll");if(ab)ab.onclick=()=>{if(ab.dataset.ok!="1"&&total>10){ab.dataset.ok="1";ab.textContent="Save all "+total+"?";return}const l2=cmList(),e2=l2.find(x=>x.id==id);if(e2){e2.all="yes";cmSave(l2)}const n=cmSaveMembers(id);hap([12,40,12]);toast(n?"Saved "+n+" people as favourites":"Everyone is already saved")}}
  sheet.querySelectorAll("[data-md]").forEach(b=>b.onclick=()=>act("mode",{mode:b.dataset.md}));
  sheet.querySelectorAll("[data-ap]").forEach(b=>b.onclick=()=>act("approve",{who:b.dataset.ap},"Approved"));
  sheet.querySelectorAll("[data-dc]").forEach(b=>b.onclick=()=>act("decline",{who:b.dataset.dc}));
@@ -1490,7 +1489,7 @@ async function cmOpen(id){sheet._gs=null;let d=CM_DOCS[id]||await cmFetch(id);if
 function cmNew(){open(false);sheet._gs=null;sheet.innerHTML='<div class="cm"><h3>Create a community</h3><p>For your family, friends, a class or a group. Everyone in it sees each other on the globe, without saving anyone. You’ll be its admin.</p><input class="ain" id="cmN" maxlength="60" placeholder="Name, e.g. Cohen family" autocapitalize="words"><div class="note">🔒 Members see each other’s name, city and number.</div><div class="btns"><button class="btn" id="cmX">Cancel</button><button class="btn p" id="cmGo" disabled>Create</button></div></div>';sheet.style.display="block";
  const N=$("cmN"),G=$("cmGo");setTimeout(()=>N.focus(),80);N.oninput=()=>G.disabled=!N.value.trim();$("cmX").onclick=()=>sheet.style.display="none";
  G.onclick=async()=>{const info=meInfo();if(!info){toast("Couldn’t find your location.");return}G.disabled=true;const s2=cmSecret();
-  try{const r=await cmPost("create",{fk:cmFk(),s:s2,name:N.value.trim(),me:info});const l=cmList();l.push({id:r.id,s:s2,st:"member"});cmSave(l);hap([12,40,12]);await cmRefresh();cmOpen(r.id)}catch(x){G.disabled=false;toast("Couldn’t create it. Check your internet and try again.")}}}
+  try{const r=await cmPost("create",{fk:cmFk(),s:s2,name:N.value.trim(),me:info});const l=cmList();l.push({id:r.id,s:s2,st:"member",all:"auto"});cmSave(l);hap([12,40,12]);await cmRefresh();cmOpen(r.id)}catch(x){G.disabled=false;toast("Couldn’t create it. Check your internet and try again.")}}}
 function cmJoinAsk(code){open(false);sheet._gs=null;sheet.innerHTML='<div class="cm"><h3>Join a community</h3><p>Paste the link or code someone sent you.</p><input class="ain" id="cmC" placeholder="Link or code" autocomplete="off" autocapitalize="none" value="'+esc(code||"")+'"><div id="cmI"></div><div class="btns"><button class="btn" id="cmX">Cancel</button><button class="btn p" id="cmGo" disabled>Join</button></div></div>';sheet.style.display="block";
  const C=$("cmC"),G=$("cmGo"),I=$("cmI");let id="",t=0;$("cmX").onclick=()=>sheet.style.display="none";
  const look=async()=>{const v=C.value.trim(),m=v.match(/join=([a-z0-9]+)/i);id=(m?m[1]:v).toLowerCase().replace(/[^a-z0-9]/g,"");G.disabled=true;I.innerHTML="";
@@ -1507,4 +1506,22 @@ $("cmNew").onclick=cmNew;$("cmJoin").onclick=()=>cmJoinAsk("");
 function cmPendingJoin(){if(!me||!me.match)return;let c="";try{c=sessionStorage.getItem("kit_join")||"";sessionStorage.removeItem("kit_join")}catch(e){}if(c)setTimeout(()=>cmJoinAsk(c),900)}
 cmRebuild();setTimeout(()=>{cmRefresh();cmPendingJoin()},1200);setInterval(()=>{if(!document.hidden)cmRefresh()},60000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)cmRefresh()});
+
+// owner: communities of 10 or fewer are saved automatically (everyone as a favourite); bigger ones ask once:
+// "Save the whole community as favourites?" → Yes, everyone / No, only some people. The choice is kept per community (e.all):
+// "auto" (small community: keeps adding new members while it has ≤10), "yes" (always adds new members), "no".
+function cmSaveMembers(id){const d=CM_DOCS[id];if(!d)return 0;const mine=cmFk();let n=0;
+ const has=(name,city,ph)=>saved.some(v=>(ph&&digits(vPhone(v))==digits(ph))||(v.name==name&&v.city==city));
+ const add=v=>{saved.push(v);favs.add(fk(v));n++};
+ if(id=="shluchim")DIRP0.forEach(x=>{if(!has(x.name,x.city,phoneOf(x.name,x.city)))add({id:Date.now()+Math.random(),name:x.name,city:x.city,country:x.country,lat:x.lat,lon:x.lon,tz:x.tz})});
+ Object.entries(d.members||{}).forEach(([k,m])=>{if(k==mine||!m.tz)return;if(id=="shluchim"&&DIRP0.some(x=>x.name==m.n))return;
+  const city=(m.c||"").replace(/ ·$/,"")+" · "+d.name;if(has(m.n,city,m.p))return;add({id:Date.now()+Math.random(),name:m.n,city,country:d.name,lat:+m.la,lon:+m.lo,tz:m.tz,own:1,ph:m.p||"",cm:id})});
+ if(n){persist();saveF();render();renderCards()}return n}
+function cmSize(id){const d=CM_DOCS[id];if(!d)return 0;return id=="shluchim"?DIRP0.length+Object.keys(d.members||{}).length:Object.keys(d.members||{}).length}
+function cmDecide(id){const l=cmList(),e=l.find(x=>x.id==id);if(!e||e.st!="member"||e.all)return;
+ if(cmSize(id)<=10){e.all="auto";cmSave(l);const n=cmSaveMembers(id);if(n)toast("Saved "+n+" from "+CM_DOCS[id].name+" as favourites");return}
+ const d=CM_DOCS[id];sheet._gs=null;sheet.innerHTML='<div class="cm"><h3>Save the whole community?</h3><p><b>'+esc(d.name)+'</b> has '+cmSize(id)+' people. Would you like to save them all as favourites? Only saved people show in your list and on your widgets.</p><div class="row2"><button class="btn p" id="cmAllY">Yes, save everyone</button></div><div class="row2"><button class="btn" id="cmAllN">No, only some people</button></div><div class="note">You can always save people one by one from the globe, or tap “Save everyone” in the community later.</div></div>';sheet.style.display="block";
+ $("cmAllY").onclick=()=>{const l2=cmList(),e2=l2.find(x=>x.id==id);if(e2){e2.all="yes";cmSave(l2)}const n=cmSaveMembers(id);sheet.style.display="none";hap([12,40,12]);toast("Saved "+n+" people as favourites")};
+ $("cmAllN").onclick=()=>{const l2=cmList(),e2=l2.find(x=>x.id==id);if(e2){e2.all="no";cmSave(l2)}sheet.style.display="none";toast("Tap anyone on the globe to save them")}}
+function cmAutoSave(){cmList().forEach(e=>{if(e.st!="member")return;if(!e.all){cmDecide(e.id);return}if(e.all=="yes"||(e.all=="auto"&&cmSize(e.id)<=10))cmSaveMembers(e.id)})}
 </script></body></html>

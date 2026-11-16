@@ -106,6 +106,7 @@ public class WhoWidget extends AppWidgetProvider {
                     .setData(Uri.parse("kit://filter/" + id + "/" + FILTERS[k]));
             v.setOnClickPendingIntent(CHIP_IDS[k], PendingIntent.getBroadcast(ctx, id * 16 + k, fi, KitData.piFlags(false)));
         }
+        v.setViewVisibility(R.id.kit_f_mine, android.view.View.GONE); // owner: only saved people, so no separate "My list" chip
         v.setTextViewText(R.id.kit_sort, "⇅ " + sortLabel(sort));
         Intent si = new Intent(ctx, WhoWidget.class).setAction(ACTION_SORT)
                 .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id).setData(Uri.parse("kit://sort/" + id));

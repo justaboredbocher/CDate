@@ -172,7 +172,7 @@ public final class KitData {
 
     // ---- per-widget settings (filter + sort) ----
     static SharedPreferences state(Context ctx) { return ctx.getSharedPreferences("kit_widget_state", Context.MODE_PRIVATE); }
-    static String filterOf(Context ctx, int id) { String f = state(ctx).getString("f_" + id, F_UP); return "mine".equals(f) ? F_MINE : f; }
+    static String filterOf(Context ctx, int id) { String f = state(ctx).getString("f_" + id, F_UP); return ("mine".equals(f) || F_MINE.equals(f)) ? F_ALL : f; } // only saved people are sent now, so "My list" = "All"
     static String sortOf(Context ctx, int id) { return state(ctx).getString("s_" + id, S_BEST); }
 
     static int piFlags(boolean mutable) {
