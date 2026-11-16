@@ -2224,7 +2224,11 @@ const sdPieces=fk=>{let L=sdTT(sdPieces0(fk));const f=sdFlows()[fk];if(!f.wk)for
 // v117: winter/summer lines. Mashiv haruach: Shemini Atzeres to the first day of Pesach; V'sein tal umatar (outside Israel): from
 // Maariv before 5 December (6 December before a civil leap year) to Mincha of Erev Pesach.
 const sdSum=h=>(h.k==='N'&&h.d>=15)||['I','Si','Ta','Av','E'].includes(h.k)||(h.k==='Ti'&&h.d<=21);
+// v119 (owner: "not all of the rain prayers are based on the civil calendar"): only V'sein tal umatar outside Israel follows the civil date;
+// in Eretz Yisrael (location inside Israel) it starts on 7 Cheshvan. Mashiv haruach is always by the Hebrew calendar (sdSum).
+const sdIL=()=>LC&&LC.la>29.4&&LC.la<33.4&&LC.lo>34.2&&LC.lo<35.95;
 function sdRain(c){const d=c.day,Y=d.getFullYear(),lp=y=>(y%4===0&&y%100!==0)||y%400===0,st=new Date(Y,11,lp(Y+1)?6:5);
+ if(sdIL()){const h=c.h;if(h.k==='Ti')return false;if(h.k==='Ch')return h.d>=7;return !sdSum(h)}
  if(d>=st)return true;return d.getMonth()<6&&!sdSum(c.h)}
 const sdAvm=c=>!c.noT&&(c.fast||(c.h.k==='Ti'&&c.h.d>=3&&c.h.d<=9));
 function sdPieces0(fk){const f=sdFlows()[fk];if(!f.wk){let L=f.seg.flatMap(s=>sdR(s[0],null,s[1],null));
@@ -3936,8 +3940,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=118;
+const CC_VER=119;
 const CC_LOG=[
+ {v:119,new:['Siddur: in Eretz Yisrael, V’sein tal umatar starts on 7 Cheshvan (outside Israel it stays on 5/6 December).']},
  {v:118,new:['Siddur: Modim D’Rabbanan is back beside Modim, now in its own soft box.']},
  {v:117,mid:1,new:['Siddur: no more gaps in the middle of a blessing where two pages join or a line was left out.','Siddur: only today’s line shows for Mashiv haruach / Morid hatal and V’sein tal umatar / V’sein brachah (the long notes are gone).','Siddur: Modim D’Rabbanan now comes under Modim instead of squeezed beside it, and Al HaNissim shows only Chanukah’s or Purim’s part.']},
  {v:116,mid:1,new:['Siddur: Friday Mincha now continues into the whole Mincha (it stopped after Yedid Nefesh).','Siddur: Avinu Malkeinu on fast days and the Ten Days; the lulav blessings and the day’s Hoshanos on Chol Hamoed Sukkos and Hoshana Rabbah; Rosh Chodesh on the 7th day of Chanukah.','Siddur: reminder cards for Selichos, the Megillah on Purim, and the Machzor on Rosh Hashanah and Yom Kippur.']},
