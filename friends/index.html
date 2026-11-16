@@ -771,7 +771,7 @@ function draw(){
  ctx.fillStyle=g;ctx.beginPath();ctx.arc(cx,cy,R,0,7);ctx.fill();
  glassFx();pins=[];const t=performance.now()/1000;
  const items=[],seen={};
- DIRG.forEach(g=>{const p=P(g.lon,g.lat);if(p[2]<.05)return;items.push({x:p[0],y:p[1],lon:g.lon,lat:g.lat,tz:g.tz,sv:saved.some(v=>v.city==g.city),grp:g})});
+ DIRG.forEach(g=>{const p=P(g.lon,g.lat);if(p[2]<.05)return;items.push({x:p[0],y:p[1],lon:g.lon,lat:g.lat,tz:g.tz,sv:g.people.some(n=>savedIdx(n,g.city)>=0),grp:g})});
  saved.forEach(v=>{if(DIRG.some(g=>g.city==v.city))return;const k=v.city+"|"+v.tz;if(seen[k])return;const p=P(v.lon,v.lat);if(p[2]<.05)return;
   const it={x:p[0],y:p[1],lon:v.lon,lat:v.lat,tz:v.tz,sv:true,grp:{city:v.city,tz:v.tz,people:saved.filter(s=>s.city==v.city&&s.name).map(s=>s.name)}};seen[k]=1;items.push(it)});
  const cl=[];
@@ -819,20 +819,27 @@ q.addEventListener("keydown",e=>{if(e.key=="Escape"){res.style.display="none";q.
 document.addEventListener("pointerdown",e=>{if(!e.target.closest("#bar")){res.style.display="none";if(document.activeElement==q)q.blur()}},true);
 function goPg(d){const gs=sheet._gs;if(!gs||gs.length<2)return;const i=(sheet._i||0)+d;if(i<0||i>=gs.length)return;sheet._i=i;showSheet(gs,!!sheet._sel,0,d);hap(8)}
 (()=>{let x0=0,y0=0,t0=0,on=false;sheet.addEventListener("touchstart",e=>{on=e.touches.length==1&&!!sheet._gs&&sheet._gs.length>1;if(!on)return;x0=e.touches[0].clientX;y0=e.touches[0].clientY;t0=Date.now()},{passive:true});sheet.addEventListener("touchend",e=>{if(!on)return;on=false;const t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;if(Math.abs(dx)<50||Math.abs(dx)<Math.abs(dy)*1.5||Date.now()-t0>700)return;goPg(dx<0?1:-1)},{passive:true})})();
+
+// one person = one saved contact, wherever they appear (owner): same number, or same name in the same city
+// (a community label " · Community" or the " ·" suffix doesn't make it a different person)
+const baseCity=c=>String(c||"").split(" · ")[0].replace(/ ·$/,"");
+function savedIdx(n,c){let i=saved.findIndex(v=>v.name==n&&v.city==c);if(i>=0)return i;const ph=digits(phoneOf(n,c));
+ if(ph.length>=6){i=saved.findIndex(v=>digits(vPhone(v))==ph);if(i>=0)return i}
+ return saved.findIndex(v=>v.name==n&&baseCity(v.city)==baseCity(c))}
 function showSheet(gs,sm,keep,dir){const y=sheet.scrollTop;sheet._sel=sm?(sheet._sel||new Set()):null;if(gs!==sheet._gs)sheet._i=0;const n=gs.length;sheet._i=Math.max(0,Math.min(sheet._i||0,n-1));let h="";
  if(n>1)h+='<div class="pg"><button class="btn" data-pg="-1" aria-label="Previous location"'+(sheet._i?'':' disabled')+'>‹</button><div class="dts">'+gs.map((_,k)=>'<i'+(k==sheet._i?' class="on"':'')+'></i>').join("")+'</div><button class="btn" data-pg="1" aria-label="Next location"'+(sheet._i<n-1?'':' disabled')+'>›</button></div><div class="pgn">Location '+(sheet._i+1)+' of '+n+' · swipe for the next</div><div class="pgw'+(dir?(dir>0?' pn':' pp'):'')+'">';
  (n>1?[gs[sheet._i]]:gs).forEach(g=>{const st=status(g.tz);h+='<h3>'+esc(g.city)+'</h3><p>'+clock(g.tz)+' there · <span style="color:'+COL[st]+'">'+LBL[st]+'</span> · '+g.people.length+' '+(g.people.length==1?'person':'people')+'</p>';
-  if(g.people.length){const all=g.people.every(n=>saved.some(x=>x.name==n&&x.city==g.city));h+='<div class="btns" style="margin:0 0 8px"><button class="btn p" data-all="'+esc(g.city)+'">'+(all?'Remove all':'Save all '+g.people.length)+'</button><button class="btn'+(sm?' on':'')+'" data-selmode="1">'+(sm?'Done':'Select…')+'</button></div>'}
-  g.people.forEach(n=>{const sv=saved.some(x=>x.name==n&&x.city==g.city),ph=phoneOf(n,g.city),pk=sm&&!sv,key=g.city+"||"+n,ck=pk&&sheet._sel.has(key);
+  if(g.people.length){const all=g.people.every(n=>(savedIdx(n,g.city)>=0));h+='<div class="btns" style="margin:0 0 8px"><button class="btn p" data-all="'+esc(g.city)+'">'+(all?'Remove all':'Save all '+g.people.length)+'</button><button class="btn'+(sm?' on':'')+'" data-selmode="1">'+(sm?'Done':'Select…')+'</button></div>'}
+  g.people.forEach(n=>{const sv=(savedIdx(n,g.city)>=0),ph=phoneOf(n,g.city),pk=sm&&!sv,key=g.city+"||"+n,ck=pk&&sheet._sel.has(key);
    h+='<div class="r"'+(pk?' data-pick="'+esc(key)+'"':' style="cursor:default"')+'>'+(pk?'<span class="cb'+(ck?' on':'')+'">'+(ck?'✓':'')+'</span>':'')+'<div><b>'+esc(n)+'</b>'+(ph?'<small><a href="tel:'+esc(ph.replace(/[^\d+]/g,""))+'" style="color:var(--acc);text-decoration:none">'+esc(fmtPhone(ph))+'</a></small>':'')+'</div>'+(pk?'':'<button class="btn" style="flex:none;padding:8px 14px;margin-left:auto;'+(sv?'opacity:.55':'')+'" data-c="'+esc(g.city)+'" data-n="'+esc(n)+'">'+(sv?'Saved ✓':'Save')+'</button>')+'</div>'})});
  if(n>1)h+='</div>';
  if(sm)h+='<button class="btn p" id="ssel" style="width:100%;margin-top:8px;position:sticky;bottom:0"'+(sheet._sel.size?'':' disabled')+'>Save '+sheet._sel.size+' selected</button>';
  sheet.innerHTML=h;sheet.style.display="block";sheet.scrollTop=keep?y:0;sheet._gs=gs}
 function saveSel(){const st=sheet._sel;if(!st||!st.size)return;let n=0,lc=null;st.forEach(k=>{const p=k.split("||"),c=p[0],nm=p[1],g=DIRG.find(x=>x.city==c);if(g&&!saved.some(x=>x.name==nm&&x.city==c)){saved.push({id:Date.now()+Math.random(),name:nm,city:c,country:g.country,lat:g.lat,lon:g.lon,tz:g.tz});n++;lc=c}});persist();render();if(lc)commit(lc,true);toast("Saved "+n+(n==1?" person":" people"));showSheet(sheet._gs,false)}
-sheet.addEventListener("click",e=>{const pg=e.target.closest("[data-pg]");if(pg&&sheet._gs){goPg(+pg.dataset.pg);return}const sm=e.target.closest("[data-selmode]");if(sm){showSheet(sheet._gs,!sheet._sel);return}const pk=e.target.closest("[data-pick]");if(pk&&!e.target.closest("a")){const k=pk.dataset.pick;if(sheet._sel.has(k))sheet._sel.delete(k);else sheet._sel.add(k);showSheet(sheet._gs,true,1);return}if(e.target.closest("#ssel")){saveSel();return}const al=e.target.closest("[data-all]");if(al&&sheet._gs){const c=al.dataset.all,g=DIRG.find(x=>x.city==c);if(!g)return;const ex=g.people.every(n=>saved.some(x=>x.name==n&&x.city==c));
- if(ex)saved=saved.filter(x=>!(x.city==c&&g.people.includes(x.name)));else g.people.forEach(n=>{if(!saved.some(x=>x.name==n&&x.city==c))saved.push(cmFix({id:Date.now()+Math.random(),name:n,city:c,country:g.country,lat:g.lat,lon:g.lon,tz:g.tz}))});
+sheet.addEventListener("click",e=>{const pg=e.target.closest("[data-pg]");if(pg&&sheet._gs){goPg(+pg.dataset.pg);return}const sm=e.target.closest("[data-selmode]");if(sm){showSheet(sheet._gs,!sheet._sel);return}const pk=e.target.closest("[data-pick]");if(pk&&!e.target.closest("a")){const k=pk.dataset.pick;if(sheet._sel.has(k))sheet._sel.delete(k);else sheet._sel.add(k);showSheet(sheet._gs,true,1);return}if(e.target.closest("#ssel")){saveSel();return}const al=e.target.closest("[data-all]");if(al&&sheet._gs){const c=al.dataset.all,g=DIRG.find(x=>x.city==c);if(!g)return;const ex=g.people.every(n=>(savedIdx(n,c)>=0));
+ if(ex){const drop=new Set(g.people.map(n=>saved[savedIdx(n,c)]).filter(Boolean));saved=saved.filter(x=>!drop.has(x))}else g.people.forEach(n=>{if(!(savedIdx(n,c)>=0))saved.push(cmFix({id:Date.now()+Math.random(),name:n,city:c,country:g.country,lat:g.lat,lon:g.lon,tz:g.tz}))});
  persist();render();commit(c,!ex);showSheet(sheet._gs,!!sheet._sel,1);return}
- const b=e.target.closest("[data-n]");if(!b||!sheet._gs)return;const n=b.dataset.n,c=b.dataset.c,i=saved.findIndex(x=>x.name==n&&x.city==c);if(i>=0)saved.splice(i,1);else{const g=DIRG.find(g=>g.city==c);if(g)saved.push(cmFix({id:Date.now()+Math.random(),name:n,city:c,country:g.country,lat:g.lat,lon:g.lon,tz:g.tz}))}persist();render();commit(c,i<0);showSheet(sheet._gs,!!sheet._sel,1)});
+ const b=e.target.closest("[data-n]");if(!b||!sheet._gs)return;const n=b.dataset.n,c=b.dataset.c,i=savedIdx(n,c);if(i>=0)saved.splice(i,1);else{const g=DIRG.find(g=>g.city==c);if(g)saved.push(cmFix({id:Date.now()+Math.random(),name:n,city:c,country:g.country,lat:g.lat,lon:g.lon,tz:g.tz}))}persist();render();commit(c,i<0);showSheet(sheet._gs,!!sheet._sel,1)});
 function closeAll(){res.style.display=sheet.style.display="none";q.blur()}
 (()=>{let y0=null,dy=0,on=0;
 sheet.addEventListener("touchstart",e=>{if(e.touches.length!=1||sheet.scrollTop>0){y0=null;return}y0=e.touches[0].clientY;dy=0;on=0},{passive:true});
@@ -1148,7 +1155,7 @@ sync()})();
 // neither = SMALL (looks, tweaks, fixes) → only a little round "i" in the corner, version X.Y.Z.
 // adm:1 = admin-only change → counts as a small update in the version number, but NO notification at all (owner). The shown version is worked out from these sizes.
 // apk:N = this needs app version N (a new download); the app then also shows "Update the app".
-const KIT_VER=33,KIT_APK=2;
+const KIT_VER=34,KIT_APK=2;
 const KIT_LOG=[
  {v:1,big:1,t:"Home-screen widgets",d:"See who’s awake without opening the app, with Call and WhatsApp buttons, filters and sorting.",go:"widgets"},
  {v:2,mid:1,t:"Add widgets from inside the app",d:"Menu → Home-screen widgets → Add. No more digging through your phone’s widget list.",go:"widgets",apk:1},
@@ -1176,7 +1183,8 @@ const KIT_LOG=[
  {v:30,big:1,t:"For everyone, not only yeshivas",d:"Anyone can now sign up, even if they’re not in a yeshiva. And when someone you added joins, they’re offered to add you back."},
  {v:31,big:1,t:"Communities",d:"Create a community for your family, friends or a group, or join one with a link. Everyone in it sees each other on the globe without saving anyone. Menu → Communities."},
  {v:32,mid:1,apk:2,t:"Widgets fit the new app",d:"The widgets show only the people you saved, and the filters are now Awake, Favs and All."},
- {v:33,mid:1,t:"Small communities are saved for you",d:"Communities of up to 10 people are saved as favourites automatically. For bigger ones you choose: save everyone, or only some people."}
+ {v:33,mid:1,t:"Small communities are saved for you",d:"Communities of up to 10 people are saved as favourites automatically. For bigger ones you choose: save everyone, or only some people."},
+ {v:34,t:"Someone in two communities is one saved contact: save them once and they show as saved everywhere"}
 ];
 function kitVerStr(b){let M=0,m=0,p=0;const by={};KIT_LOG.forEach(x=>{const l=x.big?3:x.mid?2:1;by[x.v]=Math.max(by[x.v]||0,l)});
  Object.keys(by).map(Number).sort((a,c)=>a-c).forEach(v=>{if(v>b)return;if(by[v]==3){M++;m=0;p=0}else if(by[v]==2){m++;p=0}else p++});return M+"."+m+"."+p}
@@ -1511,7 +1519,7 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)cmRefresh(
 // "Save the whole community as favourites?" → Yes, everyone / No, only some people. The choice is kept per community (e.all):
 // "auto" (small community: keeps adding new members while it has ≤10), "yes" (always adds new members), "no".
 function cmSaveMembers(id){const d=CM_DOCS[id];if(!d)return 0;const mine=cmFk();let n=0;
- const has=(name,city,ph)=>saved.some(v=>(ph&&digits(vPhone(v))==digits(ph))||(v.name==name&&v.city==city));
+ const has=(name,city,ph)=>savedIdx(name,city)>=0||(ph&&saved.some(v=>digits(vPhone(v))==digits(ph)));
  const add=v=>{saved.push(v);favs.add(fk(v));n++};
  if(id=="shluchim")DIRP0.forEach(x=>{if(!has(x.name,x.city,phoneOf(x.name,x.city)))add({id:Date.now()+Math.random(),name:x.name,city:x.city,country:x.country,lat:x.lat,lon:x.lon,tz:x.tz})});
  Object.entries(d.members||{}).forEach(([k,m])=>{if(k==mine||!m.tz)return;if(id=="shluchim"&&DIRP0.some(x=>x.name==m.n))return;
