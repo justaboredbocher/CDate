@@ -989,9 +989,12 @@ const saveF=()=>{lsSet("sc_favs",JSON.stringify([...favs]));lsSet("sc_rem",JSON.
 let kitLast="";
 function kitBridge(){try{const C=window.Capacitor;if(!C||!C.isNativePlatform||!C.isNativePlatform()||tour.real)return;
  const P=(C.Plugins&&C.Plugins.KitWidget)||(C.registerPlugin&&C.registerPlugin("KitWidget"));if(!P)return;
- const mc=me&&me.match?me.match.city:"",seen=new Set(),ppl=[];
- saved.forEach(v=>{if(!v.name)return;const k=fk(v);if(seen.has(k))return;seen.add(k);ppl.push({n:v.name,c:v.city,tz:v.tz,p:vPhone(v).replace(/\D/g,""),f:favs.has(k)?1:0,m:v.city==mc?1:0})});
- const d=JSON.stringify({v:1,me:me&&me.match?me.match.name:"",ppl});if(d==kitLast)return;kitLast=d;P.save({data:d}).catch(()=>{kitLast=""})}catch(e){}}
+ const seen=new Set(),ppl=[];
+ // 1) my list (saved): s=1 · 2) members of communities I joined (not the 330-person Shluchim directory itself), labelled with the community
+ saved.forEach(v=>{if(!v.name)return;const k=fk(v);if(seen.has(k))return;seen.add(k);const ph=vPhone(v).replace(/\D/g,"");seen.add("p"+ph);ppl.push({n:v.name,c:String(v.city).replace(/ ·$/,""),tz:v.tz,p:ph,f:favs.has(k)?1:0,s:1})});
+ DIRG.filter(g=>g.comm).forEach(g=>g.people.forEach(n=>{const k=n+"|"+g.city,ph=phoneOf(n,g.city).replace(/\D/g,"");if(seen.has(k)||(ph&&seen.has("p"+ph)))return;seen.add(k);if(ph)seen.add("p"+ph);
+  ppl.push({n,c:g.city.split(" · ")[0],tz:g.tz,p:ph,f:favs.has(k)?1:0,s:0,g:g.country})}));
+ const d=JSON.stringify({v:2,me:me&&me.match?me.match.name:"",ppl});if(d==kitLast)return;kitLast=d;P.save({data:d}).catch(()=>{kitLast=""})}catch(e){}}
 function toast(msg,act,lab,ms){const t=$("toast");t.innerHTML="<span>"+esc(msg)+"</span>"+(act?"<button>"+(lab||"Undo")+"</button>":"");const b=t.querySelector("button");if(b)b.onclick=()=>{act();t.classList.remove("on")};t.classList.add("on");clearTimeout(tT);tT=setTimeout(()=>t.classList.remove("on"),ms||(act?6000:4500))}
 // ---------- guided tour (hands-on): what the colours mean → search a bochur → save him → your list → back to the globe
 const TOUR_LEG='<div class="tl"><span><i style="background:'+PINCOL.day+';box-shadow:0 0 8px '+PINCOL.day+'"></i>Awake</span><span><i style="background:'+PINCOL.gray+';border:1px solid #8cc4ff88"></i>Maybe up</span><span><i style="background:'+PINCOL.night+';border:1px solid '+PINCOL.gray+'"></i>Asleep</span></div>';
@@ -1147,7 +1150,7 @@ sync()})();
 // neither = SMALL (looks, tweaks, fixes) → only a little round "i" in the corner, version X.Y.Z.
 // adm:1 = admin-only change → counts as a small update in the version number, but NO notification at all (owner). The shown version is worked out from these sizes.
 // apk:N = this needs app version N (a new download); the app then also shows "Update the app".
-const KIT_VER=31,KIT_APK=1;
+const KIT_VER=32,KIT_APK=2;
 const KIT_LOG=[
  {v:1,big:1,t:"Home-screen widgets",d:"See who’s awake without opening the app, with Call and WhatsApp buttons, filters and sorting.",go:"widgets"},
  {v:2,mid:1,t:"Add widgets from inside the app",d:"Menu → Home-screen widgets → Add. No more digging through your phone’s widget list.",go:"widgets",apk:1},
@@ -1173,7 +1176,8 @@ const KIT_LOG=[
  {v:28,adm:1,t:"New admin code",d:"Admin only."},
  {v:29,big:1,t:"Add your own friends and family",d:"Menu → Add a friend or family. Type their name, number and city: they get a pin on your globe and show in your list. Only you can see them.",go:"addfriend"},
  {v:30,big:1,t:"For everyone, not only yeshivas",d:"Anyone can now sign up, even if they’re not in a yeshiva. And when someone you added joins, they’re offered to add you back."},
- {v:31,big:1,t:"Communities",d:"Create a community for your family, friends or a group, or join one with a link. Everyone in it sees each other on the globe without saving anyone. Menu → Communities."}
+ {v:31,big:1,t:"Communities",d:"Create a community for your family, friends or a group, or join one with a link. Everyone in it sees each other on the globe without saving anyone. Menu → Communities."},
+ {v:32,mid:1,apk:2,t:"Widgets now show your communities too",d:"The widgets show your own list and the people in your communities, each labelled with their community. The filters are now Awake, Favs, My list and All."}
 ];
 function kitVerStr(b){let M=0,m=0,p=0;const by={};KIT_LOG.forEach(x=>{const l=x.big?3:x.mid?2:1;by[x.v]=Math.max(by[x.v]||0,l)});
  Object.keys(by).map(Number).sort((a,c)=>a-c).forEach(v=>{if(v>b)return;if(by[v]==3){M++;m=0;p=0}else if(by[v]==2){m++;p=0}else p++});return M+"."+m+"."+p}
@@ -1271,7 +1275,7 @@ function cityLL(c){const g=DIRG.find(x=>x.city==c);if(g)return[g.lon,g.lat];cons
 function myLinks(withOwn){if(!me||!me.match)return[];const a=me.match.city,out=new Set();saved.forEach(v=>{if((withOwn||!v.own)&&v.city&&v.city!=a)out.add(v.city)});return[...out].map(b=>[a,b])}
 async function linksLoad(){try{const r=await fetch(KIT_SRV+"links3",{cache:"no-store"});if(!r.ok)return;const d=(await r.json()).docs||{};const L=[];
  Object.values(d).forEach(x=>{const[a]=(x.k||"").split("|").slice(1);String(x.l||"").split(";").forEach(b=>{if(a&&b&&a!=b)L.push([a,b])})});kitLinks=L}catch(e){}}
-let linksSent="";
+var linksSent="";
 async function linksPush(){if(!me||!me.match||me.gen)return;const L=myLinks().map(x=>x[1]).sort();let l=L.join(";");if(l.length>1500)l=l.slice(0,l.lastIndexOf(";",1500));if(!l||l==linksSent)return;
  try{const k=pkey(me.match.name,me.match.city),r=await fetch(KIT_SRV+"links3/set",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({id:slug(k),data:{k,l}})});if(r.ok)linksSent=l}catch(e){}}
 function shootPairs(){const seen=new Set(),P0=[];[...kitLinks,...myLinks(1)].forEach(([a,b])=>{const k=a<b?a+"|"+b:b+"|"+a;if(seen.has(k))return;seen.add(k);const A=cityLL(a),B=cityLL(b);if(A&&B&&(Math.abs(A[0]-B[0])+Math.abs(A[1]-B[1]))>3)P0.push(Math.random()<.5?[A,B]:[B,A])});

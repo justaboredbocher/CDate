@@ -18,7 +18,7 @@ import java.util.List;
 
 /**
  * "Who's up now": a resizable list of saved friends with a coloured dot for awake / borderline / asleep,
- * their live local time, and Call + WhatsApp buttons. Filter chips (Awake, Favourites, Mine, All) and a
+ * their live local time, and Call + WhatsApp buttons. Filter chips (Awake, Favourites, My list, All) and a
  * sort button (Best time, A-Z, Place) on the widget itself; each widget remembers its own choice.
  */
 public class WhoWidget extends AppWidgetProvider {
@@ -131,7 +131,7 @@ public class WhoWidget extends AppWidgetProvider {
         if (!KitData.hasData(ctx) || all.isEmpty())
             return "No friends saved yet.\nTap here to open Keep in Touch and save the people you want to call.";
         if (KitData.F_FAV.equals(filter)) return "No favourites yet.\nTap ☆ next to a name in the app.";
-        if (KitData.F_MINE.equals(filter)) return "Nobody from your own yeshiva is saved yet.";
+        if (KitData.F_MINE.equals(filter)) return "Nobody saved yet.\nSave people from the globe, or add your own friends and family in the app.";
         KitData.Person n = KitData.nextUp(all);
         if (n == null) return "Nobody here right now.";
         return "Nobody is up right now. 🌙\nNext: " + n.name + " (" + n.city + ") in " + KitData.inWords(KitData.minsUntilUp(n));
@@ -152,6 +152,7 @@ public class WhoWidget extends AppWidgetProvider {
             meta.setSpan(new ForegroundColorSpan(col), 0, meta.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         meta.append(" · ").append(p.city);
+        if (!p.mine && !p.group.isEmpty()) meta.append(" · ").append(p.group);
         if (!p.hasPhone()) meta.append(" · no number yet");
         r.setTextViewText(R.id.kit_meta, meta);
 

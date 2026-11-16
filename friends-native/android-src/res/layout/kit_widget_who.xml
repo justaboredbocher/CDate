@@ -61,7 +61,7 @@
 
         <TextView android:id="@+id/kit_f_up" style="@style/KitChip" android:text="● Awake" />
         <TextView android:id="@+id/kit_f_fav" style="@style/KitChip" android:text="★ Favs" />
-        <TextView android:id="@+id/kit_f_mine" style="@style/KitChip" android:text="Mine" />
+        <TextView android:id="@+id/kit_f_mine" style="@style/KitChip" android:text="My list" />
         <TextView android:id="@+id/kit_f_all" style="@style/KitChip" android:layout_marginEnd="0dp" android:text="All" />
     </LinearLayout>
 

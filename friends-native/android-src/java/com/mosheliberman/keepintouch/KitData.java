@@ -21,14 +21,14 @@ import java.util.TimeZone;
 
 /**
  * Everything the widgets know. The web app hands over the saved people (name, place, time zone, number,
- * favourite, "my yeshiva") through KitWidgetPlugin; the widgets work out who is awake right now by themselves,
+ * favourite, saved or from a community) through KitWidgetPlugin; the widgets work out who is awake right now by themselves,
  * with the SAME rules as the web app (st0 / callRank in friends/index.html), so they stay right with the app closed.
  */
 public final class KitData {
     private KitData() {}
 
     /** Version of the installed app (the native part). The web app asks for at least KIT_APK. */
-    static final int APP_VER = 1;
+    static final int APP_VER = 2;
 
     static final String PREFS = "kit_widget";
     static final String KEY = "data";
@@ -37,12 +37,13 @@ public final class KitData {
     static final int C_DAY = 0xFF6FD6A0, C_GRAY = 0xFFE0CC7C, C_NIGHT = 0xFFA7ADBD;
 
     // Filters and sort orders the widget's buttons switch between.
-    static final String F_UP = "up", F_FAV = "fav", F_MINE = "mine", F_ALL = "all";
+    static final String F_UP = "up", F_FAV = "fav", F_MINE = "saved", F_ALL = "all";
     static final String S_BEST = "best", S_NAME = "name", S_PLACE = "place";
 
     static final class Person {
         String name, city, tz, phone;
-        boolean fav, mine;
+        boolean fav, mine;     // mine = in my own list (saved); otherwise a member of one of my communities
+        String group = "";     // community name for community members
         int min;          // minutes since local midnight where they are
         String st;        // "day" (good to call), "gray" (borderline), "night" (asleep)
         double rank;      // lower = better time to call (only for "day")
@@ -91,7 +92,8 @@ public final class KitData {
                 p.tz = o.optString("tz", "UTC");
                 p.phone = o.optString("p", "");
                 p.fav = o.optInt("f", 0) == 1;
-                p.mine = o.optInt("m", 0) == 1;
+                p.mine = o.optInt("s", 1) == 1;
+                p.group = o.optString("g", "");
                 if (p.name.isEmpty()) continue;
                 p.min = localMin(p.tz);
                 p.st = status(p.min);
@@ -170,7 +172,7 @@ public final class KitData {
 
     // ---- per-widget settings (filter + sort) ----
     static SharedPreferences state(Context ctx) { return ctx.getSharedPreferences("kit_widget_state", Context.MODE_PRIVATE); }
-    static String filterOf(Context ctx, int id) { return state(ctx).getString("f_" + id, F_UP); }
+    static String filterOf(Context ctx, int id) { String f = state(ctx).getString("f_" + id, F_UP); return "mine".equals(f) ? F_MINE : f; }
     static String sortOf(Context ctx, int id) { return state(ctx).getString("s_" + id, S_BEST); }
 
     static int piFlags(boolean mutable) {

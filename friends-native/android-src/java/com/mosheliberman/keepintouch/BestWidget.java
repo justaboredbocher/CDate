@@ -56,7 +56,7 @@ public class BestWidget extends AppWidgetProvider {
             v.setViewVisibility(ROWS[k], View.VISIBLE);
             v.setTextViewText(NAMES[k], (p.fav ? "★ " : "") + p.name);
             v.setString(TIMES[k], "setTimeZone", p.tz);
-            v.setTextViewText(METAS[k], " · " + p.city);
+            v.setTextViewText(METAS[k], " · " + p.city + (!p.mine && !p.group.isEmpty() ? " · " + p.group : ""));
             v.setContentDescription(CALLS[k], "Call " + p.name);
             v.setOnClickPendingIntent(ROWS[k], WidgetAction.act(ctx, id * 16 + 1 + k, "call", p.phone));
             v.setOnClickPendingIntent(CALLS[k], WidgetAction.act(ctx, id * 16 + 4 + k, "call", p.phone));
