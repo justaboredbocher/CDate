@@ -111,6 +111,72 @@ async function handle(req, env) {
     if (!ALLOW.includes(originOf(req))) return j({ error: 'This request did not come from the Keep in Touch app.' }, 403);
     const [, , col, op] = p.split('/');
     const SPEC = { phones3: { k: 200, p: 32 }, accounts3: { k: 200, salt: 64, h: 128 }, feedback3: { k: 200, t: 20, m: 1500, at: 30 }, links3: { k: 200, l: 1500 } };
+    // Communities (owner): anyone can create one; members see each other. Looked up only by its code, never listed.
+    // Each member proves who they are with a secret their phone made when joining (only its hash is kept here).
+    // "shluchim" is the built-in Shluchim community (the directory lives in the app); its admin is claimed with the admin code.
+    if (col === 'comm') {
+      const ck = 'kit:comm', all = (await env.KV.get(ck, 'json')) || {};
+      const okC = (x) => typeof x === 'string' && /^([a-z0-9]{8}|shluchim)$/.test(x);
+      const okF = (x) => typeof x === 'string' && /^[a-z0-9_]{1,140}$/.test(x);
+      const str = (v, n) => typeof v === 'string' && v.length <= n ? v : '';
+      const sha = async (t) => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))].map((x) => x.toString(16).padStart(2, '0')).join('');
+      const pub = (d) => ({ name: d.name, mode: d.mode, owner: d.owner, admins: d.admins,
+        members: Object.fromEntries(Object.entries(d.members).map(([k, v]) => [k, { n: v.n, c: v.c, la: v.la, lo: v.lo, tz: v.tz, p: v.p }])),
+        pending: Object.fromEntries(Object.entries(d.pending || {}).map(([k, v]) => [k, { n: v.n, c: v.c }])) });
+      if (req.method === 'GET' && op === 'get') { const id = url.searchParams.get('id'); if (!okC(id)) return j({ error: 'bad id' }, 400); const d = all[id]; return j({ doc: d ? pub(d) : (id === 'shluchim' ? { name: 'Shluchim', mode: 'open', owner: '', admins: [], members: {}, pending: {} } : null) }); }
+      if (req.method !== 'POST') return j({ error: 'not found' }, 404);
+      let b; try { b = await req.json(); } catch (e) { return j({ error: 'bad json' }, 400); }
+      const fk = b && b.fk, sec = str(b && b.s, 64);
+      if (!okF(fk) || sec.length < 16) return j({ error: 'bad member' }, 400);
+      const sh = await sha('kit-comm:' + sec);
+      const info = (m) => { m = m || {}; const o = { n: str(m.n, 80), c: str(m.c, 120), la: str(m.la, 20), lo: str(m.lo, 20), tz: str(m.tz, 64), p: str(m.p, 32) }; return o.n && o.tz ? o : null; };
+      const save = async () => { await env.KV.put(ck, JSON.stringify(all)); };
+      if (op === 'create') {
+        const name = str(b.name, 60).trim(), me = info(b.me); if (!name || !me) return j({ error: 'bad data' }, 400);
+        if (Object.keys(all).length >= 2000) return j({ error: 'full' }, 507);
+        let id; do { id = [...crypto.getRandomValues(new Uint8Array(8))].map((x) => 'abcdefghjkmnpqrstuvwxyz23456789'[x % 31]).join(''); } while (all[id]);
+        all[id] = { name, mode: 'open', owner: fk, admins: [fk], members: { [fk]: { ...me, sh } }, pending: {} };
+        await save(); return j({ ok: true, id });
+      }
+      const id = b.id; if (!okC(id)) return j({ error: 'bad id' }, 400);
+      if (!all[id] && id === 'shluchim') all[id] = { name: 'Shluchim', mode: 'open', owner: '', admins: [], members: {}, pending: {} };
+      const d = all[id]; if (!d) return j({ error: 'no such community' }, 404);
+      d.pending = d.pending || {};
+      const isMe = d.members[fk] && d.members[fk].sh === sh;
+      if (op === 'join') {
+        const me = info(b.me); if (!me) return j({ error: 'bad data' }, 400);
+        if (d.members[fk]) { if (!isMe) return j({ error: 'taken' }, 403); d.members[fk] = { ...me, sh }; await save(); return j({ ok: true, status: 'member' }); }
+        if (Object.keys(d.members).length >= 1000) return j({ error: 'full' }, 507);
+        if (d.mode === 'approve') { d.pending[fk] = { ...me, sh }; await save(); return j({ ok: true, status: 'pending' }); }
+        d.members[fk] = { ...me, sh }; delete d.pending[fk]; await save(); return j({ ok: true, status: 'member' });
+      }
+      if (op === 'claim') {
+        if (id !== 'shluchim' || (await sha('kit-admin:' + str(b.code, 40))) !== '816e975bd4123d6abe1f2a030146455a4140bcfc57beeaca4808ae0f18b41257') return j({ error: 'wrong code' }, 403);
+        const me = info(b.me); if (!me) return j({ error: 'bad data' }, 400);
+        d.members[fk] = { ...me, sh }; if (!d.admins.includes(fk)) d.admins.push(fk); if (!d.owner) d.owner = fk; await save(); return j({ ok: true });
+      }
+      if (op === 'status') return j({ ok: true, status: isMe ? 'member' : (d.pending[fk] && d.pending[fk].sh === sh ? 'pending' : 'none') });
+      if (op === 'leave') {
+        if (d.pending[fk] && d.pending[fk].sh === sh) { delete d.pending[fk]; await save(); return j({ ok: true }); }
+        if (!isMe) return j({ error: 'not a member' }, 403);
+        delete d.members[fk]; d.admins = d.admins.filter((x) => x !== fk);
+        if (d.owner === fk) d.owner = d.admins[0] || Object.keys(d.members)[0] || '';
+        if (d.owner && !d.admins.length) d.admins = [d.owner];
+        if (!Object.keys(d.members).length && id !== 'shluchim') delete all[id];
+        await save(); return j({ ok: true });
+      }
+      // admin actions: only admins, proven by their secret
+      if (!isMe || !d.admins.includes(fk)) return j({ error: 'not an admin' }, 403);
+      const who = b.who;
+      if (op === 'mode') { if (b.mode !== 'open' && b.mode !== 'approve') return j({ error: 'bad mode' }, 400); d.mode = b.mode; }
+      else if (op === 'rename') { const name = str(b.name, 60).trim(); if (!name) return j({ error: 'bad name' }, 400); d.name = name; }
+      else if (op === 'approve') { if (!d.pending[who]) return j({ error: 'not waiting' }, 404); d.members[who] = d.pending[who]; delete d.pending[who]; }
+      else if (op === 'decline') { delete d.pending[who]; }
+      else if (op === 'remove') { if (who === d.owner) return j({ error: 'cannot remove the creator' }, 403); delete d.members[who]; d.admins = d.admins.filter((x) => x !== who); }
+      else if (op === 'admin') { if (!d.members[who]) return j({ error: 'not a member' }, 404); if (b.on) { if (!d.admins.includes(who)) d.admins.push(who); } else { if (who === d.owner) return j({ error: 'cannot remove the creator' }, 403); d.admins = d.admins.filter((x) => x !== who); } }
+      else return j({ error: 'not found' }, 404);
+      await save(); return j({ ok: true });
+    }
     // Private lists (owner): never listed, only looked up by an id the phone computes (a salted hash).
     //  users3 = accounts of people who are NOT in the yeshiva list (id = hash of their number; no name/number stored).
     //  inv3   = "someone added you": id = hash of the added person's name + number; items = who added them.
