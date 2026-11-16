@@ -2237,7 +2237,7 @@ function sdPieces0(fk){const f=sdFlows()[fk];if(!f.wk){let L=f.seg.flatMap(s=>sd
  // v112 (owner): a special-day addition kept today is marked (ad) → a darkened box with a ring drawn around it once (sdCol/sdDraw)
  const opt=(on,...r)=>{if(on)AD.push(r);else cut(...r)},adf=A=>A.map(q=>({...q,ad:1}));
  const TD=a=>{for(const r of a)opt(c.td,...r)};
- if(fk==='sh'){L=sdR(5,null,84,null);
+ if(fk==='sh'){L=[...sdR(5,null,84,null),...sdR(85,null,85,[44.5])];   // v122 (owner): the Six Remembrances end on p.85
   // v110: notes that only say what to skip on other days; the English Kaddish d'Rabbanan; Mizmor L'Sodah (not on Erev Pesach,
   // Pesach or Erev Yom Kippur)
   cut(26,[80.5],26,100);cut(27,0,27,[7.0]);
@@ -3945,8 +3945,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=121;
+const CC_VER=122;
 const CC_LOG=[
+ {v:122,new:['Siddur: the end of the Six Remembrances was cut off; it’s there now.']},
  {v:121,new:['Siddur: the spacing where pages join or lines were left out now matches the siddur’s own spacing.']},
  {v:120,new:['Siddur: where a note or line was left out, the text now continues with a regular line space.']},
  {v:119,new:['Siddur: in Eretz Yisrael, V’sein tal umatar starts on 7 Cheshvan (outside Israel it stays on 5/6 December).']},
