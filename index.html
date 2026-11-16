@@ -2114,7 +2114,7 @@ const SD_TOC=[['Weekday','Prayers for young children',4],['Weekday','Upon arisin
  ['More','Before Shabbos',564],['More','Letter of the Alter Rebbe',567],['More','Rulings of the Alter Rebbe',570],['More','Verses for people’s names',582],['More','Laws and customs',586],['More','Order of prayers for special days',618]];
 const SD={n:null,G:null,m:'book',C:null,pos:0,live:new Map(),bx:new Map(),adP:new Set(),fk:null,ins:null,cueOff:{},drag:null,W:0,H:0,lastCue:''};
 const sdK=()=>AK('cc_sd_pos');
-function sdLoad(){if(SD.n&&SD.G)return Promise.resolve();return Promise.all([fetch('siddur/pages.json').then(r=>r.json()),fetch('siddur/gaps.json?v=2').then(r=>r.json())]).then(([j,g])=>{SD.n=j.n;SD.G=g.p})}
+function sdLoad(){if(SD.n&&SD.G)return Promise.resolve();return Promise.all([fetch('siddur/pages.json').then(r=>r.json()),fetch('siddur/gaps.json?v=3').then(r=>r.json())]).then(([j,g])=>{SD.n=j.n;SD.G=g.p})}
 const sdIdx=p=>{const n=SD.n;let i=n.findIndex(x=>x>=p);return i<0?n.length-1:i};
 const sdSec=p=>{let s=SD_TOC[0];for(const t of SD_TOC)if(t[2]<=p)s=t;return s};
 const sdYT=d=>{const h=hd(d);return d.getDay()===6||strictYT(h)||(h.k==='Ti'&&h.d===10)};
@@ -2308,9 +2308,12 @@ function sdGeo(){const st=$('#sdSt');SD.W=st.clientWidth;SD.H=st.clientHeight;SD
 // spaced: a new piece/insert 24 rows; a page join 5 rows when the paragraph runs on (22 if it ended); after a cut 5 rows when the
 // line before ran on, else the smaller of the two original gaps (8–22).
 const sdGl=(i,y)=>{const g=SD.G[i][2];for(let j=0;j<g.length;j+=2)if(y>=g[j]-2&&y<=g[j]+Math.abs(g[j+1])+2)return Math.abs(g[j+1]);return 0};
+// v120 (owner: "still an extra half space"): after a cut, only a really short last line (bit 4) counts as a paragraph end, so a note
+// that was taken out never leaves a paragraph space behind; everything else gets a regular line space.
+function sdSL(i,y){const P=SD.G[i],s=P[3]||'';if(y>=P[1]-3)return s[s.length-1]==='1';const k=sdGi(i,y);return k>=0&&!!(+s[k]&4)}
 function sdSp(p,q){if(q.ps||!!p.x!==!!q.x)return 24;const P=SD.G[p.i],Q=SD.G[q.i],pe=sdPE(p.i,p.ob??p.b);
  if((p.ob??p.b)>=P[1]-40&&(q.oa??q.a)<=Q[0]+40&&p.i!==q.i)return pe?22:5;
- if(!pe)return 5;return Math.max(8,Math.min(22,Math.min(sdGl(p.i,p.ob??p.b)||22,sdGl(q.i,q.oa??q.a)||22)))}
+ return sdSL(p.i,p.ob??p.b)?20:5}
 function sdCol(L0,book){const I=[],A=[],sec=[],pt={},L=[],B=[];let y=0,pend=null,prev=null,px=null,box=null,pe=0;
  for(const q of L0){const p=L[L.length-1],ps=q.x&&!(px&&px.x);px=q;if(!book&&p&&p.i===q.i&&Math.abs(p.b-q.a)<=2&&!q.sec&&!ps&&!!p.ad===!!q.ad&&p.xa===q.xa&&p.xb===q.xb)p.b=q.b;else L.push({...q,ps:ps||q.ps})}
  if(!book)for(const q of L){q.oa=q.a;q.ob=q.b;const g=SD.G[q.i][2];for(let j=0;j<g.length;j+=2){const s0=g[j],e0=s0+Math.abs(g[j+1]);if(q.a>=s0-1&&q.a<e0)q.a=e0;if(q.b>s0&&q.b<=e0+1)q.b=s0}if(q.b-q.a<6){q.b=q.a+6;q.skip=1}}
@@ -3940,8 +3943,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=119;
+const CC_VER=120;
 const CC_LOG=[
+ {v:120,new:['Siddur: where a note or line was left out, the text now continues with a regular line space.']},
  {v:119,new:['Siddur: in Eretz Yisrael, V’sein tal umatar starts on 7 Cheshvan (outside Israel it stays on 5/6 December).']},
  {v:118,new:['Siddur: Modim D’Rabbanan is back beside Modim, now in its own soft box.']},
  {v:117,mid:1,new:['Siddur: no more gaps in the middle of a blessing where two pages join or a line was left out.','Siddur: only today’s line shows for Mashiv haruach / Morid hatal and V’sein tal umatar / V’sein brachah (the long notes are gone).','Siddur: Modim D’Rabbanan now comes under Modim instead of squeezed beside it, and Al HaNissim shows only Chanukah’s or Purim’s part.']},
