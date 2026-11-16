@@ -2157,6 +2157,14 @@ function sdFlag(L,b0,p0,b1,p1){const i0=sdIdx(b0),i1=sdIdx(b1),y0=sdY(i0,p0),y1=
  for(const q of L){if(q.x||q.i<i0||q.i>i1){o.push(q);continue}const cs=q.i===i0?y0:-1,ce=q.i===i1?y1:1e9;if(q.b<=cs||q.a>=ce){o.push(q);continue}
   if(q.a<cs)o.push({...q,b:cs});o.push({...q,a:Math.max(q.a,cs),b:Math.min(q.b,ce),ad:1});if(q.b>ce)o.push({...q,a:ce})}
  return o.filter(q=>q.b-q.a>8)}
+/* v117 (owner, Mincha screenshots): side-by-side columns. sdXc cuts rows a..b of a page into its columns: 'l' / 'r' keeps one column
+   (the other day's season, Purim vs Chanukah), 'rl' shows the right column then the left one under it (Modim, then Modim D'Rabbanan).
+   A kept column carries xa/xb (image px); c=1 centres it. */
+function sdXc(L,bp,ra,rb,sx,keep){const i=sdIdx(bp),o=[];
+ for(const q of L){if(q.x&&!q.xk||q.i!==i||q.b<=ra||q.a>=rb){o.push(q);continue}
+  if(q.a<ra)o.push({...q,b:ra});const m={...q,a:Math.max(q.a,ra),b:Math.min(q.b,rb)},R={...m,xa:sx+7,xb:1077},Lf={...m,xa:0,xb:sx-7,c:1};
+  if(keep==='l')o.push(Lf);else if(keep==='r')o.push(R);else o.push(R,{...Lf,ps:1});if(q.b>rb)o.push({...q,a:rb})}
+ return o}
 function sdIns(L,bp,pct,add){if(!add||!add.length)return L;const i=sdIdx(bp),y=sdY(i,pct),A=add.map(q=>({...q,x:1}));
  const k=L.findIndex(q=>!q.x&&q.i===i&&q.a<y-8&&q.b>y+8);if(k>=0){const q=L[k];return[...L.slice(0,k),{...q,b:y},...A,{...q,a:y},...L.slice(k+1)]}
  let j=-1;L.forEach((q,x)=>{if(!q.x&&(q.i<i||(q.i===i&&q.b<=y+8)))j=x});while(j+1<L.length&&L[j+1].x)j++;return[...L.slice(0,j+1),...A,...L.slice(j+1)]}
@@ -2213,10 +2221,15 @@ function sdMk(L,bp,pct,t,br){const i=sdIdx(bp),y=pct==null?SD.G[i][0]:sdY(i,pct)
 const lab=(A,t)=>A&&A.length?[{...A[0],sec:t,brk:true},...A.slice(1)]:A;
 function sdWeekly(day){const p=parsha(day);if(!p||!p.p||!p.p[0])return null;const nm=p.p[0][0];let k=PN.findIndex(x=>x[0]===nm);if(nm===VZ[0])k=53;return k>=0?SD_WK[k]:null}
 const sdPieces=fk=>{let L=sdTT(sdPieces0(fk));const f=sdFlows()[fk];if(!f.wk)for(const o of f.opt)if(o[1]>=148)L=sdMk(L,o[1],null,o[0],0);if(fk==='be'&&L.length&&!L[0].sec)L[0]={...L[0],sec:'Bentching',brk:true};return L};
+// v117: winter/summer lines. Mashiv haruach: Shemini Atzeres to the first day of Pesach; V'sein tal umatar (outside Israel): from
+// Maariv before 5 December (6 December before a civil leap year) to Mincha of Erev Pesach.
+const sdSum=h=>(h.k==='N'&&h.d>=15)||['I','Si','Ta','Av','E'].includes(h.k)||(h.k==='Ti'&&h.d<=21);
+function sdRain(c){const d=c.day,Y=d.getFullYear(),lp=y=>(y%4===0&&y%100!==0)||y%400===0,st=new Date(Y,11,lp(Y+1)?6:5);
+ if(d>=st)return true;return d.getMonth()<6&&!sdSum(c.h)}
 const sdAvm=c=>!c.noT&&(c.fast||(c.h.k==='Ti'&&c.h.d>=3&&c.h.d<=9));
 function sdPieces0(fk){const f=sdFlows()[fk];if(!f.wk){let L=f.seg.flatMap(s=>sdR(s[0],null,s[1],null));
   // Shabbos & Yom Tov: "Hashem Hashem… Ribono shel olam" when the Ark is opened only on a Yom Tov that falls on a weekday (owner)
-  if(fk==='sh'&&f.seg.some(s=>s[0]===181)){const c=sdCx(fk);if(!(c.yt&&c.wd!==6))L=sdCut(L,222,47.65,223,14.3)}return L}const c=sdCx(fk);let L,I=[],M=[],AD=[];const cut=(...a)=>{L=sdCut(L,...a)},ins=(...a)=>I.push(a);
+  if(fk==='sh'&&f.seg.some(s=>s[0]===181)){const c=sdCx(fk);if(!(c.yt&&c.wd!==6))L=sdCut(L,222,47.65,223,14.3)}return L}const c=sdCx(fk);let L,I=[],M=[],AD=[],XC=[];const cut=(...a)=>{L=sdCut(L,...a)},ins=(...a)=>I.push(a);
  // v112 (owner): a special-day addition kept today is marked (ad) → a darkened box with a ring drawn around it once (sdCol/sdDraw)
  const opt=(on,...r)=>{if(on)AD.push(r);else cut(...r)},adf=A=>A.map(q=>({...q,ad:1}));
  const TD=a=>{for(const r of a)opt(c.td,...r)};
@@ -2225,7 +2238,10 @@ function sdPieces0(fk){const f=sdFlows()[fk];if(!f.wk){let L=f.seg.flatMap(s=>sd
   // Pesach or Erev Yom Kippur)
   cut(26,[80.5],26,100);cut(27,0,27,[7.0]);
   if(c.tb)cut(7,0,7,13.75);else cut(7,0,7,[6.25]);
-  if(c.tb)cut(10,0,11,100);   // v116: no tallis and tefillin at Shacharis on Tisha B'Av (worn at Mincha)
+  if(c.tb)cut(10,0,11,100);
+  // v117: the winter/summer notes go; only today's line of each table stays (centred)
+  {const w=!sdSum(c.h),r=sdRain(c);cut(46,[33.960],46,[45.943]);XC.push([46,855,958,662,w?'l':'r']);cut(48,[64.965],48,[71.198]);XC.push([48,1466,1559,544,r?'l':'r'])}
+  XC.push([51,286,1360,520,'rl']);if(c.ch||c.pur){XC.push([51,1596,1853,418,c.pur?'l':'r']);XC.push([52,0,795,418,c.pur?'l':'r'])}   // v116: no tallis and tefillin at Shacharis on Tisha B'Av (worn at Mincha)
   if(c.noT){cut(12,[67.6],12,100);cut(18,[35.15],18,53.1);cut(14,[47.95],15,57.5);cut(22,[34.65],22,[71.2])}
   else{cut(12,[67.6],12,[69.0]);cut(18,[35.15],18,[36.9]);cut(14,[47.95],14,[49.33]);cut(22,[34.65],22,[36.0]);cut(67,[5.1],67,[6.2]);cut(70,[27.85],70,[29.3])}
   if((c.h.k==='N'&&c.h.d>=14)||(c.h.k==='Ti'&&c.h.d===9))cut(30,[71.25],30,100);else cut(30,[71.25],30,[74.2]);
@@ -2258,14 +2274,18 @@ function sdPieces0(fk){const f=sdFlows()[fk];if(!f.wk){let L=f.seg.flatMap(s=>sd
   TD([[103,47.1,103,58.6],[104,13,104,22],[104,69.1,104,74.2],[106,50,106,54.9],[110,52.1,110,62.7],[111,27.1,111,43.2],[112,9.3,112,12.6],[115,24.3,115,27.45]]);
   opt(c.fast,105,53.6,105,80.7);opt(c.fast,108,19.3,108,39.4);opt(c.fast,110,77,110,94.7);opt(c.tb,107,38.5,107,40.35);opt(c.tb,107,45.25,107,80.15);
   opt(c.rc||c.chm,108,62,108,96.3);opt(c.ch||c.pur,109,73.4,110,43.5);
+  {const w=!sdSum(c.h),r=sdRain(c);cut(103,[73.079],103,[83.289]);XC.push([103,1550,1640,599,w?'l':'r']);cut(106,[4.729],106,[11.553]);XC.push([106,380,482,544,r?'l':'r'])}
+  XC.push([109,286,1360,520,'rl']);if(c.ch||c.pur){XC.push([109,1596,1853,418,c.pur?'l':'r']);XC.push([110,0,795,418,c.pur?'l':'r'])}
   if(c.noT)cut(112,42.7,114,51.75);else{cut(112,42.7,112,48.4);if(sdAvm(c)){cut(114,0,114,21.12);ins(114,21.12,lab(sdR(454,[52.9],456,[95.1]),'Avinu Malkeinu'))}else cut(114,0,114,7.63)}
   opt(c.ld,115,35.85,115,92.2);opt(c.ch,116,4.3,116,8);}
  if(fk==='ma'){L=sdR(118,null,135,null);
   TD([[124,5.6,124,17.9],[124,67.6,124,76.9],[124,85.2,124,90.2],[126,50.3,126,55.4],[129,77.6,129,86.1],[130,35.6,130,50.7],[131,8.9,131,12.2],[134,10,134,13.2],[135,61.7,135,64.85]]);
   opt(c.ms,125,9.3,125,32.4);opt(c.rc||c.chm,128,5.6,128,49.5);opt(c.ch||c.pur,129,5.4,129,70);
   /* v116: no Vihi Noam when a Yom Tov falls in the coming week (p.131) */const vn=c.ms&&![0,1,2,3,4,5].some(j=>strictYT(hd(ad(c.day,j))));cut(131,29.8,vn?131:133,vn?31.85:40.4);if(vn)AD.push([131,31.85,133,40.4]);opt(c.pur,134,19.9,134,24.45);cut(134,24.45,134,26.5);
+  {const w=!sdSum(c.h),r=sdRain(c);cut(124,[32.563],124,[44.385]);XC.push([124,826,925,662,w?'l':'r']);cut(126,[4.729],126,[11.123]);XC.push([126,360,462,544,r?'l':'r'])}
+  if(c.ch||c.pur)XC.push([129,250,1290,410,c.pur?'l':'r']);
   if(c.om)ins(134,26.5,lab(adf([...sdR(136,44.05,136,52.2),...sdOmer(c.om),...sdR(139,79.5,140,92.75)]),'Sefiras HaOmer'));}
- for(const r of AD)L=sdFlag(L,...r);for(const a of I)L=sdIns(L,...a);for(const m of M)L=sdMk(L,m[0],m[1],m[2],m[3]);return L}
+ for(const r of AD)L=sdFlag(L,...r);for(const r of XC)L=sdXc(L,...r);for(const a of I)L=sdIns(L,...a);for(const m of M)L=sdMk(L,m[0],m[1],m[2],m[3]);return L}
 // lay the pieces out on screens (split only on blank lines)
 const sdBlank=q=>{const g=SD.G[q.i][2];for(let j=0;j<g.length;j+=2)if(g[j]<=q.a+2&&g[j]+Math.abs(g[j+1])>=q.b-2)return true;return q.b>=SD.G[q.i][1]&&q.a>=SD.G[q.i][1]-30};
 const SD_TH=150,SD_TG=90;   // a section title (image rows) and the space above it
@@ -2280,16 +2300,24 @@ function sdPE(i,y){const P=SD.G[i],s=P[3];if(y>=P[1]-3)return s?s[s.length-1]===
    is in the page (sdDraw), so memory stays low. A drag moves 1:1; a slow release glides a little; a fast swipe glides about one screen
    (half a second, easing out) and lands on the start of a paragraph (anchors C.A), never further. ===== */
 function sdGeo(){const st=$('#sdSt');SD.W=st.clientWidth;SD.H=st.clientHeight;SD.w=Math.min(SD.W-14,720);SD.s=SD.w/1077}
+// v117 (owner: gaps in the middle of a blessing at page joins and after cuts): pieces are trimmed to their ink (sdCol), then
+// spaced: a new piece/insert 24 rows; a page join 5 rows when the paragraph runs on (22 if it ended); after a cut 5 rows when the
+// line before ran on, else the smaller of the two original gaps (8–22).
+const sdGl=(i,y)=>{const g=SD.G[i][2];for(let j=0;j<g.length;j+=2)if(y>=g[j]-2&&y<=g[j]+Math.abs(g[j+1])+2)return Math.abs(g[j+1]);return 0};
+function sdSp(p,q){if(q.ps||!!p.x!==!!q.x)return 24;const P=SD.G[p.i],Q=SD.G[q.i],pe=sdPE(p.i,p.ob??p.b);
+ if((p.ob??p.b)>=P[1]-40&&(q.oa??q.a)<=Q[0]+40&&p.i!==q.i)return pe?22:5;
+ if(!pe)return 5;return Math.max(8,Math.min(22,Math.min(sdGl(p.i,p.ob??p.b)||22,sdGl(q.i,q.oa??q.a)||22)))}
 function sdCol(L0,book){const I=[],A=[],sec=[],pt={},L=[],B=[];let y=0,pend=null,prev=null,px=null,box=null,pe=0;
- for(const q of L0){const p=L[L.length-1],ps=q.x&&!(px&&px.x);px=q;if(!book&&p&&p.i===q.i&&Math.abs(p.b-q.a)<=2&&!q.sec&&!ps&&!!p.ad===!!q.ad)p.b=q.b;else L.push({...q,ps})}
- for(let q of L){if(sdBlank(q)){if(q.sec&&!pend)pend={sec:q.sec,brk:q.brk};continue}q={...q};if(pend){if(!q.sec)Object.assign(q,pend);pend=null}
+ for(const q of L0){const p=L[L.length-1],ps=q.x&&!(px&&px.x);px=q;if(!book&&p&&p.i===q.i&&Math.abs(p.b-q.a)<=2&&!q.sec&&!ps&&!!p.ad===!!q.ad&&p.xa===q.xa&&p.xb===q.xb)p.b=q.b;else L.push({...q,ps:ps||q.ps})}
+ if(!book)for(const q of L){q.oa=q.a;q.ob=q.b;const g=SD.G[q.i][2];for(let j=0;j<g.length;j+=2){const s0=g[j],e0=s0+Math.abs(g[j+1]);if(q.a>=s0-1&&q.a<e0)q.a=e0;if(q.b>s0&&q.b<=e0+1)q.b=s0}if(q.b-q.a<6){q.b=q.a+6;q.skip=1}}
+ for(let q of L){if(q.skip||sdBlank(q)){if(q.sec&&!pend)pend={sec:q.sec,brk:q.brk};continue}q={...q};if(pend){if(!q.sec)Object.assign(q,pend);pend=null}
   if(box&&(!q.ad||(q.sec&&q.brk))){box.y1=pe+16;B.push(box);box=null}
   if(q.sec&&q.brk){if(I.length)y+=SD_TG;sec.push({t:q.sec,y,p:SD.n[q.i]});A.push(y);I.push({t:q.sec,y,h:SD_TH});y+=SD_TH;prev=null}
   else if(q.sec)sec.push({t:q.sec,y,p:SD.n[q.i]});
-  let sp=!prev?0:book?46:(q.ps||!!prev.x!==!!q.x||sdPE(prev.i,prev.b))?20:3;if(prev&&!!prev.ad!==!!q.ad)sp=Math.max(sp,34);y+=sp;
+  let sp=!prev?0:book?46:sdSp(prev,q);if(prev&&!!prev.ad!==!!q.ad)sp=Math.max(sp,34);y+=sp;
   if(q.ad&&!box)box={y0:y-16};
   if(!prev||sp>=20)A.push(y);if(!(q.i in pt))pt[q.i]=y;
-  I.push({i:q.i,a:q.a,b:q.b,y,h:q.b-q.a});
+  I.push({i:q.i,a:q.a,b:q.b,y,h:q.b-q.a,xa:q.xa,xb:q.xb,c:q.c});
   const P=SD.G[q.i],g=P[2],st=P[3]||'';
   for(let k=0;k<g.length>>1;k++){const e=g[2*k]+Math.abs(g[2*k+1]);if(e>q.a+30&&e<q.b-30&&(st?+st[k]&1:Math.abs(g[2*k+1])>=7))A.push(y+e-q.a-4)}
   y+=q.b-q.a;pe=y;prev=q}
@@ -2307,7 +2335,7 @@ function sdShowBook(p){const C=sdBookCol();sdSet(C,'book',null,(C.pt[sdIdx(p)]||
 function sdItem(it){const s=SD.s,w=SD.w,n=document.createElement(it.t?'b':'i');
  let c='top:'+(it.y*s).toFixed(1)+'px;height:'+(it.h*s).toFixed(1)+'px';
  if(it.t){n.className='sd-hd';n.innerHTML=`<u style="width:${(161*s).toFixed(1)}px;height:${(35*s).toFixed(1)}px;-webkit-mask-size:${w}px ${(1861*s).toFixed(1)}px;mask-size:${w}px ${(1861*s).toFixed(1)}px;-webkit-mask-position:${(-463*s).toFixed(1)}px ${(-126*s).toFixed(1)}px;mask-position:${(-463*s).toFixed(1)}px ${(-126*s).toFixed(1)}px"></u><span style="font-size:${(34*s).toFixed(1)}px">${it.t}</span>`}
- else{const u='url('+sdU(it.i)+')',ms=w+'px '+(1861*s).toFixed(1)+'px',mp='0 '+(-it.a*s).toFixed(1)+'px';c+=`;-webkit-mask-image:${u};mask-image:${u};-webkit-mask-size:${ms};mask-size:${ms};-webkit-mask-position:${mp};mask-position:${mp}`}
+ else{const u='url('+sdU(it.i)+')',ms=w+'px '+(1861*s).toFixed(1)+'px',xa=it.xa||0,xb=it.xb||1077,lf=it.c?(1077-(xb-xa))/2:xa,mp=(-xa*s).toFixed(1)+'px '+(-it.a*s).toFixed(1)+'px';if(it.xa!=null)c+=`;left:${(lf*s).toFixed(1)}px;width:${((xb-xa)*s).toFixed(1)}px`;c+=`;-webkit-mask-image:${u};mask-image:${u};-webkit-mask-size:${ms};mask-size:${ms};-webkit-mask-position:${mp};mask-position:${mp}`}
  n.style.cssText=c;return n}
 function sdDraw(){const C=SD.C;if(!C)return;const s=SD.s,top=SD.pos/s,lo=top-SD.H/s,hi=top+SD.H/s*2.2,el=$('#sdC');
  el.style.transform='translate3d(0,'+(-SD.pos).toFixed(1)+'px,0)';
@@ -3903,8 +3931,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=116;
+const CC_VER=117;
 const CC_LOG=[
+ {v:117,mid:1,new:['Siddur: no more gaps in the middle of a blessing where two pages join or a line was left out.','Siddur: only today’s line shows for Mashiv haruach / Morid hatal and V’sein tal umatar / V’sein brachah (the long notes are gone).','Siddur: Modim D’Rabbanan now comes under Modim instead of squeezed beside it, and Al HaNissim shows only Chanukah’s or Purim’s part.']},
  {v:116,mid:1,new:['Siddur: Friday Mincha now continues into the whole Mincha (it stopped after Yedid Nefesh).','Siddur: Avinu Malkeinu on fast days and the Ten Days; the lulav blessings and the day’s Hoshanos on Chol Hamoed Sukkos and Hoshana Rabbah; Rosh Chodesh on the 7th day of Chanukah.','Siddur: reminder cards for Selichos, the Megillah on Purim, and the Machzor on Rosh Hashanah and Yom Kippur.']},
  {v:115,new:['Siddur fixes for Rosh Chodesh and days without Tachanun: two more paragraphs that aren’t said are left out (in Korbanos and before the Mishnah), the weekday Kaddish before returning the Torah is skipped on Rosh Chodesh, and Ashrei · Uva Letziyon and Beis Yaakov get their own titles.']},
  {v:114,new:['Siddur: the grey boxes printed in the siddur are gone; only today’s additions get the app’s blue box.']},
