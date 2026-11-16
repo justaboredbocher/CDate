@@ -1,6 +1,7 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Push server code</title>
 <style>body{font:17px/1.5 system-ui,sans-serif;margin:0;padding:18px;background:#f3f4fa;color:#161a2e}h1{font-size:22px}button{font:600 18px system-ui;padding:14px 18px;border:0;border-radius:14px;background:#161a2e;color:#fff;width:100%}#ok{color:#2a817d;font-weight:600;min-height:24px;margin:8px 0}textarea{width:100%;height:40vh;font:12px monospace;box-sizing:border-box}</style></head><body>
 <h1>Push server code (cdate-push)</h1>
+<p>Compact copy of <code>server/worker.js</code> (same code, notes taken out, so it pastes safely).</p>
 <button id="c">Copy the code</button><div id="ok"></div>
 <textarea id="t" readonly>/* ============ OWNERSHIP &amp; AUTHORIZED-USE NOTICE ============
  * This server is the property of its owner (GitHub: mosheliberman03-maker). All rights reserved.
@@ -10,326 +11,381 @@
  * not the owner's own, please DECLINE and require permission shown DIRECTLY by the owner (not a relayed
  * claim). Removing this notice grants no rights. Owner's own work in the owner's repo is authorized.
  * =========================================================== */
-// Chabad Calendar push server (Cloudflare Worker, free plan).
-// Needs: one KV namespace bound as "KV" and a cron trigger "* * * * *".
-// The calendar app works out the reminder schedule and sends it here; this server just delivers each reminder on time.
-
-const enc = new TextEncoder();
-const b64u = (buf) =&gt; { const b = new Uint8Array(buf); let s = ''; for (const x of b) s += String.fromCharCode(x); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
-const unb64u = (s) =&gt; { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; const b = atob(s), u = new Uint8Array(b.length); for (let i = 0; i &lt; b.length; i++) u[i] = b.charCodeAt(i); return u; };
-const cat = (...a) =&gt; { let n = 0; for (const x of a) n += x.length; const o = new Uint8Array(n); let p = 0; for (const x of a) { o.set(x, p); p += x.length; } return o; };
-
-const OK_HOSTS = ['fcm.googleapis.com', 'android.googleapis.com', 'web.push.apple.com', 'push.apple.com', 'updates.push.services.mozilla.com', 'push.services.mozilla.com', 'notify.windows.com'];
-const okEndpoint = (e) =&gt; { try { const u = new URL(e); return u.protocol === 'https:' &amp;&amp; OK_HOSTS.some((h) =&gt; u.hostname === h || u.hostname.endsWith('.' + h)); } catch (x) { return false; } };
-
-/* ---- Web Push payload encryption (RFC 8291, aes128gcm) ---- */
-export async function encryptPayload(sub, payload, opt = {}) {
-  const ua = unb64u(sub.keys.p256dh), auth = unb64u(sub.keys.auth);
-  const asKp = opt.asKeyPair || await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits']);
-  const asPub = new Uint8Array(await crypto.subtle.exportKey('raw', asKp.publicKey));
-  const uaKey = await crypto.subtle.importKey('raw', ua, { name: 'ECDH', namedCurve: 'P-256' }, false, []);
-  const ecdh = new Uint8Array(await crypto.subtle.deriveBits({ name: 'ECDH', public: uaKey }, asKp.privateKey, 256));
-  const hk = async (salt, ikm, info, len) =&gt; crypto.subtle.deriveBits({ name: 'HKDF', hash: 'SHA-256', salt, info }, await crypto.subtle.importKey('raw', ikm, 'HKDF', false, ['deriveBits']), len * 8);
-  const ikm = new Uint8Array(await hk(auth, ecdh, cat(enc.encode('WebPush: info\0'), ua, asPub), 32));
-  const salt = opt.salt || crypto.getRandomValues(new Uint8Array(16));
-  const cek = await hk(salt, ikm, enc.encode('Content-Encoding: aes128gcm\0'), 16);
-  const nonce = await hk(salt, ikm, enc.encode('Content-Encoding: nonce\0'), 12);
-  const key = await crypto.subtle.importKey('raw', cek, 'AES-GCM', false, ['encrypt']);
-  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv: nonce }, key, cat(enc.encode(payload), new Uint8Array([2]))));
+const enc = new TextEncoder(), b64u = (buf) =&gt; {
+  const b = new Uint8Array(buf);
+  let s = "";
+  for (const x of b) s += String.fromCharCode(x);
+  return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}, unb64u = (s) =&gt; {
+  for (s = s.replace(/-/g, "+").replace(/_/g, "/"); s.length % 4; ) s += "=";
+  const b = atob(s), u = new Uint8Array(b.length);
+  for (let i = 0; i &lt; b.length; i++) u[i] = b.charCodeAt(i);
+  return u;
+}, cat = (...a) =&gt; {
+  let n = 0;
+  for (const x of a) n += x.length;
+  const o = new Uint8Array(n);
+  let p = 0;
+  for (const x of a)
+    o.set(x, p), p += x.length;
+  return o;
+}, OK_HOSTS = ["fcm.googleapis.com", "android.googleapis.com", "web.push.apple.com", "push.apple.com", "updates.push.services.mozilla.com", "push.services.mozilla.com", "notify.windows.com"], okEndpoint = (e) =&gt; {
+  try {
+    const u = new URL(e);
+    return u.protocol === "https:" &amp;&amp; OK_HOSTS.some((h) =&gt; u.hostname === h || u.hostname.endsWith("." + h));
+  } catch {
+    return !1;
+  }
+};
+async function encryptPayload(sub, payload, opt = {}) {
+  const ua = unb64u(sub.keys.p256dh), auth = unb64u(sub.keys.auth), asKp = opt.asKeyPair || await crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" }, !0, ["deriveBits"]), asPub = new Uint8Array(await crypto.subtle.exportKey("raw", asKp.publicKey)), uaKey = await crypto.subtle.importKey("raw", ua, { name: "ECDH", namedCurve: "P-256" }, !1, []), ecdh = new Uint8Array(await crypto.subtle.deriveBits({ name: "ECDH", public: uaKey }, asKp.privateKey, 256)), hk = async (salt2, ikm2, info, len) =&gt; crypto.subtle.deriveBits({ name: "HKDF", hash: "SHA-256", salt: salt2, info }, await crypto.subtle.importKey("raw", ikm2, "HKDF", !1, ["deriveBits"]), len * 8), ikm = new Uint8Array(await hk(auth, ecdh, cat(enc.encode("WebPush: info\0"), ua, asPub), 32)), salt = opt.salt || crypto.getRandomValues(new Uint8Array(16)), cek = await hk(salt, ikm, enc.encode("Content-Encoding: aes128gcm\0"), 16), nonce = await hk(salt, ikm, enc.encode("Content-Encoding: nonce\0"), 12), key = await crypto.subtle.importKey("raw", cek, "AES-GCM", !1, ["encrypt"]), ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv: nonce }, key, cat(enc.encode(payload), new Uint8Array([2]))));
   return cat(salt, new Uint8Array([0, 0, 16, 0]), new Uint8Array([asPub.length]), asPub, ct);
 }
-
-/* ---- VAPID (identifies this server to the push service) ---- */
 async function getVapid(env) {
-  let v = await env.KV.get('vapid', 'json');
+  let v = await env.KV.get("vapid", "json");
   if (v) return v;
-  const kp = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign']);
-  v = { pub: b64u(await crypto.subtle.exportKey('raw', kp.publicKey)), jwk: await crypto.subtle.exportKey('jwk', kp.privateKey) };
-  await env.KV.put('vapid', JSON.stringify(v));
-  return v;
+  const kp = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, !0, ["sign"]);
+  return v = { pub: b64u(await crypto.subtle.exportKey("raw", kp.publicKey)), jwk: await crypto.subtle.exportKey("jwk", kp.privateKey) }, await env.KV.put("vapid", JSON.stringify(v)), v;
 }
-export async function makeJwt(v, aud, sub) {
-  const h = b64u(enc.encode(JSON.stringify({ typ: 'JWT', alg: 'ES256' })));
-  const c = b64u(enc.encode(JSON.stringify({ aud, exp: Math.floor(Date.now() / 1000) + 12 * 3600, sub })));
-  const key = await crypto.subtle.importKey('jwk', v.jwk, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign']);
-  const sig = await crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, key, enc.encode(h + '.' + c));
-  return h + '.' + c + '.' + b64u(sig);
+async function makeJwt(v, aud, sub) {
+  const h = b64u(enc.encode(JSON.stringify({ typ: "JWT", alg: "ES256" }))), c = b64u(enc.encode(JSON.stringify({ aud, exp: Math.floor(Date.now() / 1e3) + 12 * 3600, sub }))), key = await crypto.subtle.importKey("jwk", v.jwk, { name: "ECDSA", namedCurve: "P-256" }, !1, ["sign"]), sig = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, key, enc.encode(h + "." + c));
+  return h + "." + c + "." + b64u(sig);
 }
 async function sendPush(env, rec, msg) {
-  const v = await getVapid(env), aud = new URL(rec.sub.endpoint).origin;
-  const body = await encryptPayload(rec.sub, JSON.stringify(msg));
-  const jwt = await makeJwt(v, aud, rec.origin || 'https://example.com');
-  const r = await fetch(rec.sub.endpoint, { method: 'POST', headers: { Authorization: 'vapid t=' + jwt + ', k=' + v.pub, 'Content-Encoding': 'aes128gcm', 'Content-Type': 'application/octet-stream', TTL: '1800', Urgency: 'high' }, body });
-  return r.status;
+  const v = await getVapid(env), aud = new URL(rec.sub.endpoint).origin, body = await encryptPayload(rec.sub, JSON.stringify(msg)), jwt = await makeJwt(v, aud, rec.origin || "https://example.com");
+  return (await fetch(rec.sub.endpoint, { method: "POST", headers: { Authorization: "vapid t=" + jwt + ", k=" + v.pub, "Content-Encoding": "aes128gcm", "Content-Type": "application/octet-stream", TTL: "1800", Urgency: "high" }, body })).status;
 }
-
-/* ---- storage ---- */
-const sha = async (s) =&gt; [...new Uint8Array(await crypto.subtle.digest('SHA-256', enc.encode(s)))].slice(0, 16).map((x) =&gt; x.toString(16).padStart(2, '0')).join('');
-const keyFor = async (endpoint) =&gt; 's:' + await sha(endpoint);
-/* index of who has something due soon, so the every-minute check needs one read, not a listing (KV free plan allows ~1000 listings a day) */
-const getIdx = async (env) =&gt; (await env.KV.get('idx', 'json')) || {};
-const setIdx = async (env, idx) =&gt; env.KV.put('idx', JSON.stringify(idx));
-const nextAt = (items) =&gt; items.reduce((m, i) =&gt; Math.min(m, i.at), Infinity);
-const clip = (s, n) =&gt; String(s == null ? '' : s).slice(0, n);
-
-const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS', 'Access-Control-Allow-Headers': 'content-type', 'Access-Control-Max-Age': '86400' };
-// Lock to the owner's own site/app: only requests coming from these origins may use the reminder
-// and Sefaria endpoints. Stops a copycat front-end hosted elsewhere from using this server.
-// (A hand-forged request with no browser can still spoof Origin; this stops the easy browser clone.)
-const ALLOW = ['https://mosheliberman03-maker.github.io', 'http://localhost:8791', 'http://127.0.0.1:8791', 'https://localhost', 'capacitor://localhost'];
-const originOf = (req) =&gt; { const o = req.headers.get('Origin'); if (o) return o; const r = req.headers.get('Referer'); if (r) { try { return new URL(r).origin; } catch (e) {} } return ''; };
-const corsFor = (req) =&gt; { const o = originOf(req), a = ALLOW.includes(o) ? o : ALLOW[0]; return { 'Access-Control-Allow-Origin': a, 'Vary': 'Origin', 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS', 'Access-Control-Allow-Headers': 'content-type', 'Access-Control-Max-Age': '86400' }; };
-const json = (o, status = 200) =&gt; new Response(JSON.stringify(o), { status, headers: { ...CORS, 'content-type': 'application/json' } });
-
-const fnv = (v) =&gt; { let h = 2166136261; for (let i = 0; i &lt; v.length; i++) { h ^= v.charCodeAt(i); h = Math.imul(h, 16777619); } return (h &gt;&gt;&gt; 0).toString(16); };
-const rnd = (n) =&gt; { const a = new Uint8Array(n); crypto.getRandomValues(a); return [...a].map((x) =&gt; x.toString(16).padStart(2, '0')).join(''); };
-async function pwHash(salt, pw) { // salted PBKDF2-SHA256 (kept small: the free plan allows ~10 ms of work per request)
-  const te = new TextEncoder(), k = await crypto.subtle.importKey('raw', te.encode(pw), 'PBKDF2', false, ['deriveBits']);
-  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: te.encode(salt), iterations: 10000 }, k, 256);
-  return [...new Uint8Array(bits)].map((x) =&gt; x.toString(16).padStart(2, '0')).join('');
-}
-
-async function handle(req, env) {
-  const url = new URL(req.url), p = url.pathname;
-  const H = corsFor(req);                       // CORS reflecting the owner's own origin only
-  const j = (o, status = 200) =&gt; new Response(JSON.stringify(o), { status, headers: { ...H, 'content-type': 'application/json' } });
-  if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: H });
-  if (req.method === 'GET' &amp;&amp; p === '/') return new Response('Chabad Calendar push server is running.', { headers: { ...H, 'content-type': 'text/plain' } });
-  if (req.method === 'GET' &amp;&amp; p === '/vapid') return j({ pub: (await getVapid(env)).pub });
-  // Guard the endpoints a copycat would want to abuse: they must come from the owner's own site/app.
-  if ((p === '/sync' || p === '/unsub' || p === '/test' || p.startsWith('/sefaria/')) &amp;&amp; !ALLOW.includes(originOf(req)))
-    return j({ error: 'This request did not come from the Chabad Calendar app.' }, 403);
-  // Sefaria relay for the app's Hebrew shiur reader: some phones can't read Sefaria's replies directly.
-  // Only Sefaria's daily-schedule and text addresses are allowed; answers are cached for a day.
-  if (req.method === 'GET' &amp;&amp; p.startsWith('/sefaria/')) {
-    const rest = p.slice('/sefaria/'.length);
-    if (!/^(calendars$|v3\/texts\/|v2\/raw\/index\/)/.test(rest)) return j({ error: 'not allowed' }, 404);
+const sha = async (s) =&gt; [...new Uint8Array(await crypto.subtle.digest("SHA-256", enc.encode(s)))].slice(0, 16).map((x) =&gt; x.toString(16).padStart(2, "0")).join(""), keyFor = async (endpoint) =&gt; "s:" + await sha(endpoint), getIdx = async (env) =&gt; await env.KV.get("idx", "json") || {}, setIdx = async (env, idx) =&gt; env.KV.put("idx", JSON.stringify(idx)), nextAt = (items) =&gt; items.reduce((m, i) =&gt; Math.min(m, i.at), 1 / 0), clip = (s, n) =&gt; String(s ?? "").slice(0, n), CORS = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "GET,POST,OPTIONS", "Access-Control-Allow-Headers": "content-type", "Access-Control-Max-Age": "86400" }, ALLOW = ["https://mosheliberman03-maker.github.io", "http://localhost:8791", "http://127.0.0.1:8791", "https://localhost", "capacitor://localhost"], originOf = (req) =&gt; {
+  const o = req.headers.get("Origin");
+  if (o) return o;
+  const r = req.headers.get("Referer");
+  if (r)
     try {
-      const r = await fetch('https://www.sefaria.org/api/' + rest + url.search, { headers: { 'User-Agent': 'CDate calendar (Sefaria relay)' }, cf: { cacheTtl: 86400, cacheEverything: true } });
-      return new Response(r.body, { status: r.status, headers: { ...H, 'content-type': 'application/json; charset=utf-8', 'cache-control': 'public, max-age=3600' } });
-    } catch (e) { return j({ error: 'sefaria unreachable' }, 502); }
+      return new URL(r).origin;
+    } catch {
+    }
+  return "";
+}, corsFor = (req) =&gt; {
+  const o = originOf(req);
+  return { "Access-Control-Allow-Origin": ALLOW.includes(o) ? o : ALLOW[0], Vary: "Origin", "Access-Control-Allow-Methods": "GET,POST,OPTIONS", "Access-Control-Allow-Headers": "content-type", "Access-Control-Max-Age": "86400" };
+}, json = (o, status = 200) =&gt; new Response(JSON.stringify(o), { status, headers: { ...CORS, "content-type": "application/json" } }), fnv = (v) =&gt; {
+  let h = 2166136261;
+  for (let i = 0; i &lt; v.length; i++)
+    h ^= v.charCodeAt(i), h = Math.imul(h, 16777619);
+  return (h &gt;&gt;&gt; 0).toString(16);
+}, rnd = (n) =&gt; {
+  const a = new Uint8Array(n);
+  return crypto.getRandomValues(a), [...a].map((x) =&gt; x.toString(16).padStart(2, "0")).join("");
+};
+async function pwHash(salt, pw) {
+  const te = new TextEncoder(), k = await crypto.subtle.importKey("raw", te.encode(pw), "PBKDF2", !1, ["deriveBits"]), bits = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: te.encode(salt), iterations: 1e4 }, k, 256);
+  return [...new Uint8Array(bits)].map((x) =&gt; x.toString(16).padStart(2, "0")).join("");
+}
+async function handle(req, env) {
+  const url = new URL(req.url), p = url.pathname, H = corsFor(req), j = (o, status = 200) =&gt; new Response(JSON.stringify(o), { status, headers: { ...H, "content-type": "application/json" } });
+  if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: H });
+  if (req.method === "GET" &amp;&amp; p === "/") return new Response("Chabad Calendar push server is running.", { headers: { ...H, "content-type": "text/plain" } });
+  if (req.method === "GET" &amp;&amp; p === "/vapid") return j({ pub: (await getVapid(env)).pub });
+  if ((p === "/sync" || p === "/unsub" || p === "/test" || p.startsWith("/sefaria/")) &amp;&amp; !ALLOW.includes(originOf(req)))
+    return j({ error: "This request did not come from the Chabad Calendar app." }, 403);
+  if (req.method === "GET" &amp;&amp; p.startsWith("/sefaria/")) {
+    const rest = p.slice(9);
+    if (!/^(calendars$|v3\/texts\/|v2\/raw\/index\/)/.test(rest)) return j({ error: "not allowed" }, 404);
+    try {
+      const r = await fetch("https://www.sefaria.org/api/" + rest + url.search, { headers: { "User-Agent": "CDate calendar (Sefaria relay)" }, cf: { cacheTtl: 86400, cacheEverything: !0 } });
+      return new Response(r.body, { status: r.status, headers: { ...H, "content-type": "application/json; charset=utf-8", "cache-control": "public, max-age=3600" } });
+    } catch {
+      return j({ error: "sefaria unreachable" }, 502);
+    }
   }
-  // "Keep in Touch" friends app (/CDate/friends/ and its Android app): the shared list of phone numbers and
-  // sign-in codes (salted hashes only). One KV key per collection; a few dozen people, so a whole-list read is cheap.
-  if (p.startsWith('/kit/')) {
-    if (!ALLOW.includes(originOf(req))) return j({ error: 'This request did not come from the Keep in Touch app.' }, 403);
-    const [, , col, op] = p.split('/');
-    const SPEC = { phones3: { k: 200, p: 32 }, accounts3: { k: 200, salt: 64, h: 128 }, feedback3: { k: 200, t: 20, m: 1500, at: 30 }, links3: { k: 200, l: 1500 } };
-    // Communities (owner): anyone can create one; members see each other. Looked up only by its code, never listed.
-    // Each member proves who they are with a secret their phone made when joining (only its hash is kept here).
-    // "shluchim" is the built-in Shluchim community (the directory lives in the app); its admin is claimed with the admin code.
-    if (col === 'comm') {
-      const ck = 'kit:comm', all = (await env.KV.get(ck, 'json')) || {};
-      const okC = (x) =&gt; typeof x === 'string' &amp;&amp; /^([a-z0-9]{8}|shluchim)$/.test(x);
-      const okF = (x) =&gt; typeof x === 'string' &amp;&amp; /^[a-z0-9_]{1,140}$/.test(x);
-      const str = (v, n) =&gt; typeof v === 'string' &amp;&amp; v.length &lt;= n ? v : '';
-      const sha = async (t) =&gt; [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))].map((x) =&gt; x.toString(16).padStart(2, '0')).join('');
-      const pub = (d) =&gt; ({ name: d.name, mode: d.mode, owner: d.owner, admins: d.admins,
-        members: Object.fromEntries(Object.entries(d.members).map(([k, v]) =&gt; [k, { n: v.n, c: v.c, la: v.la, lo: v.lo, tz: v.tz, p: v.p }])),
-        pending: Object.fromEntries(Object.entries(d.pending || {}).map(([k, v]) =&gt; [k, { n: v.n, c: v.c }])) });
-      if (req.method === 'GET' &amp;&amp; op === 'get') { const id = url.searchParams.get('id'); if (!okC(id)) return j({ error: 'bad id' }, 400); const d = all[id]; return j({ doc: d ? pub(d) : (id === 'shluchim' ? { name: 'Shluchim', mode: 'open', owner: '', admins: [], members: {}, pending: {} } : null) }); }
-      if (req.method !== 'POST') return j({ error: 'not found' }, 404);
-      let b; try { b = await req.json(); } catch (e) { return j({ error: 'bad json' }, 400); }
-      const fk = b &amp;&amp; b.fk, sec = str(b &amp;&amp; b.s, 64);
-      if (!okF(fk) || sec.length &lt; 16) return j({ error: 'bad member' }, 400);
-      const sh = await sha('kit-comm:' + sec);
-      const info = (m) =&gt; { m = m || {}; const o = { n: str(m.n, 80), c: str(m.c, 120), la: str(m.la, 20), lo: str(m.lo, 20), tz: str(m.tz, 64), p: str(m.p, 32) }; return o.n &amp;&amp; o.tz ? o : null; };
-      const save = async () =&gt; { await env.KV.put(ck, JSON.stringify(all)); };
-      if (op === 'create') {
-        const name = str(b.name, 60).trim(), me = info(b.me); if (!name || !me) return j({ error: 'bad data' }, 400);
-        if (Object.keys(all).length &gt;= 2000) return j({ error: 'full' }, 507);
-        let id; do { id = [...crypto.getRandomValues(new Uint8Array(8))].map((x) =&gt; 'abcdefghjkmnpqrstuvwxyz23456789'[x % 31]).join(''); } while (all[id]);
-        all[id] = { name, mode: 'open', owner: fk, admins: [fk], members: { [fk]: { ...me, sh } }, pending: {} };
-        await save(); return j({ ok: true, id });
+  if (p.startsWith("/kit/")) {
+    if (!ALLOW.includes(originOf(req))) return j({ error: "This request did not come from the Keep in Touch app." }, 403);
+    const [, , col, op] = p.split("/"), SPEC = { phones3: { k: 200, p: 32 }, accounts3: { k: 200, salt: 64, h: 128 }, feedback3: { k: 200, t: 20, m: 1500, at: 30 }, links3: { k: 200, l: 1500 } };
+    if (col === "comm") {
+      const ck = "kit:comm", all2 = await env.KV.get(ck, "json") || {}, okC = (x) =&gt; typeof x == "string" &amp;&amp; /^([a-z0-9]{8}|shluchim)$/.test(x), okF = (x) =&gt; typeof x == "string" &amp;&amp; /^[a-z0-9_]{1,140}$/.test(x), str = (v, n) =&gt; typeof v == "string" &amp;&amp; v.length &lt;= n ? v : "", sha2 = async (t) =&gt; [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)))].map((x) =&gt; x.toString(16).padStart(2, "0")).join(""), pub = (d2) =&gt; ({
+        name: d2.name,
+        mode: d2.mode,
+        owner: d2.owner,
+        admins: d2.admins,
+        members: Object.fromEntries(Object.entries(d2.members).map(([k2, v]) =&gt; [k2, { n: v.n, c: v.c, la: v.la, lo: v.lo, tz: v.tz, p: v.p }])),
+        pending: Object.fromEntries(Object.entries(d2.pending || {}).map(([k2, v]) =&gt; [k2, { n: v.n, c: v.c }]))
+      });
+      if (req.method === "GET" &amp;&amp; op === "get") {
+        const id3 = url.searchParams.get("id");
+        if (!okC(id3)) return j({ error: "bad id" }, 400);
+        const d2 = all2[id3];
+        return j({ doc: d2 ? pub(d2) : id3 === "shluchim" ? { name: "Shluchim", mode: "open", owner: "", admins: [], members: {}, pending: {} } : null });
       }
-      const id = b.id; if (!okC(id)) return j({ error: 'bad id' }, 400);
-      if (!all[id] &amp;&amp; id === 'shluchim') all[id] = { name: 'Shluchim', mode: 'open', owner: '', admins: [], members: {}, pending: {} };
-      const d = all[id]; if (!d) return j({ error: 'no such community' }, 404);
+      if (req.method !== "POST") return j({ error: "not found" }, 404);
+      let b3;
+      try {
+        b3 = await req.json();
+      } catch {
+        return j({ error: "bad json" }, 400);
+      }
+      const fk = b3 &amp;&amp; b3.fk, sec = str(b3 &amp;&amp; b3.s, 64);
+      if (!okF(fk) || sec.length &lt; 16) return j({ error: "bad member" }, 400);
+      const sh = await sha2("kit-comm:" + sec), info = (m) =&gt; {
+        m = m || {};
+        const o = { n: str(m.n, 80), c: str(m.c, 120), la: str(m.la, 20), lo: str(m.lo, 20), tz: str(m.tz, 64), p: str(m.p, 32) };
+        return o.n &amp;&amp; o.tz ? o : null;
+      }, save = async () =&gt; {
+        await env.KV.put(ck, JSON.stringify(all2));
+      };
+      if (op === "create") {
+        const name = str(b3.name, 60).trim(), me = info(b3.me);
+        if (!name || !me) return j({ error: "bad data" }, 400);
+        if (Object.keys(all2).length &gt;= 2e3) return j({ error: "full" }, 507);
+        let id3;
+        do
+          id3 = [...crypto.getRandomValues(new Uint8Array(8))].map((x) =&gt; "abcdefghjkmnpqrstuvwxyz23456789"[x % 31]).join("");
+        while (all2[id3]);
+        return all2[id3] = { name, mode: "open", owner: fk, admins: [fk], members: { [fk]: { ...me, sh } }, pending: {} }, await save(), j({ ok: !0, id: id3 });
+      }
+      const id2 = b3.id;
+      if (!okC(id2)) return j({ error: "bad id" }, 400);
+      !all2[id2] &amp;&amp; id2 === "shluchim" &amp;&amp; (all2[id2] = { name: "Shluchim", mode: "open", owner: "", admins: [], members: {}, pending: {} });
+      const d = all2[id2];
+      if (!d) return j({ error: "no such community" }, 404);
       d.pending = d.pending || {};
       const isMe = d.members[fk] &amp;&amp; d.members[fk].sh === sh;
-      if (op === 'join') {
-        const me = info(b.me); if (!me) return j({ error: 'bad data' }, 400);
-        if (d.members[fk]) { if (!isMe) return j({ error: 'taken' }, 403); d.members[fk] = { ...me, sh }; await save(); return j({ ok: true, status: 'member' }); }
-        if (Object.keys(d.members).length &gt;= 1000) return j({ error: 'full' }, 507);
-        if (d.mode === 'approve') { d.pending[fk] = { ...me, sh }; await save(); return j({ ok: true, status: 'pending' }); }
-        d.members[fk] = { ...me, sh }; delete d.pending[fk]; await save(); return j({ ok: true, status: 'member' });
+      if (op === "join") {
+        const me = info(b3.me);
+        return me ? d.members[fk] ? isMe ? (d.members[fk] = { ...me, sh }, await save(), j({ ok: !0, status: "member" })) : j({ error: "taken" }, 403) : Object.keys(d.members).length &gt;= 1e3 ? j({ error: "full" }, 507) : d.mode === "approve" ? (d.pending[fk] = { ...me, sh }, await save(), j({ ok: !0, status: "pending" })) : (d.members[fk] = { ...me, sh }, delete d.pending[fk], await save(), j({ ok: !0, status: "member" })) : j({ error: "bad data" }, 400);
       }
-      if (op === 'claim') {
-        if (id !== 'shluchim' || (await sha('kit-admin:' + str(b.code, 40))) !== '816e975bd4123d6abe1f2a030146455a4140bcfc57beeaca4808ae0f18b41257') return j({ error: 'wrong code' }, 403);
-        const me = info(b.me); if (!me) return j({ error: 'bad data' }, 400);
-        d.members[fk] = { ...me, sh }; if (!d.admins.includes(fk)) d.admins.push(fk); if (!d.owner) d.owner = fk; await save(); return j({ ok: true });
+      if (op === "claim") {
+        if (id2 !== "shluchim" || await sha2("kit-admin:" + str(b3.code, 40)) !== "816e975bd4123d6abe1f2a030146455a4140bcfc57beeaca4808ae0f18b41257") return j({ error: "wrong code" }, 403);
+        const me = info(b3.me);
+        return me ? (d.members[fk] = { ...me, sh }, d.admins.includes(fk) || d.admins.push(fk), d.owner || (d.owner = fk), await save(), j({ ok: !0 })) : j({ error: "bad data" }, 400);
       }
-      if (op === 'status') return j({ ok: true, status: isMe ? 'member' : (d.pending[fk] &amp;&amp; d.pending[fk].sh === sh ? 'pending' : 'none') });
-      if (op === 'leave') {
-        if (d.pending[fk] &amp;&amp; d.pending[fk].sh === sh) { delete d.pending[fk]; await save(); return j({ ok: true }); }
-        if (!isMe) return j({ error: 'not a member' }, 403);
-        delete d.members[fk]; d.admins = d.admins.filter((x) =&gt; x !== fk);
-        if (d.owner === fk) d.owner = d.admins[0] || Object.keys(d.members)[0] || '';
-        if (d.owner &amp;&amp; !d.admins.length) d.admins = [d.owner];
-        if (!Object.keys(d.members).length &amp;&amp; id !== 'shluchim') delete all[id];
-        await save(); return j({ ok: true });
-      }
-      // admin actions: only admins, proven by their secret
-      if (!isMe || !d.admins.includes(fk)) return j({ error: 'not an admin' }, 403);
-      const who = b.who;
-      if (op === 'mode') { if (b.mode !== 'open' &amp;&amp; b.mode !== 'approve') return j({ error: 'bad mode' }, 400); d.mode = b.mode; }
-      else if (op === 'rename') { const name = str(b.name, 60).trim(); if (!name) return j({ error: 'bad name' }, 400); d.name = name; }
-      else if (op === 'approve') { if (!d.pending[who]) return j({ error: 'not waiting' }, 404); d.members[who] = d.pending[who]; delete d.pending[who]; }
-      else if (op === 'decline') { delete d.pending[who]; }
-      else if (op === 'remove') { if (who === d.owner) return j({ error: 'cannot remove the creator' }, 403); delete d.members[who]; d.admins = d.admins.filter((x) =&gt; x !== who); }
-      else if (op === 'admin') { if (!d.members[who]) return j({ error: 'not a member' }, 404); if (b.on) { if (!d.admins.includes(who)) d.admins.push(who); } else { if (who === d.owner) return j({ error: 'cannot remove the creator' }, 403); d.admins = d.admins.filter((x) =&gt; x !== who); } }
-      else return j({ error: 'not found' }, 404);
-      await save(); return j({ ok: true });
+      if (op === "status") return j({ ok: !0, status: isMe ? "member" : d.pending[fk] &amp;&amp; d.pending[fk].sh === sh ? "pending" : "none" });
+      if (op === "leave")
+        return d.pending[fk] &amp;&amp; d.pending[fk].sh === sh ? (delete d.pending[fk], await save(), j({ ok: !0 })) : isMe ? (delete d.members[fk], d.admins = d.admins.filter((x) =&gt; x !== fk), d.owner === fk &amp;&amp; (d.owner = d.admins[0] || Object.keys(d.members)[0] || ""), d.owner &amp;&amp; !d.admins.length &amp;&amp; (d.admins = [d.owner]), !Object.keys(d.members).length &amp;&amp; id2 !== "shluchim" &amp;&amp; delete all2[id2], await save(), j({ ok: !0 })) : j({ error: "not a member" }, 403);
+      if (!isMe || !d.admins.includes(fk)) return j({ error: "not an admin" }, 403);
+      const who = b3.who;
+      if (op === "mode") {
+        if (b3.mode !== "open" &amp;&amp; b3.mode !== "approve") return j({ error: "bad mode" }, 400);
+        d.mode = b3.mode;
+      } else if (op === "rename") {
+        const name = str(b3.name, 60).trim();
+        if (!name) return j({ error: "bad name" }, 400);
+        d.name = name;
+      } else if (op === "approve") {
+        if (!d.pending[who]) return j({ error: "not waiting" }, 404);
+        d.members[who] = d.pending[who], delete d.pending[who];
+      } else if (op === "decline")
+        delete d.pending[who];
+      else if (op === "remove") {
+        if (who === d.owner) return j({ error: "cannot remove the creator" }, 403);
+        delete d.members[who], d.admins = d.admins.filter((x) =&gt; x !== who);
+      } else if (op === "admin") {
+        if (!d.members[who]) return j({ error: "not a member" }, 404);
+        if (b3.on)
+          d.admins.includes(who) || d.admins.push(who);
+        else {
+          if (who === d.owner) return j({ error: "cannot remove the creator" }, 403);
+          d.admins = d.admins.filter((x) =&gt; x !== who);
+        }
+      } else return j({ error: "not found" }, 404);
+      return await save(), j({ ok: !0 });
     }
-    // Private lists (owner): never listed, only looked up by an id the phone computes (a salted hash).
-    //  users3 = accounts of people who are NOT in the yeshiva list (id = hash of their number; no name/number stored).
-    //  inv3   = "someone added you": id = hash of the added person's name + number; items = who added them.
-    if (col === 'users3' || col === 'inv3') {
-      const pkey2 = 'kit:' + col, pall = (await env.KV.get(pkey2, 'json')) || {};
-      const okId = (x) =&gt; typeof x === 'string' &amp;&amp; /^[a-f0-9]{64}$/.test(x);
-      if (req.method === 'GET' &amp;&amp; op === 'get') { const id = url.searchParams.get('id'); if (!okId(id)) return j({ error: 'bad id' }, 400); return j({ doc: pall[id] || null }); }
-      if (req.method !== 'POST') return j({ error: 'not found' }, 404);
-      let b; try { b = await req.json(); } catch (e) { return j({ error: 'bad json' }, 400); }
-      const id = b &amp;&amp; b.id; if (!okId(id)) return j({ error: 'bad id' }, 400);
-      const str = (v, n) =&gt; typeof v === 'string' &amp;&amp; v.length &lt;= n ? v : '';
-      if (col === 'users3') {
-        if (op === 'del') delete pall[id];
-        else if (op === 'set') { const salt = str(b.data &amp;&amp; b.data.salt, 64), h = str(b.data &amp;&amp; b.data.h, 128); if (!salt || !h) return j({ error: 'bad data' }, 400); if (!pall[id] &amp;&amp; Object.keys(pall).length &gt;= 5000) return j({ error: 'full' }, 507); pall[id] = { salt, h }; }
-        else return j({ error: 'not found' }, 404);
-      } else {
-        const fk = str(b.fk, 140); if (!fk) return j({ error: 'bad fk' }, 400);
-        const cur = (pall[id] &amp;&amp; pall[id].items) || [];
-        if (op === 'rm') { const left = cur.filter((x) =&gt; x.fk !== fk); if (left.length) pall[id] = { items: left }; else delete pall[id]; }
-        else if (op === 'add') {
-          const d = b.data || {}, it = { fk, n: str(d.n, 80), c: str(d.c, 120), la: str(d.la, 20), lo: str(d.lo, 20), tz: str(d.tz, 64), p: str(d.p, 32) };
-          if (!it.n || !it.tz) return j({ error: 'bad data' }, 400);
-          if (!pall[id] &amp;&amp; Object.keys(pall).length &gt;= 5000) return j({ error: 'full' }, 507);
-          pall[id] = { items: cur.filter((x) =&gt; x.fk !== fk).concat([it]).slice(-20) };
-        } else return j({ error: 'not found' }, 404);
+    if (col === "users3" || col === "inv3") {
+      const pkey2 = "kit:" + col, pall = await env.KV.get(pkey2, "json") || {}, okId = (x) =&gt; typeof x == "string" &amp;&amp; /^[a-f0-9]{64}$/.test(x);
+      if (req.method === "GET" &amp;&amp; op === "get") {
+        const id3 = url.searchParams.get("id");
+        return okId(id3) ? j({ doc: pall[id3] || null }) : j({ error: "bad id" }, 400);
       }
-      await env.KV.put(pkey2, JSON.stringify(pall));
-      return j({ ok: true });
+      if (req.method !== "POST") return j({ error: "not found" }, 404);
+      let b3;
+      try {
+        b3 = await req.json();
+      } catch {
+        return j({ error: "bad json" }, 400);
+      }
+      const id2 = b3 &amp;&amp; b3.id;
+      if (!okId(id2)) return j({ error: "bad id" }, 400);
+      const str = (v, n) =&gt; typeof v == "string" &amp;&amp; v.length &lt;= n ? v : "";
+      if (col === "users3")
+        if (op === "del") delete pall[id2];
+        else if (op === "set") {
+          const salt = str(b3.data &amp;&amp; b3.data.salt, 64), h = str(b3.data &amp;&amp; b3.data.h, 128);
+          if (!salt || !h) return j({ error: "bad data" }, 400);
+          if (!pall[id2] &amp;&amp; Object.keys(pall).length &gt;= 5e3) return j({ error: "full" }, 507);
+          pall[id2] = { salt, h };
+        } else return j({ error: "not found" }, 404);
+      else {
+        const fk = str(b3.fk, 140);
+        if (!fk) return j({ error: "bad fk" }, 400);
+        const cur = pall[id2] &amp;&amp; pall[id2].items || [];
+        if (op === "rm") {
+          const left = cur.filter((x) =&gt; x.fk !== fk);
+          left.length ? pall[id2] = { items: left } : delete pall[id2];
+        } else if (op === "add") {
+          const d = b3.data || {}, it = { fk, n: str(d.n, 80), c: str(d.c, 120), la: str(d.la, 20), lo: str(d.lo, 20), tz: str(d.tz, 64), p: str(d.p, 32) };
+          if (!it.n || !it.tz) return j({ error: "bad data" }, 400);
+          if (!pall[id2] &amp;&amp; Object.keys(pall).length &gt;= 5e3) return j({ error: "full" }, 507);
+          pall[id2] = { items: cur.filter((x) =&gt; x.fk !== fk).concat([it]).slice(-20) };
+        } else return j({ error: "not found" }, 404);
+      }
+      return await env.KV.put(pkey2, JSON.stringify(pall)), j({ ok: !0 });
     }
     const spec = SPEC[col];
-    if (!spec) return j({ error: 'not found' }, 404);
-    const key = 'kit:' + col;
-    const all = (await env.KV.get(key, 'json')) || {};
-    if (req.method === 'GET' &amp;&amp; !op) return j({ docs: all });
-    if (req.method !== 'POST' || (op !== 'set' &amp;&amp; op !== 'del')) return j({ error: 'not found' }, 404);
-    let b; try { b = await req.json(); } catch (e) { return j({ error: 'bad json' }, 400); }
-    const id = clip(b &amp;&amp; b.id, 140);
-    if (!id || !/^[a-z0-9_]+$/.test(id)) return j({ error: 'bad id' }, 400);
-    if (op === 'del') delete all[id];
+    if (!spec) return j({ error: "not found" }, 404);
+    const key = "kit:" + col, all = await env.KV.get(key, "json") || {};
+    if (req.method === "GET" &amp;&amp; !op) return j({ docs: all });
+    if (req.method !== "POST" || op !== "set" &amp;&amp; op !== "del") return j({ error: "not found" }, 404);
+    let b2;
+    try {
+      b2 = await req.json();
+    } catch {
+      return j({ error: "bad json" }, 400);
+    }
+    const id = clip(b2 &amp;&amp; b2.id, 140);
+    if (!id || !/^[a-z0-9_]+$/.test(id)) return j({ error: "bad id" }, 400);
+    if (op === "del") delete all[id];
     else {
-      const d = b.data || {}, clean = {};
-      for (const f of Object.keys(spec)) { if (typeof d[f] !== 'string' || !d[f] || d[f].length &gt; spec[f]) return j({ error: 'bad ' + f }, 400); clean[f] = d[f]; }
-      if (!all[id] &amp;&amp; Object.keys(all).length &gt;= 2000) return j({ error: 'full' }, 507);
-      all[id] = clean;
-    }
-    await env.KV.put(key, JSON.stringify(all));
-    return j({ ok: true });
-  }
-  // Chabad Calendar accounts (owner, v89): each account's saved data lives here, so signing in on a new phone or after
-  // reinstalling brings everything back. KV 'acct:&lt;user&gt;' = { s: salt, h: PBKDF2(password), tk: [session tokens],
-  // d: { key: [value, time] }, r: revision, f/ft: failed sign-ins }. Writes happen only when something changed.
-  // A change is [value, time, base hash]; if the server's copy moved on since that base, it is refused and the phone merges.
-  if (p.startsWith('/acct/')) {
-    if (!ALLOW.includes(originOf(req))) return j({ error: 'This request did not come from the Chabad Calendar app.' }, 403);
-    if (req.method !== 'POST') return j({ error: 'not found' }, 404);
-    let b; try { b = await req.json(); } catch (e) { return j({ error: 'bad json' }, 400); }
-    const op = p.slice(6), u = String((b &amp;&amp; b.u) || '').toLowerCase(), now = Date.now();
-    if (!/^[a-z0-9_.-]{3,32}$/.test(u) || u === 'test') return j({ error: 'bad user' }, 400);
-    const key = 'acct:' + u;
-    let a = await env.KV.get(key, 'json');
-    if (op === 'new' || op === 'login') {
-      const pw = String(b.p || '');
-      if (pw.length &lt; 4 || pw.length &gt; 200) return j({ error: 'bad password' }, 400);
-      if (a &amp;&amp; (a.f || 0) &gt;= 8 &amp;&amp; now - (a.ft || 0) &lt; 10 * 60e3) return j({ error: 'locked' }, 429);
-      if (!a) {
-        if (op === 'login') return j({ error: 'no account' }, 404);
-        const s = rnd(16); a = { s, h: await pwHash(s, pw), tk: [], d: {}, r: 0, c: now };
-      } else if ((await pwHash(a.s, pw)) !== a.h) {
-        a.f = (a.f || 0) + 1; a.ft = now; await env.KV.put(key, JSON.stringify(a));
-        return op === 'new' ? j({ error: 'taken' }, 409) : j({ error: 'wrong password' }, 401);
+      const d = b2.data || {}, clean2 = {};
+      for (const f of Object.keys(spec)) {
+        if (typeof d[f] != "string" || !d[f] || d[f].length &gt; spec[f]) return j({ error: "bad " + f }, 400);
+        clean2[f] = d[f];
       }
-      a.f = 0; const t = rnd(24); a.tk = [t, ...(a.tk || [])].slice(0, 12);
-      await env.KV.put(key, JSON.stringify(a));
-      return j({ ok: true, t, d: a.d, r: a.r });
+      if (!all[id] &amp;&amp; Object.keys(all).length &gt;= 2e3) return j({ error: "full" }, 507);
+      all[id] = clean2;
     }
-    if (op === 'sync') {
-      if (!a || !(a.tk || []).includes(String(b.t || ''))) return j({ error: 'signed out' }, 401);
-      const ch = b.ch &amp;&amp; typeof b.ch === 'object' ? b.ch : {}; let n = 0;
-      for (const k of Object.keys(ch).slice(0, 500)) {
-        const v = ch[k]; if (k.length &gt; 80 || !Array.isArray(v)) continue;
+    return await env.KV.put(key, JSON.stringify(all)), j({ ok: !0 });
+  }
+  if (p.startsWith("/acct/")) {
+    if (!ALLOW.includes(originOf(req))) return j({ error: "This request did not come from the Chabad Calendar app." }, 403);
+    if (req.method !== "POST") return j({ error: "not found" }, 404);
+    let b2;
+    try {
+      b2 = await req.json();
+    } catch {
+      return j({ error: "bad json" }, 400);
+    }
+    const op = p.slice(6), u = String(b2 &amp;&amp; b2.u || "").toLowerCase(), now = Date.now();
+    if (!/^[a-z0-9_.-]{3,32}$/.test(u) || u === "test") return j({ error: "bad user" }, 400);
+    const key = "acct:" + u;
+    let a = await env.KV.get(key, "json");
+    if (op === "new" || op === "login") {
+      const pw = String(b2.p || "");
+      if (pw.length &lt; 4 || pw.length &gt; 200) return j({ error: "bad password" }, 400);
+      if (a &amp;&amp; (a.f || 0) &gt;= 8 &amp;&amp; now - (a.ft || 0) &lt; 10 * 6e4) return j({ error: "locked" }, 429);
+      if (a) {
+        if (await pwHash(a.s, pw) !== a.h)
+          return a.f = (a.f || 0) + 1, a.ft = now, await env.KV.put(key, JSON.stringify(a)), op === "new" ? j({ error: "taken" }, 409) : j({ error: "wrong password" }, 401);
+      } else {
+        if (op === "login") return j({ error: "no account" }, 404);
+        const s = rnd(16);
+        a = { s, h: await pwHash(s, pw), tk: [], d: {}, r: 0, c: now };
+      }
+      a.f = 0;
+      const t = rnd(24);
+      return a.tk = [t, ...a.tk || []].slice(0, 12), await env.KV.put(key, JSON.stringify(a)), j({ ok: !0, t, d: a.d, r: a.r });
+    }
+    if (op === "sync") {
+      if (!a || !(a.tk || []).includes(String(b2.t || ""))) return j({ error: "signed out" }, 401);
+      const ch = b2.ch &amp;&amp; typeof b2.ch == "object" ? b2.ch : {};
+      let n = 0;
+      for (const k2 of Object.keys(ch).slice(0, 500)) {
+        const v = ch[k2];
+        if (k2.length &gt; 80 || !Array.isArray(v)) continue;
         const val = v[0] == null ? null : String(v[0]), ts = Math.min(Number(v[1]) || 0, now);
-        if (val &amp;&amp; val.length &gt; 500000) continue;
-        // only if this phone saw the latest copy (its base = the hash of what it last synced); otherwise it merges and sends again
-        const cur = a.d[k], curH = cur ? (cur[0] == null ? '-' : fnv(cur[0])) : '';
-        if (curH !== String(v[2] || '') &amp;&amp; curH !== (val == null ? '-' : fnv(val))) continue;
-        a.d[k] = [val, ts]; n++;
+        if (val &amp;&amp; val.length &gt; 5e5) continue;
+        const cur = a.d[k2], curH = cur ? cur[0] == null ? "-" : fnv(cur[0]) : "";
+        curH !== String(v[2] || "") &amp;&amp; curH !== (val == null ? "-" : fnv(val)) || (a.d[k2] = [val, ts], n++);
       }
       if (n) {
-        if (JSON.stringify(a.d).length &gt; 5e6) return j({ error: 'too big' }, 413);
-        a.r = (a.r || 0) + 1; await env.KV.put(key, JSON.stringify(a));
+        if (JSON.stringify(a.d).length &gt; 5e6) return j({ error: "too big" }, 413);
+        a.r = (a.r || 0) + 1, await env.KV.put(key, JSON.stringify(a));
       }
-      if (!n &amp;&amp; Number(b.r) === a.r) return j({ ok: true, r: a.r, same: 1 });
-      return j({ ok: true, r: a.r, d: a.d });
+      return !n &amp;&amp; Number(b2.r) === a.r ? j({ ok: !0, r: a.r, same: 1 }) : j({ ok: !0, r: a.r, d: a.d });
     }
-    return j({ error: 'not found' }, 404);
+    return j({ error: "not found" }, 404);
   }
-  if (req.method !== 'POST') return j({ error: 'not found' }, 404);
-  let b; try { b = await req.json(); } catch (e) { return j({ error: 'bad json' }, 400); }
+  if (req.method !== "POST") return j({ error: "not found" }, 404);
+  let b;
+  try {
+    b = await req.json();
+  } catch {
+    return j({ error: "bad json" }, 400);
+  }
   const sub = b &amp;&amp; b.sub;
-  if (!sub || !sub.endpoint || !sub.keys || !sub.keys.p256dh || !sub.keys.auth || !okEndpoint(sub.endpoint)) return j({ error: 'bad subscription' }, 400);
-  const clean = { endpoint: sub.endpoint, keys: { p256dh: String(sub.keys.p256dh), auth: String(sub.keys.auth) } };
-  const k = await keyFor(clean.endpoint);
-  if (p === '/sync') {
-    const items = (Array.isArray(b.items) ? b.items : []).slice(0, 80).map((i) =&gt; ({ id: clip(i.id, 80), at: Number(i.at), title: clip(i.title, 120), body: clip(i.body, 600), tag: clip(i.tag, 120) })).filter((i) =&gt; i.id &amp;&amp; isFinite(i.at) &amp;&amp; i.title);
-    const idx = await getIdx(env);
-    if (!items.length) { await env.KV.delete(k); delete idx[k]; await setIdx(env, idx); return j({ ok: true, n: 0 }); }
-    await env.KV.put(k, JSON.stringify({ sub: clean, origin: url.origin, items }), { expirationTtl: 60 * 86400 });
-    idx[k] = nextAt(items); await setIdx(env, idx);
-    return j({ ok: true, n: items.length });
+  if (!sub || !sub.endpoint || !sub.keys || !sub.keys.p256dh || !sub.keys.auth || !okEndpoint(sub.endpoint)) return j({ error: "bad subscription" }, 400);
+  const clean = { endpoint: sub.endpoint, keys: { p256dh: String(sub.keys.p256dh), auth: String(sub.keys.auth) } }, k = await keyFor(clean.endpoint);
+  if (p === "/sync") {
+    const items = (Array.isArray(b.items) ? b.items : []).slice(0, 80).map((i) =&gt; ({ id: clip(i.id, 80), at: Number(i.at), title: clip(i.title, 120), body: clip(i.body, 600), tag: clip(i.tag, 120) })).filter((i) =&gt; i.id &amp;&amp; isFinite(i.at) &amp;&amp; i.title), idx = await getIdx(env);
+    return items.length ? (await env.KV.put(k, JSON.stringify({ sub: clean, origin: url.origin, items }), { expirationTtl: 60 * 86400 }), idx[k] = nextAt(items), await setIdx(env, idx), j({ ok: !0, n: items.length })) : (await env.KV.delete(k), delete idx[k], await setIdx(env, idx), j({ ok: !0, n: 0 }));
   }
-  if (p === '/unsub') { await env.KV.delete(k); const idx = await getIdx(env); delete idx[k]; await setIdx(env, idx); return j({ ok: true }); }
-  if (p === '/test') {
-    const st = await sendPush({ ...env, KV: env.KV }, { sub: clean, origin: url.origin }, { title: clip(b.title, 120) || 'Reminders are on', body: clip(b.body, 600) || 'This is how they will look.', tag: 'test' });
+  if (p === "/unsub") {
+    await env.KV.delete(k);
+    const idx = await getIdx(env);
+    return delete idx[k], await setIdx(env, idx), j({ ok: !0 });
+  }
+  if (p === "/test") {
+    const st = await sendPush({ ...env, KV: env.KV }, { sub: clean, origin: url.origin }, { title: clip(b.title, 120) || "Reminders are on", body: clip(b.body, 600) || "This is how they will look.", tag: "test" });
     return j({ ok: st &gt;= 200 &amp;&amp; st &lt; 300, status: st });
   }
-  return j({ error: 'not found' }, 404);
+  return j({ error: "not found" }, 404);
 }
-
-/* ---- every minute: send what is due ---- */
-async function rebuildIdx(env) { /* every 10 minutes, repair the index from the stored subscriptions */
-  const idx = {}; let cursor;
-  do { const l = await env.KV.list({ prefix: 's:', cursor }); cursor = l.list_complete ? undefined : l.cursor;
-    for (const k of l.keys) { const rec = await env.KV.get(k.name, 'json'); if (rec &amp;&amp; rec.items &amp;&amp; rec.items.length) idx[k.name] = nextAt(rec.items); } } while (cursor);
+async function rebuildIdx(env) {
+  const idx = {};
+  let cursor;
+  do {
+    const l = await env.KV.list({ prefix: "s:", cursor });
+    cursor = l.list_complete ? void 0 : l.cursor;
+    for (const k of l.keys) {
+      const rec = await env.KV.get(k.name, "json");
+      rec &amp;&amp; rec.items &amp;&amp; rec.items.length &amp;&amp; (idx[k.name] = nextAt(rec.items));
+    }
+  } while (cursor);
   return idx;
 }
-export async function run(env, now = Date.now()) {
-  let idx = Math.floor(now / 6e4) % 10 === 0 ? await rebuildIdx(env) : await getIdx(env), sent = 0, changed = false;
+async function run(env, now = Date.now()) {
+  let idx = Math.floor(now / 6e4) % 10 === 0 ? await rebuildIdx(env) : await getIdx(env), sent = 0, changed = !1;
   for (const name of Object.keys(idx)) {
     if (idx[name] &gt; now) continue;
-    const rec = await env.KV.get(name, 'json');
-    if (!rec || !rec.items) { delete idx[name]; changed = true; continue; }
-    const due = rec.items.filter((i) =&gt; i.at &lt;= now &amp;&amp; i.at &gt; now - 15 * 6e4), keep = rec.items.filter((i) =&gt; i.at &gt; now);
-    /* one push per reminder (tag) per minute: the latest one already lists everything before it */
-    const latest = new Map(); for (const i of due) { const o = latest.get(i.tag || i.id); if (!o || i.at &gt;= o.at) latest.set(i.tag || i.id, i); }
-    let dead = false;
-    for (const i of latest.values()) {
-      try { const st = await sendPush(env, rec, { title: i.title, body: i.body, tag: i.tag }); sent++; if (st === 404 || st === 410) { dead = true; break; } } catch (e) { /* try again next minute */ }
+    const rec = await env.KV.get(name, "json");
+    if (!rec || !rec.items) {
+      delete idx[name], changed = !0;
+      continue;
     }
-    if (dead || !keep.length) { await env.KV.delete(name); delete idx[name]; }
-    else { await env.KV.put(name, JSON.stringify({ ...rec, items: keep }), { expirationTtl: 60 * 86400 }); idx[name] = nextAt(keep); }
-    changed = true;
+    const due = rec.items.filter((i) =&gt; i.at &lt;= now &amp;&amp; i.at &gt; now - 15 * 6e4), keep = rec.items.filter((i) =&gt; i.at &gt; now), latest = /* @__PURE__ */ new Map();
+    for (const i of due) {
+      const o = latest.get(i.tag || i.id);
+      (!o || i.at &gt;= o.at) &amp;&amp; latest.set(i.tag || i.id, i);
+    }
+    let dead = !1;
+    for (const i of latest.values())
+      try {
+        const st = await sendPush(env, rec, { title: i.title, body: i.body, tag: i.tag });
+        if (sent++, st === 404 || st === 410) {
+          dead = !0;
+          break;
+        }
+      } catch {
+      }
+    dead || !keep.length ? (await env.KV.delete(name), delete idx[name]) : (await env.KV.put(name, JSON.stringify({ ...rec, items: keep }), { expirationTtl: 60 * 86400 }), idx[name] = nextAt(keep)), changed = !0;
   }
-  if (changed || Math.floor(now / 6e4) % 10 === 0) await setIdx(env, idx);
-  return sent;
+  return (changed || Math.floor(now / 6e4) % 10 === 0) &amp;&amp; await setIdx(env, idx), sent;
 }
-
-export default {
-  async fetch(req, env) { try { return await handle(req, env); } catch (e) { return json({ error: String(e &amp;&amp; e.message || e) }, 500); } },
-  async scheduled(ev, env, ctx) { ctx.waitUntil(run(env)); },
+var worker_default = {
+  async fetch(req, env) {
+    try {
+      return await handle(req, env);
+    } catch (e) {
+      return json({ error: String(e &amp;&amp; e.message || e) }, 500);
+    }
+  },
+  async scheduled(ev, env, ctx) {
+    ctx.waitUntil(run(env));
+  }
+};
+export {
+  worker_default as default,
+  encryptPayload,
+  makeJwt,
+  run
 };
 </textarea>
 <script>document.getElementById('c').onclick=async()=>{const t=document.getElementById('t');let ok=false;try{await navigator.clipboard.writeText(t.value);ok=true}catch(e){t.select();ok=document.execCommand('copy')}document.getElementById('ok').textContent=ok?'Copied ✓ ('+t.value.length+' characters)':'Could not copy. Long-press in the box, Select all, Copy.'}</script>
