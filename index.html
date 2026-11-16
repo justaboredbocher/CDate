@@ -2241,7 +2241,7 @@ function sdPieces0(fk){const f=sdFlows()[fk];if(!f.wk){let L=f.seg.flatMap(s=>sd
   if(c.tb)cut(10,0,11,100);
   // v117: the winter/summer notes go; only today's line of each table stays (centred)
   {const w=!sdSum(c.h),r=sdRain(c);cut(46,[33.960],46,[45.943]);XC.push([46,855,958,662,w?'l':'r']);cut(48,[64.965],48,[71.198]);XC.push([48,1466,1559,544,r?'l':'r'])}
-  XC.push([51,286,1360,520,'rl']);if(c.ch||c.pur){XC.push([51,1596,1853,418,c.pur?'l':'r']);XC.push([52,0,795,418,c.pur?'l':'r'])}   // v116: no tallis and tefillin at Shacharis on Tisha B'Av (worn at Mincha)
+  if(c.ch||c.pur){XC.push([51,1596,1853,418,c.pur?'l':'r']);XC.push([52,0,795,418,c.pur?'l':'r'])}
   if(c.noT){cut(12,[67.6],12,100);cut(18,[35.15],18,53.1);cut(14,[47.95],15,57.5);cut(22,[34.65],22,[71.2])}
   else{cut(12,[67.6],12,[69.0]);cut(18,[35.15],18,[36.9]);cut(14,[47.95],14,[49.33]);cut(22,[34.65],22,[36.0]);cut(67,[5.1],67,[6.2]);cut(70,[27.85],70,[29.3])}
   if((c.h.k==='N'&&c.h.d>=14)||(c.h.k==='Ti'&&c.h.d===9))cut(30,[71.25],30,100);else cut(30,[71.25],30,[74.2]);
@@ -2275,7 +2275,7 @@ function sdPieces0(fk){const f=sdFlows()[fk];if(!f.wk){let L=f.seg.flatMap(s=>sd
   opt(c.fast,105,53.6,105,80.7);opt(c.fast,108,19.3,108,39.4);opt(c.fast,110,77,110,94.7);opt(c.tb,107,38.5,107,40.35);opt(c.tb,107,45.25,107,80.15);
   opt(c.rc||c.chm,108,62,108,96.3);opt(c.ch||c.pur,109,73.4,110,43.5);
   {const w=!sdSum(c.h),r=sdRain(c);cut(103,[73.079],103,[83.289]);XC.push([103,1550,1640,599,w?'l':'r']);cut(106,[4.729],106,[11.553]);XC.push([106,380,482,544,r?'l':'r'])}
-  XC.push([109,286,1360,520,'rl']);if(c.ch||c.pur){XC.push([109,1596,1853,418,c.pur?'l':'r']);XC.push([110,0,795,418,c.pur?'l':'r'])}
+  if(c.ch||c.pur){XC.push([109,1596,1853,418,c.pur?'l':'r']);XC.push([110,0,795,418,c.pur?'l':'r'])}
   if(c.noT)cut(112,42.7,114,51.75);else{cut(112,42.7,112,48.4);if(sdAvm(c)){cut(114,0,114,21.12);ins(114,21.12,lab(sdR(454,[52.9],456,[95.1]),'Avinu Malkeinu'))}else cut(114,0,114,7.63)}
   opt(c.ld,115,35.85,115,92.2);opt(c.ch,116,4.3,116,8);}
  if(fk==='ma'){L=sdR(118,null,135,null);
@@ -2321,7 +2321,12 @@ function sdCol(L0,book){const I=[],A=[],sec=[],pt={},L=[],B=[];let y=0,pend=null
   const P=SD.G[q.i],g=P[2],st=P[3]||'';
   for(let k=0;k<g.length>>1;k++){const e=g[2*k]+Math.abs(g[2*k+1]);if(e>q.a+30&&e<q.b-30&&(st?+st[k]&1:Math.abs(g[2*k+1])>=7))A.push(y+e-q.a-4)}
   y+=q.b-q.a;pe=y;prev=q}
- if(box){box.y1=pe+16;B.push(box)}A.sort((a,b)=>a-b);return{I,A,sec,pt,B,T:y+80}}
+ if(box){box.y1=pe+16;B.push(box)}
+ // v118 (owner): Modim D'Rabbanan stays beside Modim, in its own box (static, no ring): [image, row a, row b, x a, x b]
+ if(!book)for(const[bi,ra,rb,xa,xb]of SD_SBX){let y0=null,y1=null;for(const x of I){if(x.t||x.i!==bi||x.b<=ra||x.a>=rb)continue;const t=x.y+Math.max(0,ra-x.a),e=x.y+Math.min(x.h,rb-x.a);y0=y0==null?t:Math.min(y0,t);y1=y1==null?e:Math.max(y1,e)}
+  if(y0!=null)B.push({y0:y0-10,y1:y1+10,xa,xb,st:1})}
+ A.sort((a,b)=>a-b);return{I,A,sec,pt,B,T:y+80}}
+const SD_SBX=[[47,286,1360,22,512],[105,286,1360,22,512]];
 function sdColOf(fk){const key=fk+'|'+ds(sdCx(fk).day);SD.cols=SD.cols||{};if(!SD.cols[key])SD.cols[key]=sdCol(sdPieces(fk));return SD.cols[key]}
 function sdBookCol(){if(!SD.book)SD.book=sdCol(SD.G.map((P,i)=>({i,a:P[0],b:P[1]})),1);return SD.book}
 // the first place of a book page in a column (its title, if the page starts a section there)
@@ -2347,10 +2352,10 @@ function sdDraw(){const C=SD.C;if(!C)return;const s=SD.s,top=SD.pos/s,lo=top-SD.
  const B=C.B||[];for(let k=0;k<B.length;k++){const x=B[k],vis=x.y1>=lo&&x.y0<=hi,key=SD.fk+'|'+SD.m+'|'+x.y0;let n=SD.bx.get(k);
   if(!vis){if(n){n.remove();SD.bx.delete(k)}continue}
   if(!n){n=sdBox(x,SD.adP.has(key));el.insertBefore(n,el.firstChild);SD.bx.set(k,n)}
-  if(!SD.adP.has(key)){const t=x.y0*s-SD.pos,bt=x.y1*s-SD.pos;if(t<SD.H*.72&&bt>SD.H*.15){SD.adP.add(key);n.classList.add('go')}}}
+  if(!x.st&&!SD.adP.has(key)){const t=x.y0*s-SD.pos,bt=x.y1*s-SD.pos;if(t<SD.H*.72&&bt>SD.H*.15){SD.adP.add(key);n.classList.add('go')}}}
  const now=performance.now();if(now-(SD.hd||0)>160){SD.hd=now;sdHead()}}
-function sdBox(x,done){const s=SD.s,w=SD.w+12,h=(x.y1-x.y0)*s,r=14,n=document.createElement('div');n.className='sd-ad'+(done?' done':'');
- n.style.cssText='top:'+(x.y0*s).toFixed(1)+'px;height:'+h.toFixed(1)+'px';const i=1.5,W=w-i,Hh=h-i,
+function sdBox(x,done){const s=SD.s,w=x.st?(x.xb-x.xa)*s:SD.w+12,h=(x.y1-x.y0)*s,r=x.st?10:14,n=document.createElement('div');n.className='sd-ad'+(done||x.st?' done':'');
+ n.style.cssText='top:'+(x.y0*s).toFixed(1)+'px;height:'+h.toFixed(1)+'px'+(x.st?';left:'+(x.xa*s).toFixed(1)+'px;right:auto;width:'+w.toFixed(1)+'px':'');const i=1.5,W=w-i,Hh=h-i,
  d=`M${w/2} ${i}H${W-r}A${r} ${r} 0 0 1 ${W} ${i+r}V${Hh-r}A${r} ${r} 0 0 1 ${W-r} ${Hh}H${i+r}A${r} ${r} 0 0 1 ${i} ${Hh-r}V${i+r}A${r} ${r} 0 0 1 ${i+r} ${i}Z`;
  n.innerHTML=`<svg width="${w}" height="${h.toFixed(1)}" viewBox="0 0 ${w} ${h.toFixed(1)}" aria-hidden="true"><path class="g" d="${d}" pathLength="1"/><path class="l" d="${d}" pathLength="1"/></svg>`;return n}
 function sdTo(y,ms){cancelAnimationFrame(SD.raf);SD.raf=0;const y1=Math.max(0,Math.min(sdMax(),y));
@@ -3931,8 +3936,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=117;
+const CC_VER=118;
 const CC_LOG=[
+ {v:118,new:['Siddur: Modim D’Rabbanan is back beside Modim, now in its own soft box.']},
  {v:117,mid:1,new:['Siddur: no more gaps in the middle of a blessing where two pages join or a line was left out.','Siddur: only today’s line shows for Mashiv haruach / Morid hatal and V’sein tal umatar / V’sein brachah (the long notes are gone).','Siddur: Modim D’Rabbanan now comes under Modim instead of squeezed beside it, and Al HaNissim shows only Chanukah’s or Purim’s part.']},
  {v:116,mid:1,new:['Siddur: Friday Mincha now continues into the whole Mincha (it stopped after Yedid Nefesh).','Siddur: Avinu Malkeinu on fast days and the Ten Days; the lulav blessings and the day’s Hoshanos on Chol Hamoed Sukkos and Hoshana Rabbah; Rosh Chodesh on the 7th day of Chanukah.','Siddur: reminder cards for Selichos, the Megillah on Purim, and the Machzor on Rosh Hashanah and Yom Kippur.']},
  {v:115,new:['Siddur fixes for Rosh Chodesh and days without Tachanun: two more paragraphs that aren’t said are left out (in Korbanos and before the Mishnah), the weekday Kaddish before returning the Torah is skipped on Rosh Chodesh, and Ashrei · Uva Letziyon and Beis Yaakov get their own titles.']},
