@@ -383,9 +383,23 @@ body.tour.tpass #top,body.tour.tpass #bar{z-index:41}
 .ap .sel b{flex:1}
 .ap .sel button{border:0;background:none;color:var(--acc);font:inherit;font-weight:700;cursor:pointer}
 .own-tag{display:inline-block;margin-left:6px;font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:99px;background:rgba(111,214,160,.16);color:#6fd6a0;vertical-align:1px}
+
+.sulink{display:block;width:100%;margin-top:12px;background:none;border:0;color:var(--acc);font:inherit;font-size:14px;font-weight:600;cursor:pointer;padding:6px}
+#suG .cw{position:relative;margin-bottom:10px}
+#sgS{border-radius:14px;overflow:hidden;background:rgba(255,255,255,.07);margin-top:-4px;margin-bottom:6px}
+#sgS:empty{display:none}
+#sgS .r{padding:10px 12px}
+#sgS .r small{display:block}
+#suG .sel{display:flex;align-items:center;gap:8px;padding:12px 14px;border-radius:14px;background:rgba(111,214,160,.12);color:#c8f1dc;font-size:14px}
+#suG .sel b{flex:1}#suG .sel button{border:0;background:none;color:var(--acc);font:inherit;font-weight:700}
+#suG #sgP{margin-bottom:10px}
+.su-gen #suN,.su-gen #suH,.su-gen #suM,.su-gen #suPW,.su-gen #suPN,.su-gen #suCW,.su-gen #suB,.su-gen #suGo{display:none!important}
+.su-gen #suG{display:block!important}
+.su-gen .sucard>p{display:none}
+.sgp{margin:0 0 16px;color:var(--mut);font-size:14px;line-height:1.45;text-align:center}
 </style></head><body>
 <canvas id="g"></canvas>
-<div id="su"><div class="sucard glass"><span class="lg lg-l" role="img" aria-label="Logo"></span><h1>Shluchim Keep in Touch <span class="beta">Beta</span></h1><p>This app is in beta, so things may change or break while we test it. Pick your name from the list. First time: add your number and choose a code. Already signed up: enter your code.</p><input id="suN" placeholder="Your name" autocomplete="off" autocapitalize="words"><div id="suH"></div><div id="suM"></div><div id="suPW" style="display:none"></div><div id="suPN"></div><div id="suCW" style="display:none"><input id="suC" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="Code"><div class="phh" id="suCH"></div></div><button class="btn p" id="suB" style="width:100%" disabled>Continue</button></div></div>
+<div id="su"><div class="sucard glass"><span class="lg lg-l" role="img" aria-label="Logo"></span><h1>Shluchim Keep in Touch <span class="beta">Beta</span></h1><p>This app is in beta, so things may change or break while we test it. Pick your name from the list. First time: add your number and choose a code. Already signed up: enter your code.</p><input id="suN" placeholder="Your name" autocomplete="off" autocapitalize="words"><div id="suH"></div><div id="suM"></div><div id="suPW" style="display:none"></div><div id="suPN"></div><div id="suCW" style="display:none"><input id="suC" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="Code"><div class="phh" id="suCH"></div></div><button class="btn p" id="suB" style="width:100%" disabled>Continue</button><button class="sulink" id="suGo">Not in a yeshiva? Sign up here</button><div id="suG" style="display:none"><p class="sgp">Not in a yeshiva? No problem. Add your name, number and city to keep in touch with friends and family.</p><input id="sgN" placeholder="Your name" autocomplete="name" autocapitalize="words"><div id="sgP"></div><div class="cw"><input id="sgC" placeholder="Your city" autocomplete="off"><div id="sgS"></div><div id="sgSel"></div></div><input id="sgK" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="Code (4–8 digits)"><div class="phh" id="sgH">New here? Choose a code. Signed up before? Enter your code.</div><button class="btn p" id="sgB" style="width:100%" disabled>Continue</button><button class="sulink" id="sgBack">← I’m in a yeshiva</button></div></div></div>
 <div id="cards"></div>
 <div id="fcard"><div class="fw"><button class="btn" id="fback">‹ Back</button><div class="fbig"><div id="fcity"></div><div id="ftime"></div><div id="fmeta"></div></div><div id="fpl"></div><div class="fhint">Swipe a name left to remove</div></div></div>
 <div id="tour"><div class="tcard" id="tc"></div></div>
@@ -865,7 +879,7 @@ function kitDb(){const subs={},pull=async c=>{const r=await fetch(KIT_SRV+c,{cac
  return{collection:c=>({onSnapshot(ok,err){(subs[c]=subs[c]||[]).push({ok,err});refresh(c)}}),
   doc:path=>{const[c,id]=path.split("/");return{set:d=>post(c,"set",{id,data:d}),delete:()=>post(c,"del",{id})}}}}
 (async()=>{try{pdb=(window.claude&&claude.use)?await claude.use("db"):kitDb();if(!pdb){dbState="none";sc2();return}
- const fin=()=>{if(got==3&&me&&me.match&&me.h&&!pushed){pushed=1;const k=pkey(me.match.name,me.match.city);if(!accts[k])setAcct(k,me.salt,me.h);if(me.phone&&!phones[k])setPhone(me.match.name,me.match.city,me.phone)}};
+ const fin=()=>{if(got==3&&me&&me.match&&me.h&&!me.gen&&!pushed){pushed=1;const k=pkey(me.match.name,me.match.city);if(!accts[k])setAcct(k,me.salt,me.h);if(me.phone&&!phones[k])setPhone(me.match.name,me.match.city,me.phone)}};
  pdb.collection("phones3").onSnapshot(sn=>{const m={};sn.docs.forEach(d=>{const x=d.data();if(x&&typeof x.k=="string"&&typeof x.p=="string")m[x.k]=x.p});phones=m;try{localStorage.setItem("sc_phones",JSON.stringify(phones))}catch(e){}got|=1;if(got==3)dbState="ready";fin();refreshUI();sc2()},()=>{dbState="none";sc2()});
  pdb.collection("accounts3").onSnapshot(sn=>{const m={};sn.docs.forEach(d=>{const x=d.data();if(x&&typeof x.k=="string"&&typeof x.salt=="string"&&typeof x.h=="string")m[x.k]={salt:x.salt,h:x.h}});accts=m;try{localStorage.setItem("sc_accts",JSON.stringify(accts))}catch(e){}got|=2;if(got==3)dbState="ready";fin();sc2()},()=>{dbState="none";sc2()})
 }catch(e){pdb=null;dbState="none";sc2()}})();
@@ -935,7 +949,7 @@ suB.onclick=async()=>{if(suB.disabled)return;const m=suMode(),c=$("suC").value.r
  try{if(m=="login"){const a=accts[k],h=await hashCode(c,a.salt);if(h!=a.h){bad++;if(bad>=5){lockT=Date.now()+30000;bad=0}ch.className="phh bad";ch.textContent="Wrong code.";suB.disabled=false;return}bad=0;me={name:suN.value.trim()||selM.name,match:{name:selM.name,city:selM.city},phone:phoneOf(selM.name,selM.city),salt:a.salt,h:a.h}}
   else{const salt=randSalt(),h=await hashCode(c,salt),ph=pw.val().e164;setAcct(k,salt,h);setPhone(selM.name,selM.city,ph);me={name:suN.value.trim()||selM.name,match:{name:selM.name,city:selM.city},phone:ph,salt,h}}}
  catch(e){toast("Something went wrong. Try again.");suCheck();return}
- lsSet("sc_me",JSON.stringify(me));$("suC").value="";su=false;document.body.classList.remove("su");renderCards();welcome()};
+ lsSet("sc_me",JSON.stringify(me));$("suC").value="";su=false;document.body.classList.remove("su");renderCards();welcome();setTimeout(()=>{try{invCheck(1);invBackfill()}catch(e){}},1500)};
 let soT=null;
 $("so").onclick=()=>{const b=$("so");if(!soT){b.textContent="Tap again to confirm";b.style.background="rgba(251,113,133,.35)";soT=setTimeout(()=>{soT=null;b.textContent="Log out";b.style.background=""},3000);return}clearTimeout(soT);soT=null;b.textContent="Log out";b.style.background="";try{localStorage.removeItem("sc_me")}catch(e){}me=null;selM=null;suN.value="";pw.clear();suN.oninput();open(false);su=true;document.body.classList.add("su");renderCards()};
 // ---------- cards + world toggle
@@ -1052,7 +1066,7 @@ function swipe(root,sel,fn){let s=null;root.addEventListener("pointerdown",e=>{c
  root.addEventListener("pointerup",end);root.addEventListener("pointercancel",end)}
 swipe($("fpl"),".pr",el=>removeSaved(el.dataset.id));swipe($("list"),".it",el=>removeSaved(el.dataset.id));
 // edit number
-$("en").onclick=()=>{open(false);if(!me||!me.match)return;sheet._gs=null;sheet.innerHTML='<h3>Edit my number</h3><p>'+esc(me.match.name)+' · '+esc(me.match.city)+'</p><div id="ew"></div><input id="ecd" type="password" inputmode="numeric" maxlength="8" placeholder="New code (leave blank to keep)" style="width:100%;padding:14px 16px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--tx);font-size:16px;outline:0;margin-top:4px"><div class="btns"><button class="btn" id="ec">Cancel</button><button class="btn p" id="es" disabled>Save</button></div>';sheet.style.display="block";
+$("en").onclick=()=>{open(false);if(!me||!me.match)return;if(me.gen){genEdit();return}sheet._gs=null;sheet.innerHTML='<h3>Edit my number</h3><p>'+esc(me.match.name)+' · '+esc(me.match.city)+'</p><div id="ew"></div><input id="ecd" type="password" inputmode="numeric" maxlength="8" placeholder="New code (leave blank to keep)" style="width:100%;padding:14px 16px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--tx);font-size:16px;outline:0;margin-top:4px"><div class="btns"><button class="btn" id="ec">Cancel</button><button class="btn p" id="es" disabled>Save</button></div>';sheet.style.display="block";
  const ok=()=>{const c=$("ecd").value;$("es").disabled=!(w.val().ok&&(!c||c.length>=4))},w=mkPhone($("ew"),ok);$("ecd").oninput=()=>{$("ecd").value=$("ecd").value.replace(/\D/g,"");ok()};w.set(me.phone||phoneOf(me.match.name,me.match.city));
  $("ec").onclick=()=>sheet.style.display="none";$("es").onclick=async()=>{const r=w.val();if(!r.ok)return;const nc=$("ecd").value;if(nc){const salt=randSalt(),h=await hashCode(nc,salt);setAcct(pkey(me.match.name,me.match.city),salt,h);me.salt=salt;me.h=h}setPhone(me.match.name,me.match.city,r.e164);me.phone=r.e164;lsSet("sc_me",JSON.stringify(me));sheet.style.display="none";hap(15);toast("Number updated")}};
 // export / import
@@ -1111,7 +1125,7 @@ sync()})();
 // neither = SMALL (looks, tweaks, fixes) → only a little round "i" in the corner, version X.Y.Z.
 // adm:1 = admin-only change → counts as a small update in the version number, but NO notification at all (owner). The shown version is worked out from these sizes.
 // apk:N = this needs app version N (a new download); the app then also shows "Update the app".
-const KIT_VER=29,KIT_APK=1;
+const KIT_VER=30,KIT_APK=1;
 const KIT_LOG=[
  {v:1,big:1,t:"Home-screen widgets",d:"See who’s awake without opening the app, with Call and WhatsApp buttons, filters and sorting.",go:"widgets"},
  {v:2,mid:1,t:"Add widgets from inside the app",d:"Menu → Home-screen widgets → Add. No more digging through your phone’s widget list.",go:"widgets",apk:1},
@@ -1135,7 +1149,8 @@ const KIT_LOG=[
  {v:24,t:"Version numbers recounted with the new big / medium / small rule"},
  {v:25,adm:1,t:"Admin: Members list in the menu, with a count of everyone who has an account"},
  {v:28,adm:1,t:"New admin code",d:"Admin only."},
- {v:29,big:1,t:"Add your own friends and family",d:"Menu → Add a friend or family. Type their name, number and city: they get a pin on your globe and show in your list. Only you can see them.",go:"addfriend"}
+ {v:29,big:1,t:"Add your own friends and family",d:"Menu → Add a friend or family. Type their name, number and city: they get a pin on your globe and show in your list. Only you can see them.",go:"addfriend"},
+ {v:30,big:1,t:"For everyone, not only yeshivas",d:"Anyone can now sign up, even if they’re not in a yeshiva. And when someone you added joins, they’re offered to add you back."}
 ];
 function kitVerStr(b){let M=0,m=0,p=0;const by={};KIT_LOG.forEach(x=>{const l=x.big?3:x.mid?2:1;by[x.v]=Math.max(by[x.v]||0,l)});
  Object.keys(by).map(Number).sort((a,c)=>a-c).forEach(v=>{if(v>b)return;if(by[v]==3){M++;m=0;p=0}else if(by[v]==2){m++;p=0}else p++});return M+"."+m+"."+p}
@@ -1234,7 +1249,7 @@ function myLinks(withOwn){if(!me||!me.match)return[];const a=me.match.city,out=n
 async function linksLoad(){try{const r=await fetch(KIT_SRV+"links3",{cache:"no-store"});if(!r.ok)return;const d=(await r.json()).docs||{};const L=[];
  Object.values(d).forEach(x=>{const[a]=(x.k||"").split("|").slice(1);String(x.l||"").split(";").forEach(b=>{if(a&&b&&a!=b)L.push([a,b])})});kitLinks=L}catch(e){}}
 let linksSent="";
-async function linksPush(){if(!me||!me.match)return;const L=myLinks().map(x=>x[1]).sort();let l=L.join(";");if(l.length>1500)l=l.slice(0,l.lastIndexOf(";",1500));if(!l||l==linksSent)return;
+async function linksPush(){if(!me||!me.match||me.gen)return;const L=myLinks().map(x=>x[1]).sort();let l=L.join(";");if(l.length>1500)l=l.slice(0,l.lastIndexOf(";",1500));if(!l||l==linksSent)return;
  try{const k=pkey(me.match.name,me.match.city),r=await fetch(KIT_SRV+"links3/set",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({id:slug(k),data:{k,l}})});if(r.ok)linksSent=l}catch(e){}}
 function shootPairs(){const seen=new Set(),P0=[];[...kitLinks,...myLinks(1)].forEach(([a,b])=>{const k=a<b?a+"|"+b:b+"|"+a;if(seen.has(k))return;seen.add(k);const A=cityLL(a),B=cityLL(b);if(A&&B&&(Math.abs(A[0]-B[0])+Math.abs(A[1]-B[1]))>3)P0.push(Math.random()<.5?[A,B]:[B,A])});
  for(let i=P0.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[P0[i],P0[j]]=[P0[j],P0[i]]}return P0}
@@ -1293,7 +1308,21 @@ $("mem").onclick=()=>{const l=$("memL"),o=!l.classList.contains("on");l.classLis
 // ---------- Add a friend or family (owner): a PERSONAL contact saved only on this phone (never sent to the server or other users).
 // City suggestions: the app's own list right away, then worldwide places from Open-Meteo's free geocoder (gives lat/lon/time zone).
 const AP_GEO="https://geocoding-api.open-meteo.com/v1/search";
-function apOpen(){open(false);sheet._gs=null;let pick=null,tq=0,seq=0;
+
+// city input with suggestions: the app's own places at once, then worldwide (Open-Meteo geocoder: lat/lon/time zone)
+function cityBox(C,S,Sel,onPick,onClear){let tq=0,seq=0;
+ const local=q=>{const s=q.toLowerCase(),seen=new Set(),out=[];CITIES.concat(DIRG.map(g=>({city:g.city,country:g.country,lat:g.lat,lon:g.lon,tz:g.tz}))).forEach(c=>{if((c.city+" "+c.country).toLowerCase().includes(s)&&!seen.has(c.city)){seen.add(c.city);out.push({city:c.city,sub:c.country,lat:c.lat,lon:c.lon,tz:c.tz})}});return out.slice(0,4)};
+ const show=list=>{S.innerHTML=list.map((c,i)=>'<div class="r" data-i="'+i+'"><span class="dot" style="background:'+COL[status(c.tz)]+'"></span><div><b>'+esc(c.city)+'</b><small>'+esc(c.sub||"")+' · '+clock(c.tz)+'</small></div></div>').join("");S._l=list};
+ C.addEventListener("focus",()=>setTimeout(()=>C.scrollIntoView({block:"start",behavior:"smooth"}),250));
+ C.oninput=()=>{Sel.innerHTML="";C.style.display="";onClear();const q=C.value.trim();if(q.length<2){S.innerHTML="";return}
+  const loc=local(q);show(loc);setTimeout(()=>S.scrollIntoView({block:"nearest",behavior:"smooth"}),50);clearTimeout(tq);const my=++seq;
+  tq=setTimeout(async()=>{try{const r=await fetch(AP_GEO+"?count=8&language=en&format=json&name="+encodeURIComponent(q));const j=await r.json();if(my!=seq)return;
+   const web=(j.results||[]).filter(x=>x.timezone).map(x=>({city:x.name,sub:[x.admin1,x.country].filter(Boolean).join(", "),lat:x.latitude,lon:x.longitude,tz:x.timezone}));
+   const seen=new Set(loc.map(c=>c.city+"|"+Math.round(c.lat)));show(loc.concat(web.filter(c=>!seen.has(c.city+"|"+Math.round(c.lat)))).slice(0,8))}catch(e){}},280)};
+ S.onclick=e=>{const r=e.target.closest(".r");if(!r)return;const c=S._l[+r.dataset.i];S.innerHTML="";C.style.display="none";hap(8);
+  Sel.innerHTML='<div class="sel">📍 <b>'+esc(c.city)+(c.sub?', '+esc(c.sub):'')+'</b><button type="button">Change</button></div>';
+  Sel.querySelector("button").onclick=()=>{Sel.innerHTML="";C.style.display="";C.value="";C.focus();onClear()};onPick(c)}}
+function apOpen(){open(false);sheet._gs=null;let pick=null;
  sheet.innerHTML='<div class="ap"><h3>Add a friend or family</h3><p>They’ll get a pin on your globe and show in your list. Only you will see them.</p>'+
   '<label for="apN">Name</label><input class="ain" id="apN" placeholder="e.g. Tatty, Mendy Cohen" autocomplete="off" autocapitalize="words">'+
   '<label>Phone number</label><div id="apP"></div>'+
@@ -1303,23 +1332,72 @@ function apOpen(){open(false);sheet._gs=null;let pick=null,tq=0,seq=0;
  sheet.style.display="block";const N=$("apN"),C=$("apC"),S=$("apS"),ok=$("apOK");
  const pw2=mkPhone($("apP"),()=>chk());
  function chk(){ok.disabled=!(N.value.trim()&&pick&&(!$("apP").querySelector("input").value.trim()||pw2.val().ok))}
- N.oninput=chk;setTimeout(()=>N.focus(),80);C.addEventListener("focus",()=>setTimeout(()=>C.scrollIntoView({block:"start",behavior:"smooth"}),250));
- const local=q=>{const s=q.toLowerCase(),seen=new Set(),out=[];CITIES.concat(DIRG.map(g=>({city:g.city,country:g.country,lat:g.lat,lon:g.lon,tz:g.tz}))).forEach(c=>{if((c.city+" "+c.country).toLowerCase().includes(s)&&!seen.has(c.city)){seen.add(c.city);out.push({city:c.city,sub:c.country,lat:c.lat,lon:c.lon,tz:c.tz})}});return out.slice(0,4)};
- const show=list=>{S.innerHTML=list.map((c,i)=>'<div class="r" data-i="'+i+'"><span class="dot" style="background:'+COL[status(c.tz)]+'"></span><div><b>'+esc(c.city)+'</b><small>'+esc(c.sub||"")+' · '+clock(c.tz)+'</small></div></div>').join("");S._l=list};
- C.oninput=()=>{pick=null;$("apSel").innerHTML="";C.style.display="";chk();const q=C.value.trim();if(q.length<2){S.innerHTML="";return}
-  const loc=local(q);show(loc);setTimeout(()=>S.scrollIntoView({block:"nearest",behavior:"smooth"}),50);clearTimeout(tq);const my=++seq;
-  tq=setTimeout(async()=>{try{const r=await fetch(AP_GEO+"?count=8&language=en&format=json&name="+encodeURIComponent(q));const j=await r.json();if(my!=seq)return;
-   const web=(j.results||[]).filter(x=>x.timezone).map(x=>({city:x.name,sub:[x.admin1,x.country].filter(Boolean).join(", "),lat:x.latitude,lon:x.longitude,tz:x.timezone}));
-   const seen=new Set(loc.map(c=>c.city+"|"+Math.round(c.lat)));show(loc.concat(web.filter(c=>!seen.has(c.city+"|"+Math.round(c.lat)))).slice(0,8))}catch(e){}},280)};
- S.onclick=e=>{const r=e.target.closest(".r");if(!r)return;pick=S._l[+r.dataset.i];S.innerHTML="";C.style.display="none";hap(8);
-  $("apSel").innerHTML='<div class="sel">📍 <b>'+esc(pick.city)+(pick.sub?', '+esc(pick.sub):'')+'</b><button id="apCh">Change</button></div>';
-  $("apCh").onclick=()=>{pick=null;$("apSel").innerHTML="";C.style.display="";C.value="";C.focus();chk()};
-  try{pw2.tz(pick.tz)}catch(x){}chk()};
+ N.oninput=chk;setTimeout(()=>N.focus(),80);
+ cityBox(C,S,$("apSel"),c=>{pick=c;try{pw2.tz(c.tz)}catch(x){}chk()},()=>{pick=null;chk()});
  $("apX").onclick=()=>sheet.style.display="none";
  ok.onclick=()=>{if(ok.disabled)return;const nm=N.value.trim(),ph=pw2.val().ok?pw2.val().e164:"";
   // keep a personal place name separate from a yeshiva of the same name, so their pins don't merge with the shared directory
   const city=DIRG.some(g=>g.city==pick.city)?pick.city+" ·":pick.city;
-  saved.push({id:Date.now()+Math.random(),name:nm,city,country:pick.sub||"",lat:pick.lat,lon:pick.lon,tz:pick.tz,own:1,ph});
-  persist();sheet.style.display="none";render();commit(city,true);hap([12,40,12]);toast("Added "+nm+" · only you can see them")}}
+  const nv={id:Date.now()+Math.random(),name:nm,city,country:pick.sub||"",lat:pick.lat,lon:pick.lon,tz:pick.tz,own:1,ph};saved.push(nv);
+  persist();invPush(nv);sheet.style.display="none";render();commit(city,true);hap([12,40,12]);toast("Added "+nm+" · only you can see them")}}
 $("addp").onclick=apOpen;
+
+// ---------- general accounts (not in a yeshiva) + "someone added you" (owner)
+// Server lists users3 / inv3 are private: looked up one id at a time, never listed. Ids are salted SHA-256 hashes,
+// so the server never stores a general user's name or number. Nicknames count as the same name (Mendy = Mendel).
+const kitSha=async t=>{const d=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));return[...new Uint8Array(d)].map(b=>b.toString(16).padStart(2,"0")).join("")};
+const normNm=n=>toks(n).map(w=>NG[w]!=null?"g"+NG[w]:w).join(" ");
+const digits=x=>String(x||"").replace(/\D/g,"");
+const invId=(name,ph)=>kitSha("kit-inv:"+normNm(name)+"|"+digits(ph));
+const userId=ph=>kitSha("kit-user:"+digits(ph));
+const kitPost=(path,body)=>fetch(KIT_SRV+path,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()});
+const kitGet1=async(col,id)=>{const r=await fetch(KIT_SRV+col+"/get?id="+id,{cache:"no-store"});if(!r.ok)throw new Error(r.status);return(await r.json()).doc};
+const myFk=()=>slug(pkey(me.match.name,me.match.city)).slice(0,140);
+function meInfo(){if(!me||!me.match)return null;let la,lo,tz,c=me.match.city;
+ if(me.gen){la=me.la;lo=me.lo;tz=me.tz}else{const g=DIRG.find(x=>x.city==c);if(!g)return null;la=g.lat;lo=g.lon;tz=g.tz}
+ return{n:me.match.name,c,la:String(la),lo:String(lo),tz,p:me.phone||phoneOf(me.match.name,me.match.city)||""}}
+async function invPush(v){try{if(!v||!v.own||!v.ph||!me||!me.match)return;const info=meInfo();if(!info)return;const id=await invId(v.name,v.ph);
+ await kitPost("inv3/add",{id,fk:myFk(),data:info});v.inv=id;v.invFk=myFk();persist()}catch(e){}}
+async function invBackfill(){if(!me||!me.match)return;for(const v of saved.filter(v=>v.own&&v.ph&&(!v.inv||v.invFk!=myFk())))await invPush(v)}
+{const rs=removeSaved;removeSaved=function(id){const v=saved.find(x=>x.id==id);if(v&&v.inv&&me&&me.match)kitPost("inv3/rm",{id:v.inv,fk:v.invFk||myFk()}).catch(()=>{});rs(id)}}
+const invNo=()=>{try{return JSON.parse(lsGet("kit_inv_no")||"[]")}catch(e){return[]}};
+let invBusy=false,invLast=0;
+async function invCheck(force){if(invBusy||!me||!me.match||su||(!force&&Date.now()-invLast<10*60000))return;const ph=me.phone||phoneOf(me.match.name,me.match.city);if(!ph)return;
+ invBusy=true;invLast=Date.now();try{const doc=await kitGet1("inv3",await invId(me.match.name,ph));const no=invNo(),mine=myFk();
+  const have=it=>saved.some(v=>(it.p&&digits(vPhone(v))==digits(it.p))||(v.name==it.n&&(v.city==it.c||v.city==it.c+" ·")));
+  const list=((doc&&doc.items)||[]).filter(it=>it.fk!=mine&&!no.includes(it.fk)&&!have(it));if(list.length)invAsk(list)}catch(e){}invBusy=false}
+function invAsk(list){const it=list[0];if(!it)return;if(document.body.classList.contains("tour")||sheet.style.display=="block"){setTimeout(()=>invAsk(list),4000);return}
+ open(false);sheet._gs=null;
+ sheet.innerHTML='<div class="ap"><h3>'+esc(it.n)+' added you</h3><p><b>'+esc(it.n)+'</b>'+(it.c?' ('+esc(it.c.replace(/ ·$/,""))+')':'')+' saved you on their map. Add them to yours, so you can see when they’re up?</p>'+
+  '<div class="note">🔒 They’ll be saved only on this phone.</div><div class="btns"><button class="btn" id="ivN">Not now</button><button class="btn p" id="ivY">Add '+esc(it.n.split(" ")[0])+'</button></div></div>';
+ sheet.style.display="block";hap([12,40,12]);
+ const next=()=>{sheet.style.display="none";if(list.length>1)setTimeout(()=>invAsk(list.slice(1)),500)};
+ $("ivN").onclick=()=>{const no=invNo();no.push(it.fk);lsSet("kit_inv_no",JSON.stringify(no.slice(-200)));next()};
+ $("ivY").onclick=()=>{const la=+it.la,lo=+it.lo;let nv;
+  const dp=DIRP.find(x=>x.name==it.n&&x.city==it.c);
+  if(dp&&!saved.some(v=>v.name==dp.name&&v.city==dp.city)){nv={id:Date.now()+Math.random(),name:dp.name,city:dp.city,country:dp.country,lat:dp.lat,lon:dp.lon,tz:dp.tz};saved.push(nv)}
+  else{const city=DIRG.some(g=>g.city==it.c)?it.c+" ·":it.c;nv={id:Date.now()+Math.random(),name:it.n,city,country:"",lat:la,lon:lo,tz:it.tz,own:1,ph:it.p||""};saved.push(nv);invPush(nv)}
+  persist();render();commit(nv.city,true);toast("Added "+it.n+" to your map");next()}}
+// sign-up for people who are not in the yeshiva list
+(()=>{let pick=null,bad2=0,lock2=0;const N=$("sgN"),K=$("sgK"),B=$("sgB"),H=$("sgH");const pwG=mkPhone($("sgP"),()=>chk());
+ const chk=()=>{B.disabled=!(N.value.trim().split(/\s+/).length>=1&&N.value.trim()&&pwG.val().ok&&pick&&K.value.length>=4)};
+ cityBox($("sgC"),$("sgS"),$("sgSel"),c=>{pick=c;try{pwG.tz(c.tz)}catch(e){}chk()},()=>{pick=null;chk()});
+ N.oninput=chk;K.oninput=()=>{K.value=K.value.replace(/\D/g,"");chk()};
+ $("suGo").onclick=()=>{$("su").classList.add("su-gen");setTimeout(()=>N.focus(),60)};
+ $("sgBack").onclick=()=>$("su").classList.remove("su-gen");
+ B.onclick=async()=>{if(B.disabled)return;if(Date.now()<lock2){H.className="phh bad";H.textContent="Too many tries. Wait a few seconds.";return}
+  B.disabled=true;H.className="phh";H.textContent="Checking…";const ph=pwG.val().e164,code=K.value;
+  try{const uid=await userId(ph),doc=await kitGet1("users3",uid);let salt,h;
+   if(doc){h=await hashCode(code,doc.salt);if(h!=doc.h){bad2++;if(bad2>=5){lock2=Date.now()+30000;bad2=0}H.className="phh bad";H.textContent="This number already has an account. Wrong code.";B.disabled=false;return}salt=doc.salt}
+   else{salt=randSalt();h=await hashCode(code,salt);await kitPost("users3/set",{id:uid,data:{salt,h}})}
+   const city=DIRG.some(g=>g.city==pick.city)?pick.city+" ·":pick.city;
+   me={name:N.value.trim(),match:{name:N.value.trim(),city},gen:1,la:pick.lat,lo:pick.lon,tz:pick.tz,phone:ph,salt,h};lsSet("sc_me",JSON.stringify(me));
+   K.value="";su=false;document.body.classList.remove("su");$("su").classList.remove("su-gen");renderCards();welcome();setTimeout(()=>{invCheck(1);invBackfill()},1500)}
+  catch(e){H.className="phh bad";H.textContent="Couldn’t reach the server. Check your internet and try again.";B.disabled=false}}})();
+// general users change their number here (their number is never in the shared list)
+function genEdit(){sheet._gs=null;sheet.innerHTML='<h3>Edit my number</h3><p>'+esc(me.match.name)+' · '+esc(me.match.city.replace(/ ·$/,""))+'</p><div id="gew"></div><div class="btns"><button class="btn" id="gec">Cancel</button><button class="btn p" id="ges" disabled>Save</button></div>';sheet.style.display="block";
+ const w=mkPhone($("gew"),()=>{$("ges").disabled=!(w.val().ok&&w.val().e164!=me.phone)});w.set(me.phone);$("gec").onclick=()=>sheet.style.display="none";
+ $("ges").onclick=async()=>{const np=w.val().e164;try{const o=await userId(me.phone),n=await userId(np);if(await kitGet1("users3",n)){toast("That number already has an account.");return}
+  await kitPost("users3/set",{id:n,data:{salt:me.salt,h:me.h}});await kitPost("users3/del",{id:o});me.phone=np;lsSet("sc_me",JSON.stringify(me));sheet.style.display="none";toast("Number updated");invCheck(1)}catch(e){toast("Couldn’t reach the server. Try again.")}}}
+setTimeout(()=>{invBackfill();invCheck(1)},3500);document.addEventListener("visibilitychange",()=>{if(!document.hidden)invCheck()});
 </script></body></html>

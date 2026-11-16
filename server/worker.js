@@ -111,6 +111,35 @@ async function handle(req, env) {
     if (!ALLOW.includes(originOf(req))) return j({ error: 'This request did not come from the Keep in Touch app.' }, 403);
     const [, , col, op] = p.split('/');
     const SPEC = { phones3: { k: 200, p: 32 }, accounts3: { k: 200, salt: 64, h: 128 }, feedback3: { k: 200, t: 20, m: 1500, at: 30 }, links3: { k: 200, l: 1500 } };
+    // Private lists (owner): never listed, only looked up by an id the phone computes (a salted hash).
+    //  users3 = accounts of people who are NOT in the yeshiva list (id = hash of their number; no name/number stored).
+    //  inv3   = "someone added you": id = hash of the added person's name + number; items = who added them.
+    if (col === 'users3' || col === 'inv3') {
+      const pkey2 = 'kit:' + col, pall = (await env.KV.get(pkey2, 'json')) || {};
+      const okId = (x) => typeof x === 'string' && /^[a-f0-9]{64}$/.test(x);
+      if (req.method === 'GET' && op === 'get') { const id = url.searchParams.get('id'); if (!okId(id)) return j({ error: 'bad id' }, 400); return j({ doc: pall[id] || null }); }
+      if (req.method !== 'POST') return j({ error: 'not found' }, 404);
+      let b; try { b = await req.json(); } catch (e) { return j({ error: 'bad json' }, 400); }
+      const id = b && b.id; if (!okId(id)) return j({ error: 'bad id' }, 400);
+      const str = (v, n) => typeof v === 'string' && v.length <= n ? v : '';
+      if (col === 'users3') {
+        if (op === 'del') delete pall[id];
+        else if (op === 'set') { const salt = str(b.data && b.data.salt, 64), h = str(b.data && b.data.h, 128); if (!salt || !h) return j({ error: 'bad data' }, 400); if (!pall[id] && Object.keys(pall).length >= 5000) return j({ error: 'full' }, 507); pall[id] = { salt, h }; }
+        else return j({ error: 'not found' }, 404);
+      } else {
+        const fk = str(b.fk, 140); if (!fk) return j({ error: 'bad fk' }, 400);
+        const cur = (pall[id] && pall[id].items) || [];
+        if (op === 'rm') { const left = cur.filter((x) => x.fk !== fk); if (left.length) pall[id] = { items: left }; else delete pall[id]; }
+        else if (op === 'add') {
+          const d = b.data || {}, it = { fk, n: str(d.n, 80), c: str(d.c, 120), la: str(d.la, 20), lo: str(d.lo, 20), tz: str(d.tz, 64), p: str(d.p, 32) };
+          if (!it.n || !it.tz) return j({ error: 'bad data' }, 400);
+          if (!pall[id] && Object.keys(pall).length >= 5000) return j({ error: 'full' }, 507);
+          pall[id] = { items: cur.filter((x) => x.fk !== fk).concat([it]).slice(-20) };
+        } else return j({ error: 'not found' }, 404);
+      }
+      await env.KV.put(pkey2, JSON.stringify(pall));
+      return j({ ok: true });
+    }
     const spec = SPEC[col];
     if (!spec) return j({ error: 'not found' }, 404);
     const key = 'kit:' + col;
