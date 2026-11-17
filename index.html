@@ -3532,7 +3532,8 @@ function cchLive(el,base){if(!el)return{set(){},setBase(){},anim(){},nod(){},dar
  const mix=(a,b,e)=>({x:a.x+(b.x-a.x)*e,y:a.y+(b.y-a.y)*e,r:a.r+(b.r-a.r)*e,sx:a.sx+(b.sx-a.sx)*e,sy:a.sy+(b.sy-a.sy)*e,o:a.o+(b.o-a.o)*Math.min(1,Math.max(0,e))});
  const curOf=(p,t)=>{if(!p.dur||t>=p.t0+p.dur)return p.to;const u=(t-p.t0)/p.dur;return mix(p.from,p.to,cchBack(u))};
  const tween=(k,to,dur)=>{const p=P[k];if(!p)return;const t=now();p.from=curOf(p,t);p.to=to;p.t0=t;p.dur=RM?0:dur;kick()};
- const mood=(m,d)=>{m=CCP[m]||m;el.dataset.m=m;for(const k in P)if(k!=='look'&&k!=='sway'&&k!=='hatb'&&k!=='root'&&k!=='page'&&k!=='zz')tween(k,mir(cchS(L.side<0?(SW[k]||k):k,m)),d||440)};
+ const mood=(m,d)=>{m=CCP[m]||m;el.dataset.m=m;for(const k in P)if(k!=='look'&&k!=='sway'&&k!=='hatb'&&k!=='root'&&k!=='page'&&k!=='zz')tween(k,mir(cchS(L.side<0?(SW[k]||k):k,m)),d||440);
+  tween('hatb',{x:L.side<0?21.2:0,y:0,r:0,sx:L.side,sy:1,o:1},d||440)};   // v139 (owner): the hat's own drawn tilt flips with him (mirrored about the face centre 182.6; it turns through edge-on)
  /* one-shot moves: keyframes [{t,...state deltas}] added on top (x,y,r add; sx,sy multiply; o overrides) */
  const fx=(k,kf,dur)=>{if(L.side<0){k=SW[k]||k;kf=kf.map(f=>{const g=Object.assign({},f);if(g.x!=null)g.x=-g.x;if(g.r!=null)g.r=-g.r;return g})}if(RM||!P[k])return;L.fx.push({k,kf,t0:now(),dur});kick()};
  const fxAt=(f,t)=>{const u=Math.min(1,(t-f.t0)/f.dur),kf=f.kf;let i=0;while(i<kf.length-2&&u>kf[i+1].t)i++;const a=kf[i],b=kf[i+1],w=b.t>a.t?(u-a.t)/(b.t-a.t):1,e=w<.5?2*w*w:1-Math.pow(-2*w+2,2)/2,g=(q,d)=>(a[q]??d)+((b[q]??d)-(a[q]??d))*e;
@@ -3660,8 +3661,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=138;
+const CC_VER=139;
 const CC_LOG=[
+  {v:139,new:['The little character’s hat now tilts to the other side together with his head.']},
   {v:138,new:['No more buzzing while you scroll the main page.']},
   {v:137,new:['The app opens faster: the sun and moon no longer play an opening animation.','The little character moves a bit less often, and now tilts and moves both ways (left and right).','Smoother scrolling where the date fades out and the cards come up.']},
   {v:136,new:['The loading figure is light blue at night, so it shows up on the dark screen.']},
