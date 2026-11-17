@@ -1043,10 +1043,10 @@ $("suC").oninput=()=>{const c=$("suC");c.value=c.value.replace(/\D/g,"");$("suCH
 suB.onclick=async()=>{if(suB.disabled)return;const m=suMode(),c=$("suC").value.replace(/\D/g,""),k=pkey(selM.name,selM.city),ch=$("suCH");
  if(Date.now()<lockT){ch.className="phh bad";ch.textContent="Too many tries. Wait a few seconds.";return}
  suB.disabled=true;
- try{if(m=="login"){const a=accts[k],h=await hashCode(c,a.salt);if(h!=a.h){bad++;if(bad>=5){lockT=Date.now()+30000;bad=0}ch.className="phh bad";ch.textContent="Wrong code.";suB.disabled=false;return}bad=0;me={name:suN.value.trim()||selM.name,match:{name:selM.name,city:selM.city},phone:phoneOf(selM.name,selM.city),salt:a.salt,h:a.h}}
-  else{const salt=randSalt(),h=await hashCode(c,salt),ph=pw.val().e164;setAcct(k,salt,h);setPhone(selM.name,selM.city,ph);me={name:suN.value.trim()||selM.name,match:{name:selM.name,city:selM.city},phone:ph,salt,h}}}
+ try{if(m=="login"){const a=accts[k],h=await hashCode(c,a.salt);if(h!=a.h){bad++;if(bad>=5){lockT=Date.now()+30000;bad=0}ch.className="phh bad";ch.textContent="Wrong code.";suB.disabled=false;return}bad=0;me={name:suN.value.trim()||selM.name,match:{name:selM.name,city:selM.city},phone:phoneOf(selM.name,selM.city),salt:a.salt,h:a.h};me.vk=await vkMake(c)}
+  else{const salt=randSalt(),h=await hashCode(c,salt),ph=pw.val().e164;setAcct(k,salt,h);setPhone(selM.name,selM.city,ph);me={name:suN.value.trim()||selM.name,match:{name:selM.name,city:selM.city},phone:ph,salt,h};me.vk=await vkMake(c)}}
  catch(e){toast("Something went wrong. Try again.");suCheck();return}
- lsSet("sc_me",JSON.stringify(me));try{acctLoad()}catch(e){}$("suC").value="";su=false;document.body.classList.remove("su");renderCards();welcome();setTimeout(()=>{try{invCheck(1);invBackfill();cmRebuild();cmRefresh();cmPendingJoin()}catch(e){}},1500)};
+ lsSet("sc_me",JSON.stringify(me));try{acctLoad()}catch(e){}setTimeout(vaultPull,800);$("suC").value="";su=false;document.body.classList.remove("su");renderCards();welcome();setTimeout(()=>{try{invCheck(1);invBackfill();cmRebuild();cmRefresh();cmPendingJoin()}catch(e){}},1500)};
 let soT=null;
 $("so").onclick=()=>{const b=$("so");if(!soT){b.textContent="Tap again to confirm";b.style.background="rgba(251,113,133,.35)";soT=setTimeout(()=>{soT=null;b.textContent="Log out";b.style.background=""},3000);return}clearTimeout(soT);soT=null;b.textContent="Log out";b.style.background="";try{acctStash(me)}catch(e){}try{localStorage.removeItem("sc_me")}catch(e){}me=null;try{acctMem()}catch(e){}try{cmRebuild()}catch(e){}selM=null;suN.value="";pw.clear();suN.oninput();open(false);su=true;document.body.classList.add("su");renderCards()};
 // ---------- cards + world toggle
@@ -1227,7 +1227,7 @@ sync()})();
 // neither = SMALL (looks, tweaks, fixes) → only a little round "i" in the corner, version X.Y.Z.
 // adm:1 = admin-only change → counts as a small update in the version number, but NO notification at all (owner). The shown version is worked out from these sizes.
 // apk:N = this needs app version N (a new download); the app then also shows "Update the app".
-const KIT_VER=48,KIT_APK=3;
+const KIT_VER=49,KIT_APK=3;
 const KIT_LOG=[
  {v:1,big:1,t:"Home-screen widgets",d:"See who’s awake without opening the app, with Call and WhatsApp buttons, filters and sorting.",go:"widgets"},
  {v:2,mid:1,t:"Add widgets from inside the app",d:"Menu → Home-screen widgets → Add. No more digging through your phone’s widget list.",go:"widgets",apk:1},
@@ -1269,7 +1269,8 @@ const KIT_LOG=[
  {v:44,t:"Each account on a phone keeps its own people and communities: logging out and in with another account no longer mixes them"},
  {v:45,t:"Shooting stars only fly between places that are on your globe"},
  {v:46,apk:3,t:"Signing up without a yeshiva now finds your location by itself (it asks for permission first)"},
- {v:47,t:"Fixed communities going missing after switching accounts on one phone (they come back by themselves)"}
+ {v:47,t:"Fixed communities going missing after switching accounts on one phone (they come back by themselves)"},
+ {v:49,mid:1,t:"Your communities are saved to your account",d:"Sign in on any phone, or after reinstalling, and all your communities come back by themselves."}
 ];
 function kitVerStr(b){let M=0,m=0,p=0;const by={};KIT_LOG.forEach(x=>{const l=x.big?3:x.mid?2:1;by[x.v]=Math.max(by[x.v]||0,l)});
  Object.keys(by).map(Number).sort((a,c)=>a-c).forEach(v=>{if(v>b)return;if(by[v]==3){M++;m=0;p=0}else if(by[v]==2){m++;p=0}else p++});return M+"."+m+"."+p}
@@ -1536,7 +1537,7 @@ function invAsk(list){const it=list[0];if(!it)return;if(document.body.classList.
    if(doc){h=await hashCode(code,doc.salt);if(h!=doc.h){bad2++;if(bad2>=5){lock2=Date.now()+30000;bad2=0}H.className="phh bad";H.textContent="This number already has an account. Wrong code.";B.disabled=false;return}salt=doc.salt}
    else{salt=randSalt();h=await hashCode(code,salt);await kitPost("users3/set",{id:uid,data:{salt,h}})}
    const city=DIRG0.some(g=>g.city==pick.city)?pick.city+" ·":pick.city;
-   me={name:N.value.trim(),match:{name:N.value.trim(),city},gen:1,la:pick.lat,lo:pick.lon,tz:pick.tz,phone:ph,salt,h,uid};lsSet("sc_me",JSON.stringify(me));try{acctLoad()}catch(e){}
+   me={name:N.value.trim(),match:{name:N.value.trim(),city},gen:1,la:pick.lat,lo:pick.lon,tz:pick.tz,phone:ph,salt,h,uid};try{me.vk=await vkMake(code)}catch(e){}lsSet("sc_me",JSON.stringify(me));try{acctLoad()}catch(e){}setTimeout(vaultPull,800);
    K.value="";su=false;document.body.classList.remove("su");$("su").classList.remove("su-gen");renderCards();welcome();setTimeout(()=>{invCheck(1);invBackfill();cmRebuild();cmRefresh();cmPendingJoin()},1500)}
   catch(e){H.className="phh bad";H.textContent="Couldn’t reach the server. Check your internet and try again.";B.disabled=false}}})();
 // general users change their number here (their number is never in the shared list)
@@ -1554,7 +1555,7 @@ const CM_LINK=c=>"https://mosheliberman03-maker.github.io/CDate/friends/?join="+
 const DIRG0=DIRG.slice(),DIRP0=DIRP.slice();
 window.CM_PH={};let CM_DOCS={},cmTimer=0;
 const cmList=()=>{try{return JSON.parse(lsGet("kit_comms")||"[]")}catch(e){return[]}};
-const cmSave=l=>lsSet("kit_comms",JSON.stringify(l));
+const cmSave=l=>{lsSet("kit_comms",JSON.stringify(l));try{vaultSoon()}catch(e){}};
 const cmEntry=id=>cmList().find(x=>x.id==id);
 const cmSecret=()=>{try{return[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,"0")).join("")}catch(e){return(Math.random().toString(36)+Math.random().toString(36)).slice(2,34)}};
 function cmFk(){if(!me||!me.match)return"";if(!me.gen)return myFk();return(slug(me.match.name).slice(0,60)+"_"+digits(me.phone).slice(-6)+(me.uid?me.uid.slice(0,6):"")).slice(0,140)}
@@ -1588,8 +1589,8 @@ async function cmRefresh(){if(!me||!me.match)return;await shlJoinPending();const
 function cmMenu(){const el=$("cmL");if(!el)return;const rows=[];const l=cmList();
  if(me&&me.match&&isShlMember())rows.push({id:"shluchim",name:"Shluchim",n:DIRP0.length+Object.keys((CM_DOCS.shluchim||{}).members||{}).filter(k=>!DIRP0.some(x=>x.name==((CM_DOCS.shluchim.members[k]||{}).n))).length});
  l.forEach(e=>{if(e.id=="shluchim")return;const d=CM_DOCS[e.id];rows.push({id:e.id,name:d?d.name:"…",n:d?Object.keys(d.members).length:0,pend:e.st=="pending"})});
- el.innerHTML=rows.map(r=>'<button class="mr" data-cm="'+r.id+'"><span class="mi">'+esc((r.name[0]||"?").toUpperCase())+'</span><span class="mt"><b>'+esc(r.name)+'</b><small>'+(r.pend?"Waiting for approval":"Tap to see members, share or manage")+'</small></span><span class="mcnt">'+r.n+'</span></button>').join("");
- el.querySelectorAll("[data-cm]").forEach(b=>b.onclick=()=>{open(false);cmOpen(b.dataset.cm)})}
+ const adm=typeof isAdmin=="function"&&isAdmin();el.innerHTML=(adm?'<button class="mr" id="cmRc"><span class="mi">↺</span><span class="mt"><b>Recover my communities</b><small>Admin: with the admin code</small></span></button>':'')+rows.map(r=>'<button class="mr" data-cm="'+r.id+'"><span class="mi">'+esc((r.name[0]||"?").toUpperCase())+'</span><span class="mt"><b>'+esc(r.name)+'</b><small>'+(r.pend?"Waiting for approval":"Tap to see members, share or manage")+'</small></span><span class="mcnt">'+r.n+'</span></button>').join("");
+ el.querySelectorAll("[data-cm]").forEach(b=>b.onclick=()=>{open(false);cmOpen(b.dataset.cm)});{const rc=$("cmRc");if(rc)rc.onclick=()=>{open(false);cmReclaim()}}}
 function cmShare(id,name){const url=CM_LINK(id),txt="Join "+name+" on Keep in Touch: "+url+"\n(or open the app → menu → Join with a link or code: "+id+")";
  if(navigator.share)navigator.share({title:name,text:txt}).catch(()=>{});else{try{navigator.clipboard.writeText(txt);toast("Link copied")}catch(e){prompt("Copy this link",url)}}}
 async function cmOpen(id){sheet._gs=null;let d=CM_DOCS[id]||await cmFetch(id);if(!d){toast("Couldn’t load the community. Try again.");return}CM_DOCS[id]=d;
@@ -1630,7 +1631,7 @@ async function cmOpen(id){sheet._gs=null;let d=CM_DOCS[id]||await cmFetch(id);if
  sheet.querySelectorAll("[data-ua]").forEach(b=>b.onclick=()=>{if(b.dataset.ok!="1"){b.dataset.ok="1";b.textContent="Sure?";return}act("unadd",{who:b.dataset.ua},"Removed from "+d.name)});
  {const ad=$("cmAdd");if(ad)ad.onclick=()=>cmAddOpen(id,"")}
  sheet.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{if(b.dataset.ok!="1"){b.dataset.ok="1";b.textContent="Sure?";return}act("remove",{who:b.dataset.rm},"Removed")});
- const lv=$("cmLeave");if(lv)lv.onclick=async()=>{if(lv.dataset.ok!="1"){lv.dataset.ok="1";lv.textContent="Tap again to leave";return}try{if(sec)await cmPost("leave",{id,fk:mine,s:sec})}catch(x){}cmSave(cmList().filter(x=>x.id!=id));delete CM_DOCS[id];if(lsGet("kit_cm_def")==id)try{localStorage.removeItem("kit_cm_def")}catch(x){}if(CM_VIEW==id)CM_VIEW="";sheet.style.display="none";cmRebuild();cmMenu();toast("You left "+d.name)};
+ const lv=$("cmLeave");if(lv)lv.onclick=async()=>{if(lv.dataset.ok!="1"){lv.dataset.ok="1";lv.textContent="Tap again to leave";return}try{if(sec)await cmPost("leave",{id,fk:mine,s:sec})}catch(x){}try{const lf=JSON.parse(lsGet("kit_cm_left")||"[]");if(!lf.includes(id))lf.push(id);lsSet("kit_cm_left",JSON.stringify(lf.slice(-100)))}catch(x){}cmSave(cmList().filter(x=>x.id!=id));delete CM_DOCS[id];if(lsGet("kit_cm_def")==id)try{localStorage.removeItem("kit_cm_def")}catch(x){}if(CM_VIEW==id)CM_VIEW="";sheet.style.display="none";cmRebuild();cmMenu();toast("You left "+d.name)};
  const cl=$("cmClaim");if(cl)cl.onclick=async()=>{const code=prompt("Admin code");if(!code)return;const s2=sec||cmSecret();try{await cmPost("claim",{id,fk:mine,s:s2,code:code.trim(),me:meInfo()});const l=cmList().filter(x=>x.id!=id);l.push({id,s:s2,st:"member"});cmSave(l);toast("You now manage Shluchim");await cmRefresh();cmOpen(id)}catch(x){toast("Wrong code")}}}
 // owner: "＋ Add people" in a community: pick people from your contacts (saved people, the directory, your other
 // communities); if the person isn't there, offer to create a new contact, which is then added too.
@@ -1693,7 +1694,7 @@ function pOpen(x,back){sheet._gs=null;const i=savedIdx(x.n,x.city),v=i>=0?saved[
 // its own saved people, favourites, reminders, communities… Logging out puts them away in kit_vault_<account>; logging in
 // brings that account's back (a new account starts empty). Data from before this (kept in the shared keys) is given to the
 // account the server says owns its communities; otherwise it waits in kit_vault_legacy for that account to sign in.
-const ACCT_KEYS=["sc_saved","sc_favs","sc_rem","sc_recent","kit_comms","kit_cm_def","kit_inv_no","kit_unsave","kit_shl_g","sc_tour"];
+const ACCT_KEYS=["sc_saved","sc_favs","sc_rem","sc_recent","kit_comms","kit_cm_def","kit_inv_no","kit_unsave","kit_shl_g","sc_tour","kit_cm_left"];
 function acctSlug(m){return m&&m.match?(slug(pkey(m.match.name,m.match.city))+(m.gen?"_"+digits(m.phone).slice(-6):"")).slice(0,160):""}
 function acctTake(){const o={};ACCT_KEYS.forEach(x=>{const v=lsGet(x);if(v!=null)o[x]=v;try{localStorage.removeItem(x)}catch(e){}});return o}
 function acctPut(o){Object.keys(o||{}).forEach(x=>{if(ACCT_KEYS.includes(x))lsSet(x,o[x])})}
@@ -1740,6 +1741,38 @@ async function acctRecover(){if(!me||!me.match)return;if(acctRecover.busy){acctR
    else{o.kit_comms=JSON.stringify(L.filter(e=>!own.includes(e)));lsSet(k,JSON.stringify(o))}}
   if(got){acctMem();cmRebuild();cmMenu();renderCards();cmRefresh();toast("Your communities are back")}}catch(e){}acctRecover.busy=0;if(acctRecover.again)setTimeout(acctRecover,100)}
 setTimeout(acctRecover,3000);
+
+// ---------- communities saved to the ACCOUNT (owner: "communities should be per account: sign in on the same account or a
+// different phone and they all come back"). The phone keeps me.vk = PBKDF2(code, account) made when the code is typed; the list
+// of communities (+ their member secrets) is stored on the server under SHA-256(vk) (vault3), so only someone with the code
+// can find it. Pushed (debounced) whenever the list changes; pulled at sign-in and on opening; communities left on purpose
+// (kit_cm_left) are never brought back.
+async function vkMake(code){const en=new TextEncoder(),key=await crypto.subtle.importKey("raw",en.encode(String(code)),"PBKDF2",false,["deriveBits"]);
+ const bits=await crypto.subtle.deriveBits({name:"PBKDF2",salt:en.encode("kit-vk:"+acctSlug(me)),iterations:150000,hash:"SHA-256"},key,256);return[...new Uint8Array(bits)].map(b=>b.toString(16).padStart(2,"0")).join("")}
+const vaultId=()=>me&&me.vk?kitSha("kit-vault3:"+me.vk):null;
+let vaultT=0;function vaultSoon(){if(!me||!me.vk)return;clearTimeout(vaultT);vaultT=setTimeout(vaultPush,1500)}
+async function vaultPush(){try{const id=await vaultId();if(!id)return;const c=JSON.stringify({v:1,comms:cmList().filter(e=>e&&e.s&&!e.sj).map(e=>({id:e.id,s:e.s,st:e.st,all:e.all||""})),def:lsGet("kit_cm_def")||""});
+ await kitPost("vault3/set",{id,data:{c}})}catch(e){}}
+async function vaultPull(){try{const id=await vaultId();if(!id)return;const d=await kitGet1("vault3",id);if(!d||!d.c)return vaultPush();
+ const o=JSON.parse(d.c),left=JSON.parse(lsGet("kit_cm_left")||"[]"),cur=cmList();let n=0;
+ (o.comms||[]).forEach(e=>{if(!e||!e.id||!e.s||left.includes(e.id))return;const x=cur.find(y=>y.id==e.id);if(!x){cur.push({id:e.id,s:e.s,st:e.st||"member",all:e.all||"auto"});n++}else if(x.sj||!x.s){Object.assign(x,{s:e.s,st:e.st||x.st});delete x.sj;n++}});
+ if(o.def&&!lsGet("kit_cm_def"))lsSet("kit_cm_def",o.def);
+ if(n){lsSet("kit_comms",JSON.stringify(cur));CM_DOCS={};await cmRefresh();cmMenu();renderCards();toast(n==1?"Your community is back":"Your "+n+" communities are back")}
+ vaultSoon()}catch(e){}}
+// signed in from before this (no vk yet): ask for the code once, so the communities can be kept on the account
+function vkAsk(){if(!me||!me.match||me.vk||sessionStorage.getItem("kit_vk_no")||sheet.style.display=="block"||document.body.classList.contains("tour"))return;
+ sheet._gs=null;sheet.innerHTML='<div class="cm"><div class="cmhd"><div><h3>Keep your communities</h3><p>Type your code once, and your communities will come back whenever you sign in, on any phone.</p></div><button class="cmx" id="vkX" aria-label="Not now">✕</button></div><input class="ain" id="vkC" type="password" inputmode="numeric" maxlength="8" placeholder="Your code"><div class="note" id="vkH"></div><div class="btns"><button class="btn p" id="vkGo">Save to my account</button></div></div>';sheet.style.display="block";
+ const C=$("vkC"),H=$("vkH");setTimeout(()=>C.focus(),80);$("vkX").onclick=()=>{sessionStorage.setItem("kit_vk_no","1");sheet.style.display="none"};
+ $("vkGo").onclick=async()=>{const c=C.value.replace(/\D/g,"");if(c.length<4){H.textContent="Your code is 4–8 digits.";return}H.textContent="Checking…";
+  const a=me.gen?{salt:me.salt,h:me.h}:(accts[pkey(me.match.name,me.match.city)]||{salt:me.salt,h:me.h});
+  if(!a||!a.salt||(await hashCode(c,a.salt))!=a.h){H.textContent="That’s not your code.";hap(30);return}
+  me.vk=await vkMake(c);lsSet("sc_me",JSON.stringify(me));sheet.style.display="none";hap([12,40,12]);await vaultPull();vaultSoon();toast("Your communities are saved to your account")}}
+setTimeout(()=>{if(me&&me.match){if(me.vk)vaultPull();else setTimeout(vkAsk,1500)}},4000);
+// the app's admin (owner): get every community back with the admin code, even when this phone has lost them
+async function cmReclaim(){const code=prompt("Admin code");if(!code)return;const s2=cmSecret();
+ try{const r=await cmPost("reclaim",{fk:cmFk(),s:s2,code:code.trim()});const cur=cmList();(r.got||[]).forEach(g=>{const x=cur.find(y=>y.id==g.id);if(x){x.s=s2;x.st="member";delete x.sj}else cur.push({id:g.id,s:s2,st:"member",all:"no"})});
+  cmSave(cur);CM_DOCS={};await cmRefresh();cmMenu();renderCards();toast(r.got&&r.got.length?"Got back: "+r.got.map(g=>g.name).join(", "):"No communities found for this account")}
+ catch(x){toast(String(x.message).includes("403")?"Wrong code":"Couldn’t reach the server. Try again.")}}
 function cmNew(){open(false);sheet._gs=null;sheet.innerHTML='<div class="cm"><h3>Create a community</h3><p>For your family, friends, a class or a group. Everyone in it sees each other on the globe, without saving anyone. You’ll be its admin.</p><input class="ain" id="cmN" maxlength="60" placeholder="Name, e.g. Cohen family" autocapitalize="words"><div class="note">🔒 Members see each other’s name, city and number.</div><div class="btns"><button class="btn" id="cmX">Cancel</button><button class="btn p" id="cmGo" disabled>Create</button></div></div>';sheet.style.display="block";
  const N=$("cmN"),G=$("cmGo");setTimeout(()=>N.focus(),80);N.oninput=()=>G.disabled=!N.value.trim();$("cmX").onclick=()=>sheet.style.display="none";
  G.onclick=async()=>{const info=meInfo();if(!info){toast("Couldn’t find your location.");return}G.disabled=true;const s2=cmSecret();

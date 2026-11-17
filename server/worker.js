@@ -138,6 +138,15 @@ async function handle(req, env) {
         all[id] = { name, mode: 'open', owner: fk, admins: [fk], members: { [fk]: { ...me, sh } }, pending: {} };
         await save(); return j({ ok: true, id });
       }
+      // owner: "my communities are gone" — the admin's phone lost its member secrets; with the admin code the server gives every
+      // community this account belongs to (or created) the new secret, and returns them so the phone can save them again
+      if (op === 'reclaim') {
+        if ((await sha('kit-admin:' + str(b.code, 40))) !== '816e975bd4123d6abe1f2a030146455a4140bcfc57beeaca4808ae0f18b41257') return j({ error: 'wrong code' }, 403);
+        const got = [];
+        for (const [cid, d] of Object.entries(all)) { if (d.members && d.members[fk]) { d.members[fk].sh = sh; got.push({ id: cid, name: d.name }); } }
+        if (got.length) await save();
+        return j({ ok: true, got });
+      }
       const id = b.id; if (!okC(id)) return j({ error: 'bad id' }, 400);
       if (!all[id] && id === 'shluchim') all[id] = { name: 'Shluchim', mode: 'open', owner: '', admins: [], members: {}, pending: {} };
       const d = all[id]; if (!d) return j({ error: 'no such community' }, 404);
@@ -203,6 +212,18 @@ async function handle(req, env) {
     // Private lists (owner): never listed, only looked up by an id the phone computes (a salted hash).
     //  users3 = accounts of people who are NOT in the yeshiva list (id = hash of their number; no name/number stored).
     //  inv3   = "someone added you": id = hash of the added person's name + number; items = who added them.
+    if (col === 'vault3') {
+      // id = SHA-256 of a key the phone derives from the account's code (PBKDF2), so only someone with the code can find it
+      const vk = 'kit:vault3', va = (await env.KV.get(vk, 'json')) || {}, okV = (x) => typeof x === 'string' && /^[a-f0-9]{64}$/.test(x);
+      if (req.method === 'GET' && op === 'get') { const id = url.searchParams.get('id'); if (!okV(id)) return j({ error: 'bad id' }, 400); return j({ doc: va[id] || null }); }
+      if (req.method !== 'POST' || op !== 'set') return j({ error: 'not found' }, 404);
+      let b; try { b = await req.json(); } catch (e) { return j({ error: 'bad json' }, 400); }
+      const id = b && b.id, c = b && b.data && b.data.c;
+      if (!okV(id) || typeof c !== 'string' || c.length > 12000) return j({ error: 'bad data' }, 400);
+      if (!va[id] && Object.keys(va).length >= 5000) return j({ error: 'full' }, 507);
+      if (va[id] && va[id].c === c) return j({ ok: true, same: true });
+      va[id] = { c, at: Date.now() }; await env.KV.put(vk, JSON.stringify(va)); return j({ ok: true });
+    }
     if (col === 'users3' || col === 'inv3') {
       const pkey2 = 'kit:' + col, pall = (await env.KV.get(pkey2, 'json')) || {};
       const okId = (x) => typeof x === 'string' && /^[a-f0-9]{64}$/.test(x);
