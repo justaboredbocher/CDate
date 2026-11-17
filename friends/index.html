@@ -589,6 +589,7 @@ const cv=$("g"),ctx=cv.getContext("2d"),D=Math.PI/180;let W,H,DPR,R,cx,cy,zoom=1
 const SIDE_ELEV=30; // camera angle above the ground when fully zoomed in: 90 = straight down, lower = more side-on (try 25-75)
 const TILT_FROM=2,TILT_TO=5; // zoom range over which the view eases from top-down to side view
 let tilt=0,tiltF=0,rv=[-20,-25];
+var BG_F=false;function bgFocus(lon,lat,z){if(!isFinite(+lon)||!isFinite(+lat))return;BG_F=true;auto=false;fly(+lon,+lat);zoomT=z||6}
 let focusK=null,rot=[-20,-25],vel=[0,0],auto=true,tween=null,pins=[],view="world",newCity=null,zoomT=null,drag=false,su=false;
 let land=[];
 function toW(r,th){const o=[];let la=1e9,lo=1e9;r.forEach((c,i)=>{if(i==r.length-1||Math.abs(c[0]-lo)+Math.abs(c[1]-la)>=th){lo=c[0];la=c[1];const f=la*D,l=lo*D;o.push(Math.cos(f)*Math.sin(l),Math.sin(f),Math.cos(f)*Math.cos(l))}});return new Float32Array(o)}
@@ -805,7 +806,8 @@ function pyr(x,y,r,col,t,ph,nx,ny,nz){const B=[1,3,5].map(i=>parseInt(col.substr
  return V(0,0,h*.74)}
 function draw(){
  if(zoomT!=null){zoom+=(zoomT-zoom)*.12;if(Math.abs(zoomT-zoom)<.01){zoom=zoomT;zoomT=null}}
- if(view=="cards"||su){if(!focusK||su){auto=true;tween=null;vel=[0,0];if(zoomT==null&&Math.abs(zoom-1)>.01)zoomT=1}}
+ if(BG_F&&sheet.style.display!="block")BG_F=false;
+ if(view=="cards"||su){if((!focusK&&!BG_F)||su){auto=true;tween=null;vel=[0,0];if(zoomT==null&&Math.abs(zoom-1)>.01)zoomT=1}}
  if(tween){const k=Math.min(1,(performance.now()-tween.t0)/tween.d),e=tween.io?(k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2):1-Math.pow(1-k,3);rot=[tween.a[0]+(tween.b[0]-tween.a[0])*e,tween.a[1]+(tween.b[1]-tween.a[1])*e];if(k>=1)tween=null}
  else if(!drag){rot[0]+=vel[0];rot[1]=Math.max(-80,Math.min(80,rot[1]+vel[1]));vel[0]*=.94;vel[1]*=.94;if(auto)rot[0]+=.06}
  R=Math.min(W,H*.9)*.42*zoom;
@@ -914,10 +916,10 @@ q.addEventListener("input",()=>{sheet.style.display="none";const s=q.value.trim(
  res.innerHTML=a.concat(y,d,b).map((r,i)=>{const v=r.g||r.v,st=status(v.tz);if(r.g)return'<div class="r" data-i="'+i+'"><span class="dot" style="background:'+COL[st]+'"></span><div><b>'+esc(v.city)+'</b><small>'+v.people.length+' people · '+clock(v.tz)+'</small></div><span class="tag">Yeshiva</span></div>';return'<div class="r" data-i="'+i+'"><span class="dot" style="background:'+COL[st]+'"></span><div><b>'+esc(v.name||v.city)+'</b><small>'+esc(v.name?v.city+", ":"")+esc(v.country)+' · '+clock(v.tz)+'</small></div><span class="tag">'+(r.saved?"Saved":"Save")+'</span></div>'}).join("")||'<div class="empty">No match yet. Try a city name.</div>';
  res.style.display="block";res._items=a.concat(y,d,b)});
 res.addEventListener("click",e=>{if(e.target.closest("#rc")){recent=[];try{localStorage.setItem("sc_recent","[]")}catch(x){}res.style.display="none";return}const rr=e.target.closest("[data-rc]");if(rr){q.value=recent[+rr.dataset.rc];q.dispatchEvent(new Event("input"));return}const r=e.target.closest(".r");if(!r)return;const it=res._items[+r.dataset.i];addRecent(it.yesh?it.g.city:(it.v.name||it.v.city));res.style.display="none";
- if(it.yesh){fly(it.g.lon,it.g.lat);q.value="";q.blur();showSheet([it.g]);return}
- if(it.saved){setView("world");fly(it.v.lon,it.v.lat);q.value="";q.blur();return}
- if(it.dir){pick=it.v;fly(pick.lon,pick.lat);const st=status(pick.tz);sheet.innerHTML='<h3>'+esc(pick.name)+'</h3><p>'+esc(pick.city)+' · '+clock(pick.tz)+' · <span style="color:'+COL[st]+'">'+LBL[st]+'</span></p><div class="btns"><button class="btn" id="cn">Cancel</button><button class="btn p" id="sv">Save person</button></div>';sheet.style.display="block";$("sv").onclick=()=>{saved.push({id:Date.now(),name:pick.name,city:pick.city,country:pick.country,lat:pick.lat,lon:pick.lon,tz:pick.tz});persist();sheet.style.display="none";q.value="";render();commit(pick.city,true)};$("cn").onclick=()=>sheet.style.display="none";return}
- pick=it.v;fly(pick.lon,pick.lat);const st=status(pick.tz);
+ if(it.yesh){bgFocus(it.g.lon,it.g.lat);q.value="";q.blur();showSheet([it.g]);return}
+ if(it.saved){setView("world");fly(it.v.lon,it.v.lat);zoomT=6;q.value="";q.blur();return}
+ if(it.dir){pick=it.v;bgFocus(pick.lon,pick.lat);const st=status(pick.tz);sheet.innerHTML='<h3>'+esc(pick.name)+'</h3><p>'+esc(pick.city)+' · '+clock(pick.tz)+' · <span style="color:'+COL[st]+'">'+LBL[st]+'</span></p><div class="btns"><button class="btn" id="cn">Cancel</button><button class="btn p" id="sv">Save person</button></div>';sheet.style.display="block";$("sv").onclick=()=>{saved.push({id:Date.now(),name:pick.name,city:pick.city,country:pick.country,lat:pick.lat,lon:pick.lon,tz:pick.tz});persist();sheet.style.display="none";q.value="";render();commit(pick.city,true)};$("cn").onclick=()=>sheet.style.display="none";return}
+ pick=it.v;bgFocus(pick.lon,pick.lat);const st=status(pick.tz);
  sheet.innerHTML='<h3>'+esc(pick.city)+'</h3><p>'+clock(pick.tz)+' there · <span style="color:'+COL[st]+'">'+LBL[st]+'</span></p><input id="nm" placeholder="Person’s name (leave blank to save as a place)"><div class="btns"><button class="btn" id="cn">Cancel</button><button class="btn p" id="sv">Save place</button></div>';
  sheet.style.display="block";const nm=$("nm");nm.addEventListener("input",()=>$("sv").textContent=nm.value.trim()?"Save person":"Save place");
  const go=()=>{saved.push({id:Date.now(),name:nm.value.trim(),city:pick.city,country:pick.country,lat:pick.lat,lon:pick.lon,tz:pick.tz});persist();sheet.style.display="none";q.value="";render();commit(pick.city,true)};
@@ -1218,7 +1220,7 @@ sync()})();
 // neither = SMALL (looks, tweaks, fixes) → only a little round "i" in the corner, version X.Y.Z.
 // adm:1 = admin-only change → counts as a small update in the version number, but NO notification at all (owner). The shown version is worked out from these sizes.
 // apk:N = this needs app version N (a new download); the app then also shows "Update the app".
-const KIT_VER=40,KIT_APK=2;
+const KIT_VER=41,KIT_APK=2;
 const KIT_LOG=[
  {v:1,big:1,t:"Home-screen widgets",d:"See who’s awake without opening the app, with Call and WhatsApp buttons, filters and sorting.",go:"widgets"},
  {v:2,mid:1,t:"Add widgets from inside the app",d:"Menu → Home-screen widgets → Add. No more digging through your phone’s widget list.",go:"widgets",apk:1},
@@ -1253,7 +1255,8 @@ const KIT_LOG=[
  {v:37,t:"Clearer community window: add and invite at the top, then the members; everything else under Settings"},
  {v:38,mid:1,t:"Tap anyone to see their details",d:"Tap a person in your list, a community, or its member list: you see their local time, their number with Call and WhatsApp, and buttons to favourite, save, delete or find them on the globe."},
  {v:39,mid:1,t:"Communities as one row each",d:"On the Everyone page each community is now a single row, like a group chat, showing who's good to call. Tap it to open that community."},
- {v:40,t:"The Good / Borderline / Asleep filters now work everywhere, and “Mine” is now “★ Favs”"}
+ {v:40,t:"The Good / Borderline / Asleep filters now work everywhere, and “Mine” is now “★ Favs”"},
+ {v:41,t:"Tapping a person or searching a place zooms the globe to them in the background"}
 ];
 function kitVerStr(b){let M=0,m=0,p=0;const by={};KIT_LOG.forEach(x=>{const l=x.big?3:x.mid?2:1;by[x.v]=Math.max(by[x.v]||0,l)});
  Object.keys(by).map(Number).sort((a,c)=>a-c).forEach(v=>{if(v>b)return;if(by[v]==3){M++;m=0;p=0}else if(by[v]==2){m++;p=0}else p++});return M+"."+m+"."+p}
@@ -1640,7 +1643,7 @@ function pOpen(x,back){sheet._gs=null;const i=savedIdx(x.n,x.city),v=i>=0?saved[
   h+='</div>'}
  if(cms.length)h+='<div class="sh">Communities</div><div class="pvc">'+cms.map(id=>'<button data-pcm="'+esc(id)+'">'+esc(cmName(id))+'</button>').join("")+'</div>';
  if(v&&v.own)h+='<div class="note">'+(cms.length?'Members of '+esc(cms.map(cmName).join(', '))+' can see them too.':v.cm?'Saved from '+esc(cmName(v.cm))+'.':'Only you can see this contact.')+'</div>';
- h+='</div>';sheet.innerHTML=h;sheet.style.display="block";sheet.scrollTop=0;hap(8);
+ h+='</div>';sheet.innerHTML=h;sheet.style.display="block";sheet.scrollTop=0;hap(8);bgFocus(x.lon,x.lat,7);
  const again=()=>pOpen(x,back),close=()=>{if(back)back();else sheet.style.display="none"};
  $("pvX").onclick=close;
  const F=$("pvF");if(F)F.onclick=()=>{if(favs.has(k))favs.delete(k);else favs.add(k);saveF();hap(10);renderCards();again()};
