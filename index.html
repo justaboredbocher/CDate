@@ -1561,7 +1561,7 @@ function groups(){const{h,ev,rc}=info(sel),W=hDay(sel).getDay(),o=[];
  return o}
 /* to-do lines: 'chk' = checkbox, 'rem' = only a reminder (bell, no checkbox), 'note' = plain line, no checkbox */
 const TODO_DROP=/Birkas HaChodesh/i,TODO_REM=/entire Tehillim|^Fast from|five Yom Kippur restrictions|Aneinu|Selichos|Light the menorah|^Ask for an aliyah/i,TODO_NOTE=/Al HaNissim|Chanukah gelt|farbrengen|Yaaleh V|Hallel|Tachanun|Musaf|Shemoneh Esrei|Hamelech|Avinu Malkeinu|V’sein Tal|Tal U’matar|Morid hatal|Mashiv|Psalm 27|L’Dovid Hashem Ori|prayer for dew|prayer for rain/i;   // v105 (owner): prayer changes are notes, not checklists
-const todoMode=t=>TODO_REM.test(t)?'rem':TODO_NOTE.test(t)?'note':'chk';
+const todoMode=t=>TODO_REM.test(t)||/^Light (Shabbos|Yom Tov|Yom Kippur)\b/i.test(t)?'rem':'note';   // v141 (owner: "none of these should be checklist items, they should be bullet points; Shabbos candles shouldn't be a task"): no checkboxes in To do today — plain bullets, candle lighting gets the bell like the other reminders
 const BELL='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9"/><path d="M10.3 20a1.9 1.9 0 0 0 3.4 0"/></svg>';
 const noteRow=(t,mode,i,gi,gk)=>`<div class="tdn rv ${mode}" style="--i:${i}"><span class="ic" aria-hidden="true">${mode=='rem'?BELL:'<i></i>'}</span><div class="tx"><b>${t}</b>${mode=='rem'?'<small>Reminder</small>':''}</div>${gi>=0?`<button class="gi" type="button" data-g="${gi}" data-k="${gk||'ys'}" aria-label="How and when: ${t.replace(/"/g,'')}">How &amp; when ›</button>`:''}</div>`;
 function special(){const G2=groups().map(g=>({...g,items:g.items.map((t,j)=>[t,j]).filter(([t])=>!TODO_DROP.test(t))})).filter(g=>g.items.length),el=$('#sp');el.hidden=!G2.length;if(!G2.length){el.innerHTML='';return}
@@ -3667,8 +3667,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=140;
+const CC_VER=141;
 const CC_LOG=[
+  {v:141,mid:1,new:['“To do today” is now a simple list: the customs for each day are bullet points instead of things to check off, and candle lighting shows as a reminder (bell), not a task.']},
   {v:140,new:['When the little character turns to the other side, his hat simply tilts over with his head instead of spinning.']},
   {v:139,new:['The little character’s hat now tilts to the other side together with his head (a simple tilt, no spin).']},
   {v:138,new:['No more buzzing while you scroll the main page.']},
