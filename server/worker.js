@@ -126,6 +126,23 @@ async function handle(req, env) {
     if (req.method === 'POST' && (op === 'dl' || op === 'up')) {
       const k = 'st:' + op, n = (+(await env.KV.get(k)) || 0) + 1; await env.KV.put(k, String(n)); return j({ ok: true, n });
     }
+    // Owner-only: list / delete calendar accounts (needs the admin code; only its salted hash is here)
+    if (req.method === 'POST' && (op === 'accts' || op === 'acctdel')) {
+      let b; try { b = await req.json(); } catch (e) { return j({ error: 'bad json' }, 400); }
+      const code = typeof (b && b.code) === 'string' && b.code.length <= 40 ? b.code : '';
+      const h = [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode('kit-admin:' + code)))].map((x) => x.toString(16).padStart(2, '0')).join('');
+      if (h !== '816e975bd4123d6abe1f2a030146455a4140bcfc57beeaca4808ae0f18b41257') { await new Promise((r) => setTimeout(r, 800)); return j({ error: 'wrong code' }, 403); }
+      if (op === 'acctdel') {
+        const u = String(b.u || '').toLowerCase(); if (!/^[a-z0-9_.-]{3,32}$/.test(u)) return j({ error: 'bad user' }, 400);
+        await env.KV.delete('acct:' + u); return j({ ok: true });
+      }
+      const out = []; let cur;
+      do { const r = await env.KV.list({ prefix: 'acct:', cursor: cur }); for (const k of r.keys) {
+        const a = (await env.KV.get(k.name, 'json')) || {}, d = a.d || {}; let last = 0; for (const x in d) if (d[x] && d[x][1] > last) last = d[x][1];
+        out.push({ u: k.name.slice(5), n: Object.keys(d).length, last }); }
+        cur = r.list_complete ? null : r.cursor; } while (cur);
+      out.sort((x, y) => y.last - x.last); return j({ accts: out });
+    }
     if (req.method === 'GET' && op === 'get') {
       const days = [], seen7 = new Set(), seen30 = new Set();
       for (let i = 0; i < 30; i++) {
