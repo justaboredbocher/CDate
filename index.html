@@ -2324,14 +2324,17 @@ function mzBuild(){let z=document.getElementById('gz');if(!z){z=document.createE
   g.append(a,b);z.appendChild(g);MZ.push({g,a,b,real,src,t,i})};
  cards.forEach((c,i)=>{if(chips[i])mk(c,chips[i],'c',i)});tiles.forEach((c,i)=>mk(c,org,'t',i))}
 function mz(y,vh){if(!MZ.length)return;
- const tp=$('#top').getBoundingClientRect(),a0=vh*.02,b0=Math.max(a0+vh*.3,tp.top+y+30-vh*.6),u=(y-a0)/(b0-a0),st=u<=0?'lo':u>=1?'hi':'mid';if(st!=='mid'&&MZ.st===st&&MZ.n===MZ.length)return;MZ.st=st;MZ.n=MZ.length;const rd=MZ.map(m=>[m.src.getBoundingClientRect(),m.real.getBoundingClientRect()]);
+ /* v137 (owner: "this part of the scroll feels very laggy"): the page positions are measured ONCE when a morph pass starts (they don't move while
+    scrolling: the chips/arrow are fixed, the cards are in the page), not on every frame; the flying cards move with transform, not left/top */
+ if(!MZ.c||MZ.n!==MZ.length||MZ.cvh!==vh){const tp=$('#top').getBoundingClientRect();MZ.c={b0:Math.max(vh*.32,tp.top+y+30-vh*.6),rd:MZ.map(m=>{const s=m.src.getBoundingClientRect(),r=m.real.getBoundingClientRect();return[s,{left:r.left,top:r.top+y,width:r.width,height:r.height}]})};MZ.cvh=vh}
+ const a0=vh*.02,b0=MZ.c.b0,u=(y-a0)/(b0-a0),st=u<=0?'lo':u>=1?'hi':'mid';if(st!=='mid'&&MZ.st===st&&MZ.n===MZ.length)return;const reM=st!=='mid'&&MZ.st==='mid';MZ.st=st;MZ.n=MZ.length;const C=MZ.c;if(reM)MZ.c=null;const rd=C?C.rd.map(([s,r])=>[s,{left:r.left,top:r.top-y,width:r.width,height:r.height}]):MZ.map(m=>[m.src.getBoundingClientRect(),m.real.getBoundingClientRect()]);
  MZ.forEach((m,k)=>{const[s,r]=rd[k],d=Math.min(.5,m.i*.07),p=mzCl((u-d)/(1-d)),g=m.g.style;
   m.src.style.visibility=(m.t=='t'?u>0:p>0)?'hidden':'';
   if(p<=0){g.display='none';m.real.classList.remove('show');m.on=0;return}
   if(p>=1){g.display='none';m.real.classList.add('show','in');if(!m.on){m.on=1;H.rev()}return}
   m.on=0;m.real.classList.remove('show');
   const e=mzEase(p),q=mzSm(p),sh=Math.sin(p*Math.PI),tw=r.width,th=r.height,w=mzLp(s.width,tw,e),h=mzLp(s.height,th,e);
-  g.display='block';g.left=mzLp(s.left,r.left,e)+'px';g.top=mzLp(s.top,r.top+y-b0,e)+'px';g.width=w+'px';g.height=h+'px';
+  if(g.display!=='block'){g.display='block';g.left='0px';g.top='0px';g.willChange='transform'}g.transform=`translate3d(${mzLp(s.left,r.left,e).toFixed(1)}px,${mzLp(s.top,r.top+y-b0,e).toFixed(1)}px,0)`;g.width=w.toFixed(1)+'px';g.height=h.toFixed(1)+'px';
   g.borderRadius=mzLp(Math.min(s.width,s.height)/2,m.t=='c'?18:16,e)+'px';
   if(!g.boxShadow)g.boxShadow='0 10px 26px rgba(0,0,0,.12)';
   if(m.t=='c'){g.background=`color-mix(in srgb,var(--card) ${(q*100)|0}%,color-mix(in srgb,var(--c) 13%,transparent))`;g.borderColor=`color-mix(in srgb,var(--c) ${(42*(1-q))|0}%,var(--line))`}
@@ -2653,6 +2656,7 @@ function skyRun(plan,done){
   if(u<1)requestAnimationFrame(step);else stop()};
  requestAnimationFrame(step)}
 function skyIntroInit(){
+ return;   /* v137 (owner: "take out the initial sun/moon animation, it's laggy and slows the startup"): the sun/moon just sit in place; Admin tools → Play still runs skyRun */
  if(!SKY.on||window.CC_QUIET)return;const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;if(reduced)return;
  const b=document.getElementById('skyBody');if(!b)return;SKYA.arm=true;b.style.opacity='0';b.classList.add('anim');skyWarm();
  const t00=Date.now();let t1=0;const go=()=>{const ov=document.getElementById('intro');
@@ -2670,7 +2674,7 @@ function skyIntroInit(){
   if(Math.abs(tgt-cur)>0.4)requestAnimationFrame(frame);else run=false};
  const onScroll=()=>{if(!grab())return;tgt=window.scrollY||document.documentElement.scrollTop||0;if(!run){run=true;requestAnimationFrame(frame)}};
  addEventListener('scroll',onScroll,{passive:true});addEventListener('resize',onScroll,{passive:true})})();
-function skyReplay(){if(SKYA.run||SKYA.arm||!SKY.on||+sel!==+t0)return;const b=document.getElementById('skyBody');if(!b||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+function skyReplay(){return;if(SKYA.run||SKYA.arm||!SKY.on||+sel!==+t0)return;const b=document.getElementById('skyBody');if(!b||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
  const pl=skyPlan(Date.now());if(!pl)return;b.style.opacity='0';SKYA.arm=true;setTimeout(()=>skyRun(pl),60)}
 document.addEventListener('visibilitychange',()=>{if(document.hidden)SKYA.hiddenAt=Date.now();else if(SKYA.hiddenAt&&Date.now()-SKYA.hiddenAt>3e5){SKYA.hiddenAt=0;skyReplay()}});
 addEventListener('resize',()=>{skyRedrawTrail()});
@@ -2953,8 +2957,11 @@ void main(){vec2 cuv=vec2(gl_FragCoord.x/uCR.x,1.-gl_FragCoord.y/uCR.y);vec4 m=t
   pack();return mv}
  /* v40: while the opening sun/moon animation runs the letters are not redrawn (each draw of this shader, plus measuring the
     letters, cost a big part of a frame: the opening stuttered); they draw once as soon as it ends */
- let dlRunP=0;
+ let dlRunP=0,dlScT=0,dlScP=0;addEventListener('scroll',()=>{dlScT=performance.now()},{passive:true});
  function draw(){if(!ok||!cv.isConnected||R.classList.contains('cc-away'))return;
+  /* v137 (owner: "this part of the scroll feels very, very laggy"): no redraws WHILE scrolling — this refraction shader was most of each
+     scrolling frame on the phone (measured: compositor work 7 s → 0.3 s per test scroll without it); one redraw 160 ms after scrolling stops */
+  if(performance.now()-dlScT<140){clearTimeout(dlScP);dlScP=setTimeout(draw,160);return}
   /* v43: while scrolling the letters follow the background at half rate (see the silk's draw), and once the header has faded
      away they aren't drawn at all (they redraw when it comes back) */
   if(scrollY>innerHeight*.45)return;
@@ -3517,15 +3524,17 @@ const cchBack=t=>{const c1=1.9,c3=c1+1;return 1+c3*Math.pow(t-1,3)+c1*Math.pow(t
    expression; on his own he breathes, blinks, glances, sways, tips his hat and turns a page. All motion = JS → SVG attributes. */
 function cchLive(el,base){if(!el)return{set(){},setBase(){},anim(){},nod(){},dart(){},look(){}};if(!el.querySelector('svg'))el.innerHTML=CCH_SVG;
  const P={};for(const k in CCH_PARTS){const d=CCH_PARTS[k],n=el.querySelector(d[0]);if(n)P[k]={n,px:d[1],py:d[2],from:cchS(k,'calm'),to:cchS(k,'calm'),t0:0,dur:0,last:''}}
- const L={el,base:base||'idle',t:0,cur:null,fx:[],raf:0};
+ const L={el,base:base||'idle',t:0,cur:null,fx:[],raf:0,side:Math.random()<.5?1:-1};
+ /* v137 (owner: "every animation with him tilted to the right should also happen the other way around"): L.side=-1 mirrors every pose and move — x and rotation flip, left/right eyes and brows swap */
+ const SW={eL:'eR',eR:'eL',brL:'brR',brR:'brL',dzL:'dzR',dzR:'dzL'},mir=st=>L.side<0?Object.assign({},st,{x:-st.x,r:-st.r}):st;
  const now=()=>performance.now();
  const kick=()=>{if(!L.raf)L.raf=requestAnimationFrame(frame)};
  const mix=(a,b,e)=>({x:a.x+(b.x-a.x)*e,y:a.y+(b.y-a.y)*e,r:a.r+(b.r-a.r)*e,sx:a.sx+(b.sx-a.sx)*e,sy:a.sy+(b.sy-a.sy)*e,o:a.o+(b.o-a.o)*Math.min(1,Math.max(0,e))});
  const curOf=(p,t)=>{if(!p.dur||t>=p.t0+p.dur)return p.to;const u=(t-p.t0)/p.dur;return mix(p.from,p.to,cchBack(u))};
  const tween=(k,to,dur)=>{const p=P[k];if(!p)return;const t=now();p.from=curOf(p,t);p.to=to;p.t0=t;p.dur=RM?0:dur;kick()};
- const mood=(m,d)=>{m=CCP[m]||m;el.dataset.m=m;for(const k in P)if(k!=='look'&&k!=='sway'&&k!=='hatb'&&k!=='root'&&k!=='page'&&k!=='zz')tween(k,cchS(k,m),d||440)};
+ const mood=(m,d)=>{m=CCP[m]||m;el.dataset.m=m;for(const k in P)if(k!=='look'&&k!=='sway'&&k!=='hatb'&&k!=='root'&&k!=='page'&&k!=='zz')tween(k,mir(cchS(L.side<0?(SW[k]||k):k,m)),d||440)};
  /* one-shot moves: keyframes [{t,...state deltas}] added on top (x,y,r add; sx,sy multiply; o overrides) */
- const fx=(k,kf,dur)=>{if(RM||!P[k])return;L.fx.push({k,kf,t0:now(),dur});kick()};
+ const fx=(k,kf,dur)=>{if(L.side<0){k=SW[k]||k;kf=kf.map(f=>{const g=Object.assign({},f);if(g.x!=null)g.x=-g.x;if(g.r!=null)g.r=-g.r;return g})}if(RM||!P[k])return;L.fx.push({k,kf,t0:now(),dur});kick()};
  const fxAt=(f,t)=>{const u=Math.min(1,(t-f.t0)/f.dur),kf=f.kf;let i=0;while(i<kf.length-2&&u>kf[i+1].t)i++;const a=kf[i],b=kf[i+1],w=b.t>a.t?(u-a.t)/(b.t-a.t):1,e=w<.5?2*w*w:1-Math.pow(-2*w+2,2)/2,g=(q,d)=>(a[q]??d)+((b[q]??d)-(a[q]??d))*e;
   return{x:g('x',0),y:g('y',0),r:g('r',0),sx:g('sx',1),sy:g('sy',1),o:(a.o!=null||b.o!=null)?g('o',1):null}};
  function frame(){L.raf=0;const t=now();let busy=false;const add={};
@@ -3583,13 +3592,14 @@ function cchLive(el,base){if(!el)return{set(){},setBase(){},anim(){},nod(){},dar
  let taps=[];if(!L.ambient)el.addEventListener('pointerdown',()=>{if(document.documentElement.classList.contains('tt-off-charlife'))return;const n=Date.now();taps=taps.filter(x=>n-x<1500);taps.push(n);if(taps.length>=3){taps=[];L.dizzy()}else L.surprise()});
  const sabbath=()=>{try{const d=new Date(),wd=d.getDay();if((wd===5&&d.getHours()>=12)||wd===6)return'sh';return strictYT(hd(t0))?'yt':''}catch(e){return''}};
  mood(L.base);for(const k in P){P[k].dur=0}frame();
- if(!RM){const tick=()=>{if(!el.isConnected)return;const off=document.documentElement.classList.contains('tt-off-charlife'),sb=off?'':sabbath();setTimeout(tick,(L.ambient&&!off?1300+Math.random()*1700:2200+Math.random()*3000)*(sb==='sh'?1.5:1));   // v134 (owner: "less idle"): the home-screen one moves about twice as often
+ if(!RM){const tick=()=>{if(!el.isConnected)return;const off=document.documentElement.classList.contains('tt-off-charlife'),sb=off?'':sabbath();setTimeout(tick,(L.ambient&&!off?1800+Math.random()*2200:2800+Math.random()*3400)*(sb==='sh'?1.5:1));   // v137: slightly less often (home 1.8–4 s, elsewhere 2.8–6.2 s)   // v134 (owner: "less idle"): the home-screen one moves about twice as often
    if(document.hidden||!el.offsetParent||(el.parentElement&&el.parentElement.closest('[aria-hidden="true"]'))||(L.ambient&&document.documentElement.classList.contains('cc-away')))return;   // v125: not inside a closed (hidden) sheet
    const night=document.documentElement.dataset.night==='1',idle=Date.now()-CCH_ACT;
    if(L.sleep&&(idle<180000||off))L.wake();
    // the + button dozes off after 3 min untouched (v134; was 45 s) with slow nods; late at night the z's float up
    if(!off&&L.ambient&&idle>180000){if(!L.sleep){L.sleep=true;L.ss=sd();clearTimeout(L.t);L.cur='sleepy';mood('sleepy',1400)}if(idle<360000){fx('sway',[{t:0},{t:.5,y:6,r:-3*L.ss},{t:1}],rn(2000,3000));if(night&&idle>200000)L.zz()}return}   // v125: after ~2 min of dozing he stays still (battery)
    if(L.cur)return;
+   if(!off&&Math.random()<.22){L.side=-L.side;mood(L.base,700);return}   // v137: now and then he turns his head to the other side and carries on from there
    const m=CCP[L.base]||L.base,A=off?[[3,L.blink],[2,()=>fx('root',[{t:0},{t:.5,sx:1.012,sy:1.03},{t:1}],2200)],[1.4,()=>{L.look((Math.random()-.5)*20,(Math.random()-.5)*10,1300);setTimeout(L.blink,1500)}],[1.1,L.sway],[.8,L.hat],[m==='read'||m==='peek'?1.6:.6,L.page]]:
     [[3,L.blink],[1.2,L.blink2],[2,L.breathe],[1.4,()=>{L.look((Math.random()-.5)*20,(Math.random()-.5)*10,1300);setTimeout(L.blink,1500)}],
     [1.1,L.sway],[.7,L.hat],[.7,L.hatfix],[m==='read'||m==='peek'?1.6:.6,L.page],[.8,L.readln],[.5,L.stretch],[.35,L.flip],
@@ -3650,8 +3660,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=136;
+const CC_VER=137;
 const CC_LOG=[
+  {v:137,new:['The app opens faster: the sun and moon no longer play an opening animation.','The little character moves a bit less often, and now tilts and moves both ways (left and right).','Smoother scrolling where the date fades out and the cards come up.']},
   {v:136,new:['The loading figure is light blue at night, so it shows up on the dark screen.']},
   {v:135,mid:1,new:['Reminders are now on by default: candle lighting, the Omer, fast days, your own plans, and smart shiurim reminders. You can turn any of them off in ⋯ → Reminders.']},
   {v:134,new:['The little character on the home screen is livelier: he moves about twice as often and only dozes off after 3 minutes. (A bug had stopped his little moves altogether.)']},
