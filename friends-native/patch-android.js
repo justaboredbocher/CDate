@@ -24,6 +24,10 @@ let x = fs.readFileSync(man, 'utf8');
 if (!x.includes('android.permission.RECEIVE_BOOT_COMPLETED')) {
   x = x.replace('</manifest>', '    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />\n</manifest>');
 }
+// location for "Find my location" at sign-up (Capacitor's web view turns the page's request into Android's permission prompt)
+for (const perm of ['ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION']) {
+  if (!x.includes('android.permission.' + perm)) x = x.replace('</manifest>', '    <uses-permission android:name="android.permission.' + perm + '" />\n</manifest>');
+}
 if (!x.includes('.WhoWidget')) {
   const add = `
         <receiver android:name=".WhoWidget" android:exported="true" android:label="Who’s up now">

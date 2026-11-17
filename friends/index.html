@@ -1227,7 +1227,7 @@ sync()})();
 // neither = SMALL (looks, tweaks, fixes) → only a little round "i" in the corner, version X.Y.Z.
 // adm:1 = admin-only change → counts as a small update in the version number, but NO notification at all (owner). The shown version is worked out from these sizes.
 // apk:N = this needs app version N (a new download); the app then also shows "Update the app".
-const KIT_VER=45,KIT_APK=2;
+const KIT_VER=46,KIT_APK=3;
 const KIT_LOG=[
  {v:1,big:1,t:"Home-screen widgets",d:"See who’s awake without opening the app, with Call and WhatsApp buttons, filters and sorting.",go:"widgets"},
  {v:2,mid:1,t:"Add widgets from inside the app",d:"Menu → Home-screen widgets → Add. No more digging through your phone’s widget list.",go:"widgets",apk:1},
@@ -1267,7 +1267,8 @@ const KIT_LOG=[
  {v:42,t:"Fixed one place showing several times on the globe (e.g. “Albany · Family · Family”)"},
  {v:43,t:"New accounts start with an empty globe until they join a community or add friends"},
  {v:44,t:"Each account on a phone keeps its own people and communities: logging out and in with another account no longer mixes them"},
- {v:45,t:"Shooting stars only fly between places that are on your globe"}
+ {v:45,t:"Shooting stars only fly between places that are on your globe"},
+ {v:46,apk:3,t:"Signing up without a yeshiva now finds your location by itself (it asks for permission first)"}
 ];
 function kitVerStr(b){let M=0,m=0,p=0;const by={};KIT_LOG.forEach(x=>{const l=x.big?3:x.mid?2:1;by[x.v]=Math.max(by[x.v]||0,l)});
  Object.keys(by).map(Number).sort((a,c)=>a-c).forEach(v=>{if(v>b)return;if(by[v]==3){M++;m=0;p=0}else if(by[v]==2){m++;p=0}else p++});return M+"."+m+"."+p}
@@ -1510,7 +1511,23 @@ function invAsk(list){const it=list[0];if(!it)return;if(document.body.classList.
  const chk=()=>{B.disabled=!(N.value.trim().split(/\s+/).length>=1&&N.value.trim()&&pwG.val().ok&&pick&&K.value.length>=4)};
  cityBox($("sgC"),$("sgS"),$("sgSel"),c=>{pick=c;try{pwG.tz(c.tz)}catch(e){}chk()},()=>{pick=null;chk()});
  N.oninput=chk;K.oninput=()=>{K.value=K.value.replace(/\D/g,"");chk()};
- $("suGo").onclick=()=>{$("su").classList.add("su-gen");setTimeout(()=>N.focus(),60)};
+ // asks for location permission and fills in the city by itself; if it's refused or fails, the city box is there as before.
+ // The name comes from the app's own city list (nearest within 40 km); only otherwise is a free lookup asked for the place name.
+ const locFind=()=>{const Sel=$("sgSel"),C=$("sgC"),S=$("sgS");if(pick||!navigator.geolocation)return;S.innerHTML="";C.style.display="none";
+  Sel.innerHTML='<div class="sel">📍 Finding your location…</div>';
+  const show=c=>{pick=c;try{pwG.tz(c.tz)}catch(e){}chk();hap(8);Sel.innerHTML='<div class="sel">📍 <b>'+esc(c.city)+(c.sub?', '+esc(c.sub):'')+'</b><button type="button">Change</button></div>';
+   Sel.querySelector("button").onclick=()=>{Sel.innerHTML="";C.style.display="";C.value="";C.focus();pick=null;chk()}};
+  const fail=m=>{if(pick)return;Sel.innerHTML=m?'<div class="note" style="margin:6px 4px 0">'+m+'</div>':"";C.style.display="";C.placeholder="Type your city"};
+  navigator.geolocation.getCurrentPosition(async p=>{const la=p.coords.latitude,lo=p.coords.longitude;let tz="";try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){}
+   const km=(a,b,c,d)=>{const r=Math.PI/180,x=Math.sin((c-a)*r/2)**2+Math.cos(a*r)*Math.cos(c*r)*Math.sin((d-b)*r/2)**2;return 12742*Math.asin(Math.sqrt(x))};
+   let near=null,bd=1e9;CITIES.forEach(c=>{const d=km(la,lo,c.lat,c.lon);if(d<bd){bd=d;near=c}});
+   let name="",sub="";if(near&&bd<40){name=near.city;sub=near.country}
+   else{try{const ac=new AbortController(),t=setTimeout(()=>ac.abort(),5000);const r=await fetch("https://api.bigdatacloud.net/data/reverse-geocode-client?localityLanguage=en&latitude="+la.toFixed(3)+"&longitude="+lo.toFixed(3),{signal:ac.signal});clearTimeout(t);
+    const j=await r.json();name=j.city||j.locality||"";sub=[j.principalSubdivision,j.countryName].filter(Boolean).join(", ")}catch(e){}}
+   if(!name)name=near?"Near "+near.city:"My location";
+   show({city:name,sub,lat:+la.toFixed(3),lon:+lo.toFixed(3),tz:tz||(near&&near.tz)||"UTC"})},
+   e=>fail(e&&e.code==1?"Location is off for this app. Type your city instead.":""),{enableHighAccuracy:false,timeout:12000,maximumAge:600000})};
+ $("suGo").onclick=()=>{$("su").classList.add("su-gen");setTimeout(()=>N.focus(),60);setTimeout(locFind,350)};
  $("sgBack").onclick=()=>$("su").classList.remove("su-gen");
  B.onclick=async()=>{if(B.disabled)return;if(Date.now()<lock2){H.className="phh bad";H.textContent="Too many tries. Wait a few seconds.";return}
   B.disabled=true;H.className="phh";H.textContent="Checking…";const ph=pwG.val().e164,code=K.value;
