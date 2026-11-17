@@ -241,7 +241,7 @@ async function handle(req, env) {
       if (req.method !== 'POST' || op !== 'set') return j({ error: 'not found' }, 404);
       let b; try { b = await req.json(); } catch (e) { return j({ error: 'bad json' }, 400); }
       const id = b && b.id, c = b && b.data && b.data.c;
-      if (!okV(id) || typeof c !== 'string' || c.length > 12000) return j({ error: 'bad data' }, 400);
+      if (!okV(id) || typeof c !== 'string' || c.length > 100000) return j({ error: 'bad data' }, 400);
       if (!va[id] && Object.keys(va).length >= 5000) return j({ error: 'full' }, 507);
       if (va[id] && va[id].c === c) return j({ ok: true, same: true });
       va[id] = { c, at: Date.now() }; await env.KV.put(vk, JSON.stringify(va)); return j({ ok: true });

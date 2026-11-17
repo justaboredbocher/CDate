@@ -563,7 +563,7 @@ const DIRG=DIRSTR.split('\n').map(l=>{const a=l.split('|');return{city:a[0],lat:
 const DIRP=[];DIRG.forEach(g=>g.people.forEach(n=>DIRP.push({name:n.trim(),city:g.city,country:g.country,lat:g.lat,lon:g.lon,tz:g.tz})));
 const $=id=>document.getElementById(id);
 let saved=[];try{saved=JSON.parse(localStorage.getItem("sc_saved")||"[]")}catch(e){}saved.forEach(v=>{if(v&&v.city=="China"&&Math.abs(v.lat-31.23)<.01&&Math.abs(v.lon-121.47)<.01){v.lat=23.02;v.lon=113.12}});
-const persist=()=>{try{localStorage.setItem("sc_saved",JSON.stringify(saved))}catch(e){}try{unskipSaved()}catch(e){}};
+const persist=()=>{try{localStorage.setItem("sc_saved",JSON.stringify(saved))}catch(e){}try{unskipSaved()}catch(e){}try{vaultSoon()}catch(e){}};
 // moves/renames from the official list (owner, Nov 2026)
 const MOVED={"YLP|Pittsburgh Mesivta": ["Yehuda Perl", "Pittsburgh Mesivta"], "Michel Raps|Miami - Lec": ["Michel Rapoport", "Miami - Lec"], "Ay Borenstien|Torah Emes (Jerusalem, assumed)": ["Avraham Yaakov Bernstein", "Torah Emes (Jerusalem, assumed)"], "Schnuer Giesinsky|Toronto - Or Temimim": ["Schneur Geisinsky", "Toronto - Or Temimim"], "Levi Rosenal|Westchester Mesivta": ["Levi Rosenov", "Westchester Mesivta"], "Moshe Wiess|Atlanta School": ["Moshe Weiss", "Atlanta School"], "Yisroel Wiess|Chile": ["Yisroel Weiss", "Chile"], "Shmue Citron|Baltimore Mesivta": ["Shmuel Citron", "Baltimore Mesivta"], "Shneur Stienberg|Panama": ["Shneur Steinberg", "Panama"], "Lazer Klien|Chicago Mesivta": ["Lazer Klein", "Chicago Mesivta"], "Dovber Bernstien|Coral Springs Mesivta": ["Dovber Bernstein", "Coral Springs Mesivta"], "Yakov Finkelstien|Coral Springs Mesivta": ["Yakov Finkelstein", "Coral Springs Mesivta"], "Mendel Silverstien|Suffield Mesivta": ["Mendel Silverstein", "Suffield Mesivta"], "Levi Altien|Argentina Zal": ["Levi Altein", "Argentina Zal"], "Nachi Gutnik|Klurman Miami Mesivta": ["Mendel Gutnik", "Klurman Miami Mesivta"], "yisrael Broner|Pomona Mesivta": ["Yisrael Broner", "Pomona Mesivta"], "Mendel Brook|Detroit": ["Mendel Brook", "Chicago Mesivta"], "Sholom Posner|Pittsburgh Zal": ["Sholom Posner", "Sydney Gems"], "Yosef Webb|Baltimore Mesivta": ["Yosef Webb", "Monsey Mesivta"], "Mendel Brook|Toronto - Or Temimim": ["Mendel Bruck", "Toronto - Or Temimim"], "Shmuel Yehuda Moss|Toronto Zal": ["Yisroel Moss", "Toronto Zal"], "M. Broner|Pomona Mesivta": ["Yisrael Broner", "Pomona Mesivta"], "Avraham Pollen|Miami - Lec": ["Sender Pollen", "Miami - Lec"], "Eli Bronstien|Melbourne Zal": ["Eli Bronstien", "Sydney \"#Yg!\" (name unclear)"], "Mendel Hecht|Melbourne Zal": ["Mendel Hecht", "Sydney \"#Yg!\" (name unclear)"], "Mendel Laufer|Melbourne Zal": ["Mendel Laufer", "Sydney \"#Yg!\" (name unclear)"], "Mendel Pikarski|Melbourne Zal": ["Mendel Pikarski", "Sydney \"#Yg!\" (name unclear)"], "Shmuly Hendel|Melbourne Zal": ["Shmuly Hendel", "Sydney \"#Yg!\" (name unclear)"], "Shneur Jordan|Melbourne Zal": ["Shneur Jordan", "Sydney \"#Yg!\" (name unclear)"]};
 (()=>{const G=c=>{const l=DIRSTR.split("\n").find(x=>x.split("|")[0]==c);if(!l)return null;const a=l.split("|");return{lat:+a[1],lon:+a[2],tz:a[3]}};let ch=0;
@@ -1051,14 +1051,15 @@ let soT=null;
 $("so").onclick=()=>{const b=$("so");if(!soT){b.textContent="Tap again to confirm";b.style.background="rgba(251,113,133,.35)";soT=setTimeout(()=>{soT=null;b.textContent="Log out";b.style.background=""},3000);return}clearTimeout(soT);soT=null;b.textContent="Log out";b.style.background="";try{acctStash(me)}catch(e){}try{localStorage.removeItem("sc_me")}catch(e){}me=null;try{acctMem()}catch(e){}try{cmRebuild()}catch(e){}selM=null;suN.value="";pw.clear();suN.oninput();open(false);su=true;document.body.classList.add("su");renderCards()};
 // ---------- cards + world toggle
 const gb=$("gb"),PLANET='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="5.5"/><ellipse cx="12" cy="12" rx="10.5" ry="3.8" transform="rotate(-25 12 12)"/></svg>',CARDI='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4.5" width="16" height="6.5" rx="2"/><rect x="4" y="13" width="16" height="6.5" rx="2"/></svg>';
-function setView(v){if(v=="cards"&&!saved.length)v="world";view=v;if(v!="cards"){focusK=null;document.body.classList.remove("fullc")}document.body.classList.toggle("cards",v=="cards");gb.classList.toggle("on",v=="world");gb.innerHTML=v=="cards"?PLANET:CARDI;gb.style.display=saved.length?"grid":"none";renderCards()}
-function commit(c,add){hap(add?[12,40,12]:18);if(add&&view=="cards")newCity=c;if(!saved.length&&view=="cards")setView("world");else{gb.style.display=saved.length?"grid":"none";renderCards()}}
+function hasList(){try{return saved.length>0||(!!(me&&me.match)&&cmIds().length>0)}catch(e){return saved.length>0}}
+function setView(v){if(v=="cards"&&!hasList())v="world";view=v;if(v!="cards"){focusK=null;document.body.classList.remove("fullc")}document.body.classList.toggle("cards",v=="cards");gb.classList.toggle("on",v=="world");gb.innerHTML=v=="cards"?PLANET:CARDI;gb.style.display=hasList()?"grid":"none";renderCards()}
+function commit(c,add){hap(add?[12,40,12]:18);if(add&&view=="cards")newCity=c;if(!saved.length&&view=="cards")setView("world");else{gb.style.display=hasList()?"grid":"none";renderCards()}}
 gb.onclick=()=>{closeAll();setView(view=="cards"?"world":"cards")};
 
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}},lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
 let favs=new Set(),rem={},flt=new Set(),mineOnly=false,swT=0,tT=null;
 try{favs=new Set(JSON.parse(lsGet("sc_favs")||"[]"));rem=JSON.parse(lsGet("sc_rem")||"{}")}catch(e){}
-const saveF=()=>{lsSet("sc_favs",JSON.stringify([...favs]));lsSet("sc_rem",JSON.stringify(rem))},hap=p=>{try{if(navigator.vibrate)navigator.vibrate(p)}catch(e){}},fk=v=>v.name?v.name+"|"+v.city:"",vPhone=v=>v.own?(v.ph||""):phoneOf(v.name,v.city);
+const saveF=()=>{lsSet("sc_favs",JSON.stringify([...favs]));lsSet("sc_rem",JSON.stringify(rem));try{vaultSoon()}catch(e){}},hap=p=>{try{if(navigator.vibrate)navigator.vibrate(p)}catch(e){}},fk=v=>v.name?v.name+"|"+v.city:"",vPhone=v=>v.own?(v.ph||""):phoneOf(v.name,v.city);
 // Home-screen widgets (Android app only): hand the saved people, their numbers and favourites to the widgets.
 // The widgets work out who is awake by themselves from each person's time zone, so they stay right with the app closed.
 let kitLast="";
@@ -1227,7 +1228,7 @@ sync()})();
 // neither = SMALL (looks, tweaks, fixes) → only a little round "i" in the corner, version X.Y.Z.
 // adm:1 = admin-only change → counts as a small update in the version number, but NO notification at all (owner). The shown version is worked out from these sizes.
 // apk:N = this needs app version N (a new download); the app then also shows "Update the app".
-const KIT_VER=51,KIT_APK=3;
+const KIT_VER=52,KIT_APK=3;
 const KIT_LOG=[
  {v:1,big:1,t:"Home-screen widgets",d:"See who’s awake without opening the app, with Call and WhatsApp buttons, filters and sorting.",go:"widgets"},
  {v:2,mid:1,t:"Add widgets from inside the app",d:"Menu → Home-screen widgets → Add. No more digging through your phone’s widget list.",go:"widgets",apk:1},
@@ -1271,7 +1272,8 @@ const KIT_LOG=[
  {v:46,apk:3,t:"Signing up without a yeshiva now finds your location by itself (it asks for permission first)"},
  {v:47,t:"Fixed communities going missing after switching accounts on one phone (they come back by themselves)"},
  {v:49,mid:1,t:"Your communities are saved to your account",d:"Sign in on any phone, or after reinstalling, and all your communities come back by themselves."},
- {v:50,t:"Signing in brings back every community your account is in, by itself"}
+ {v:50,t:"Signing in brings back every community your account is in, by itself"},
+ {v:52,mid:1,t:"Your saved people and favourites are saved to your account too",d:"Sign in on any phone and your whole list comes back, with your favourites."}
 ];
 function kitVerStr(b){let M=0,m=0,p=0;const by={};KIT_LOG.forEach(x=>{const l=x.big?3:x.mid?2:1;by[x.v]=Math.max(by[x.v]||0,l)});
  Object.keys(by).map(Number).sort((a,c)=>a-c).forEach(v=>{if(v>b)return;if(by[v]==3){M++;m=0;p=0}else if(by[v]==2){m++;p=0}else p++});return M+"."+m+"."+p}
@@ -1752,13 +1754,18 @@ async function vkMake(code){const en=new TextEncoder(),key=await crypto.subtle.i
  const bits=await crypto.subtle.deriveBits({name:"PBKDF2",salt:en.encode("kit-vk:"+acctSlug(me)),iterations:150000,hash:"SHA-256"},key,256);return[...new Uint8Array(bits)].map(b=>b.toString(16).padStart(2,"0")).join("")}
 const vaultId=()=>me&&me.vk?kitSha("kit-vault3:"+me.vk):null;
 let vaultT=0;function vaultSoon(){if(!me||!me.vk)return;clearTimeout(vaultT);vaultT=setTimeout(vaultPush,1500)}
-async function vaultPush(){try{const id=await vaultId();if(!id)return;const c=JSON.stringify({v:1,comms:cmList().filter(e=>e&&e.s&&!e.sj).map(e=>({id:e.id,s:e.s,st:e.st,all:e.all||""})),def:lsGet("kit_cm_def")||""});
+async function vaultPush(){try{const id=await vaultId();if(!id)return;const c=JSON.stringify({v:2,comms:cmList().filter(e=>e&&e.s&&!e.sj).map(e=>({id:e.id,s:e.s,st:e.st,all:e.all||""})),def:lsGet("kit_cm_def")||"",
+  saved:saved.filter(v=>v&&v.name).map(v=>{const o={n:v.name,c:v.city,y:v.country||"",la:+(+v.lat).toFixed(3),lo:+(+v.lon).toFixed(3),tz:v.tz};if(v.own)o.o=1;if(v.ph)o.p=v.ph;if(v.cm)o.m=v.cm;return o}),favs:[...favs],un:skipList()});
  await kitPost("vault3/set",{id,data:{c}})}catch(e){}}
 async function vaultPull(){try{const id=await vaultId();if(!id)return;const d=await kitGet1("vault3",id);if(!d||!d.c)return vaultPush();
  const o=JSON.parse(d.c),left=JSON.parse(lsGet("kit_cm_left")||"[]"),cur=cmList();let n=0;
  (o.comms||[]).forEach(e=>{if(!e||!e.id||!e.s||left.includes(e.id))return;const x=cur.find(y=>y.id==e.id);if(!x){cur.push({id:e.id,s:e.s,st:e.st||"member",all:e.all||"auto"});n++}else if(x.sj||!x.s){Object.assign(x,{s:e.s,st:e.st||x.st});delete x.sj;n++}});
  if(o.def&&!lsGet("kit_cm_def"))lsSet("kit_cm_def",o.def);
- if(n){lsSet("kit_comms",JSON.stringify(cur));CM_DOCS={};await cmRefresh();cmMenu();renderCards();toast(n==1?"Your community is back":"Your "+n+" communities are back")}
+ // saved people + favourites from the account (people this phone deleted on purpose stay deleted)
+ try{const sk=new Set(skipList().concat(o.un||[]));let add=0;(o.saved||[]).forEach(v=>{if(!v||!v.n||sk.has(skipKey(v.n,v.c))||saved.some(x=>x.name==v.n&&x.city==v.c))return;
+   const nv={id:Date.now()+Math.random(),name:v.n,city:v.c,country:v.y||"",lat:+v.la,lon:+v.lo,tz:v.tz};if(v.o)nv.own=1;if(v.p)nv.ph=v.p;if(v.m)nv.cm=v.m;saved.push(nv);add++});
+  (o.favs||[]).forEach(k=>{if(!favs.has(k)){favs.add(k);add++}});if(add){persist();saveF();render();renderCards();try{setView(view)}catch(e){};n+=add}}catch(e){}
+ if(n){lsSet("kit_comms",JSON.stringify(cur));CM_DOCS={};await cmRefresh();cmMenu();renderCards();toast("Your people and communities are back")}
  vaultSoon()}catch(e){}}
 // signed in from before this (no vk yet): ask for the code once, so the communities can be kept on the account
 function vkAsk(){if(!me||!me.match||(me.vk&&me.mk)||sessionStorage.getItem("kit_vk_no")||sheet.style.display=="block"||document.body.classList.contains("tour"))return;
@@ -1774,8 +1781,8 @@ setTimeout(()=>{if(me&&me.match){if(me.vk)vaultPull();else setTimeout(vkAsk,1500
 async function cmMine(code){code=String(code||"").replace(/\D/g,"");if(!me||!me.match||cmMine.busy||code.length<4)return;const h=me.gen?me.h:((accts[pkey(me.match.name,me.match.city)]||{}).h||me.h);cmMine.busy=1;
  const s2=cmSecret();try{const r=await cmPost("mine",{fk:cmFk(),s:s2,code,h:h||"",uid:me.gen?(me.uid||""):"",have:cmList().filter(e=>e&&e.s&&!e.sj).map(e=>e.id)});
   if(r.ok&&!me.mk){me.mk=1;lsSet("sc_me",JSON.stringify(me))}
-  if(r.got&&r.got.length){const cur=cmList();r.got.forEach(g=>{const x=cur.find(y=>y.id==g.id);if(x){x.s=s2;x.st="member";delete x.sj}else cur.push({id:g.id,s:s2,st:"member",all:"no"})});
-   cmSave(cur);CM_DOCS={};await cmRefresh();cmMenu();renderCards();toast(r.got.length==1?r.got[0].name+" is back":"Your communities are back: "+r.got.map(g=>g.name).join(", "))}}catch(e){}cmMine.busy=0}
+  if(r.got&&r.got.length){const cur=cmList();r.got.forEach(g=>{const x=cur.find(y=>y.id==g.id);if(x){x.s=s2;x.st="member";delete x.sj}else cur.push({id:g.id,s:s2,st:"member",all:g.id=="shluchim"?"no":""})});
+   cmSave(cur);CM_DOCS={};await cmRefresh();cmMenu();renderCards();try{setView(view)}catch(e){}toast(r.got.length==1?r.got[0].name+" is back":"Your communities are back: "+r.got.map(g=>g.name).join(", "))}}catch(e){}cmMine.busy=0}
 // the app's admin (owner): get every community back with the admin code, even when this phone has lost them
 async function cmReclaim(){const code=prompt("Admin code");if(!code)return;const s2=cmSecret();
  try{const r=await cmPost("reclaim",{fk:cmFk(),s:s2,code:code.trim()});const cur=cmList();(r.got||[]).forEach(g=>{const x=cur.find(y=>y.id==g.id);if(x){x.s=s2;x.st="member";delete x.sj}else cur.push({id:g.id,s:s2,st:"member",all:"no"})});
