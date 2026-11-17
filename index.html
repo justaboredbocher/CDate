@@ -698,7 +698,9 @@ html.cc-boot,html.cc-boot body{background:#0a0b10!important}html.cc-boot #accoun
 @supports (animation-timeline:scroll()){
  #skyBody,#skyTrailC,#hdr .sky-scene::after,.sky-cap,.ai-fab{animation:flXY calc(var(--fy) * 2) linear var(--fd) infinite,flP 1s linear both;animation-timeline:auto,scroll(root block);animation-range:normal,0px 1000px;animation-composition:replace,replace}
  :is(#hdr .hd-he,#hdr .hd-div,#hdr .hd-en,#hdr .wk).rv.in{animation:rv .75s cubic-bezier(.2,.8,.2,1) calc(var(--i,0)*70ms) backwards,flXY calc(var(--fy) * 2) linear var(--fd) infinite,flP 1s linear both;animation-timeline:auto,auto,scroll(root block);animation-range:normal,normal,0px 1000px;animation-composition:replace,replace,add}}
-.cc-away :is(#skyBody,#skyTrailC,.sky-cap,#hdr .hd-he,#hdr .hd-div,#hdr .hd-en,#hdr .wk),.cc-away #hdr .sky-scene::after,.cc-away #hdr .sky-scene::before{animation-play-state:paused!important}
+.cc-away :is(#skyBody,#skyTrailC,.sky-cap,#hdr .hd-he,#hdr .hd-div,#hdr .hd-en,#hdr .wk,.hint),.cc-away #hdr .sky-scene::after,.cc-away #hdr .sky-scene::before{animation-play-state:paused!important}
+/* v125 (owner: battery): after 20 s with no touch, scroll or key the floating pieces hold still (paused, no jump); any touch resumes them */
+.cc-still :is(#skyBody,#skyTrailC,.sky-cap,#hdr .hd-he,#hdr .hd-div,#hdr .hd-en,#hdr .wk,.hint,.ai-fab),.cc-still #hdr .sky-scene::after,.cc-still #hdr .sky-scene::before{animation-play-state:paused!important}
 /* the semicircle swivels as you scroll down: it is the top half of a true circle, so turning it clockwise around the circle's centre keeps every
    point on the same circle (nothing rises above its top); it turns, whole, into a backwards C, then keeps turning while it is eaten away from its lower end */
 @property --dl{syntax:'<angle>';inherits:false;initial-value:180deg}
@@ -1164,7 +1166,10 @@ function footPlace(){const f=document.getElementById('foot'),w=document.querySel
  const sc=document.querySelector('#hdr .sky-scene,#hdr .moon'),H=innerHeight;if(sc)sc.style.height='';f.style.top='';f.style.bottom='';
  let wb=w.getBoundingClientRect().bottom;const fh=f.offsetHeight||42,lim=H-166;let over=wb+14+fh-lim;
  if(over>0&&sc){const cur=sc.offsetHeight,nh=Math.max(document.getElementById('hdr').classList.contains('sky-side')?64:150,cur-over);if(nh<cur){sc.style.height=nh+'px';wb=w.getBoundingClientRect().bottom;over=wb+14+fh-lim}}
- f.style.top=Math.round(wb+14)+'px';f.style.bottom='auto';if(window.dlLayout)dlLayout();if(typeof skyRedrawTrail==='function')skyRedrawTrail();if(SKY.last&&!SKYA.run)skyDomeAim(SKY.last)}
+ f.style.top=Math.round(wb+14)+'px';f.style.bottom='auto';
+ // v125 (speed/battery): the water letters, the moon trail and the dome are only redrawn when the header really moved or resized
+ const sig=[Math.round(wb),sc?sc.offsetHeight:0,innerWidth,H,document.getElementById('hdr').className].join('|');if(sig===footPlace.sig)return;footPlace.sig=sig;
+ if(window.dlLayout)dlLayout();if(typeof skyRedrawTrail==='function')skyRedrawTrail();if(SKY.last&&!SKYA.run)skyDomeAim(SKY.last)}
 addEventListener('resize',()=>requestAnimationFrame(footPlace));
 /* any change in the header's size (caption text, sky-side, fonts, a new day) re-pins the chips under the week row */
 {let fpR=0;const fpK=()=>{if(!fpR)fpR=requestAnimationFrame(()=>{fpR=0;footPlace()})};if(window.ResizeObserver){const ro=new ResizeObserver(fpK),h=document.getElementById('hdr');if(h){ro.observe(h);new MutationObserver(()=>{const w=h.querySelector('.wk');if(w)ro.observe(w)}).observe(h,{childList:true})}}}if(document.fonts)document.fonts.ready.then(()=>footPlace());[500,1200,2600].forEach(ms=>setTimeout(footPlace,ms));
@@ -3479,6 +3484,10 @@ const CCH_M={calm:{},
  content:{eL:{o:0,sy:.1},eR:{o:0,sy:.1},hap:{o:1},head:{y:2,r:-2}},                        // soft smile (Shabbos)
  brace:{head:{y:12},hat:{y:16,r:-7},eL:{sy:.6,y:-11},eR:{sy:.6,y:-11},book:{sy:.93,sx:1.03}}}; // bending into the wind, no hands
 let CCH_ACT=Date.now();const CCH_ALL=[];
+// v125 (battery): 20 s without a touch → .cc-still pauses the endless floating; checked every 5 s, any input wakes it at once
+{const R=document.documentElement,wake=()=>{if(R.classList.contains('cc-still'))R.classList.remove('cc-still')};
+ for(const ev of ['pointerdown','keydown','scroll','wheel'])addEventListener(ev,wake,{passive:true,capture:true});
+ setInterval(()=>{if(!document.hidden&&Date.now()-CCH_ACT>20000&&!R.classList.contains('cc-still'))R.classList.add('cc-still')},5000)}
 const cchS=(k,m)=>{const d=(CCH_M[m]||{})[k]||{};return{x:d.x||0,y:d.y||0,r:d.r||0,sx:d.sx??1,sy:d.sy??1,o:d.o??(CCH_HIDDEN[k]?0:1)}};
 const cchBack=t=>{const c1=1.9,c3=c1+1;return 1+c3*Math.pow(t-1,3)+c1*Math.pow(t-1,2)};
 /* a live character: set(mood, ms, anim) morphs to an expression (and back to the resting one after ms); setBase() = resting
@@ -3552,11 +3561,11 @@ function cchLive(el,base){if(!el)return{set(){},setBase(){},anim(){},nod(){},dar
  const sabbath=()=>{try{const d=new Date(),wd=d.getDay();if((wd===5&&d.getHours()>=12)||wd===6)return'sh';return strictYT(hd(t0))?'yt':''}catch(e){return''}};
  mood(L.base);for(const k in P){P[k].dur=0}frame();
  if(!RM){const tick=()=>{if(!el.isConnected)return;const off=document.documentElement.classList.contains('tt-off-charlife'),sb=off?'':sabbath();setTimeout(tick,(2200+Math.random()*3000)*(sb==='sh'?1.5:1));
-   if(document.hidden||!el.offsetParent||(L.ambient&&document.documentElement.classList.contains('cc-away')))return;
+   if(document.hidden||!el.offsetParent||el.closest('[aria-hidden="true"]')||(L.ambient&&document.documentElement.classList.contains('cc-away')))return;   // v125: not inside a closed (hidden) sheet
    const night=document.documentElement.dataset.night==='1',idle=Date.now()-CCH_ACT;
    if(L.sleep&&(idle<45000||off))L.wake();
    // the + button dozes off after 45 s untouched (slow nods); late at night the z's float up
-   if(!off&&L.ambient&&idle>45000){if(!L.sleep){L.sleep=true;L.ss=sd();clearTimeout(L.t);L.cur='sleepy';mood('sleepy',1400)}fx('sway',[{t:0},{t:.5,y:6,r:-3*L.ss},{t:1}],rn(2000,3000));if(night&&idle>60000)L.zz();return}
+   if(!off&&L.ambient&&idle>45000){if(!L.sleep){L.sleep=true;L.ss=sd();clearTimeout(L.t);L.cur='sleepy';mood('sleepy',1400)}if(idle<165000){fx('sway',[{t:0},{t:.5,y:6,r:-3*L.ss},{t:1}],rn(2000,3000));if(night&&idle>60000)L.zz()}return}   // v125: after ~2 min of dozing he stays still (battery)
    if(L.cur)return;
    const m=CCP[L.base]||L.base,A=off?[[3,L.blink],[2,()=>fx('root',[{t:0},{t:.5,sx:1.012,sy:1.03},{t:1}],2200)],[1.4,()=>{L.look((Math.random()-.5)*20,(Math.random()-.5)*10,1300);setTimeout(L.blink,1500)}],[1.1,L.sway],[.8,L.hat],[m==='read'||m==='peek'?1.6:.6,L.page]]:
     [[3,L.blink],[1.2,L.blink2],[2,L.breathe],[1.4,()=>{L.look((Math.random()-.5)*20,(Math.random()-.5)*10,1300);setTimeout(L.blink,1500)}],
@@ -3617,8 +3626,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=124;
+const CC_VER=125;
 const CC_LOG=[
+ {v:125,new:['Uses less battery: when you leave the app open without touching it, the floating pieces hold still after 20 seconds and the assistant settles down; the hidden assistant no longer moves in the background.','Opens and changes days a little faster (less redrawing of the water letters and the sky).']},
  {v:124,new:['No opening screen any more: the app opens straight away.','While the Hayom Yom or a shiur loads, the assistant’s little black silhouette pulses instead of the old logo.']},
  {v:123,new:['The opening animation is gone: the app opens with the logo, which pulses once.']},
  {v:122,new:['Siddur: the end of the Six Remembrances was cut off; it’s there now.']},
