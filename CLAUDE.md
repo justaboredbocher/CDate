@@ -4,7 +4,7 @@ This repository is a hosted web app: a Chabad/Jewish calendar that is installed 
 - **Links (owner's standing rule): always send every link in a text box (a code block), on its own line, so it can be copied easily on the phone.**
 - **Version number (owner's standing rule): end every update message with the app's shown version number ("Version X.Y.Z", from `ccVerStr()`), e.g. a last line `📱 Version 12.4.1`.**
 
-- Live site: https://mosheliberman03-maker.github.io/CDate/ (GitHub Pages, `main` branch, root folder)
+- Live site: https://justaboredbocher.github.io/CDate/ (GitHub Pages, `main` branch, root folder). **Moved (v126, owner: nothing people see should show his name; things only found by digging — app id, push server address, notices' history — may stay):** the repo moves from `mosheliberman03-maker/CDate` to `justaboredbocher/CDate` (GitHub Transfer). Both apps' `server.url` = the new address (APK 9 / Keep in Touch rebuilt); `CC_GH` picks the GitHub owner for download links from `location.hostname` (old one while still served there); `ALLOW` in the worker has both origins. The OLD address is kept alive by a fork on the old account with Pages set to `main` /docs: `docs/` = a "new home" card (in the old apps: download the update, then sign in again — localStorage is per address, accounts come back from the server) or a redirect to the same path at the new address (browsers), plus a `sw.js` that clears the old service worker. The push server keeps its old address (not seen by users).
 - Push server: https://cdate-push.mosheliberman03.workers.dev (Cloudflare Worker named `cdate-push`, source in `server/worker.js`)
 - Owner's location default: Foshan, China (timezone Asia/Shanghai). Users: fewer than a few dozen people.
 

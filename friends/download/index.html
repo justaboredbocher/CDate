@@ -146,7 +146,7 @@ footer a{color:var(--acc);text-decoration:none}
       <h1>See who's <em>awake</em>.<br>Call them.</h1>
       <p class="lead">Your friends are spread across every time zone. Keep in Touch shows you, at a glance, who's up right now and the best moment to call, right on your home screen.</p>
       <div class="cta">
-        <a class="dl" id="dl" href="https://github.com/mosheliberman03-maker/CDate/releases/download/friends-apk-latest/KeepInTouch.apk">
+        <a class="dl" id="dl" href="https://github.com/justaboredbocher/CDate/releases/download/friends-apk-latest/KeepInTouch.apk">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
           <span>Download for Android<small>Free · about 4 MB</small></span>
         </a>
@@ -222,7 +222,7 @@ footer a{color:var(--acc);text-decoration:none}
     <h2>Never wake anyone up again</h2>
     <p class="sub" style="margin:0">And never miss the right moment to call.</p>
     <div class="cta">
-      <a class="dl" href="https://github.com/mosheliberman03-maker/CDate/releases/download/friends-apk-latest/KeepInTouch.apk">
+      <a class="dl" href="https://github.com/justaboredbocher/CDate/releases/download/friends-apk-latest/KeepInTouch.apk">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
         <span>Download for Android<small>Free · about 4 MB</small></span>
       </a>
@@ -282,5 +282,6 @@ const ua=navigator.userAgent,ios=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(
 if(!android){const o=document.getElementById("other");o.classList.add("on");
   o.innerHTML=ios?"📱 This app is for Android phones. On iPhone, <a href=\"../\" style=\"color:var(--acc)\">use Keep in Touch in Safari</a> and tap Share → Add to Home Screen.":"💻 Open this page on your Android phone to install the app. Or <a href=\"../\" style=\"color:var(--acc)\">use Keep in Touch in your browser</a>."}
 </script>
+<script>/* links follow the address this page is served from (old one until the move) */if(/^mosheliberman03/.test(location.hostname))document.querySelectorAll('a[href*="justaboredbocher"]').forEach(function(x){x.href=x.href.replace('justaboredbocher','mosheliberman03-maker')})</script>
 </body>
 </html>

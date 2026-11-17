@@ -1210,7 +1210,7 @@ sync()})();
  const card=(k,t,d,pv,n)=>'<div class="kw"><div class="pv">'+pv+'</div><div class="tx"><b>'+t+'</b><small>'+d+'</small><button class="btn p'+(n?" done":"")+'" data-pin="'+k+'">'+(n?"✓ Added · add another":"Add to home screen")+'</button></div></div>';
  async function show(){let inf=null;try{inf=await P.info()}catch(e){}
   sheet._gs=null;
-  if(!inf){sheet.innerHTML='<h3>Home-screen widgets</h3><p>Your app needs a quick update to add widgets from here. Get the newest version, install it over this one (your list stays), then come back.</p><div class="btns"><button class="btn" id="wgx">Close</button><a class="btn p" style="text-align:center;text-decoration:none" href="https://mosheliberman03-maker.github.io/CDate/friends/download/">Get the update</a></div>';sheet.style.display="block";$("wgx").onclick=()=>sheet.style.display="none";return}
+  if(!inf){sheet.innerHTML='<h3>Home-screen widgets</h3><p>Your app needs a quick update to add widgets from here. Get the newest version, install it over this one (your list stays), then come back.</p><div class="btns"><button class="btn" id="wgx">Close</button><a class="btn p" style="text-align:center;text-decoration:none" href=new URL("download/",location.href).href>Get the update</a></div>';sheet.style.display="block";$("wgx").onclick=()=>sheet.style.display="none";return}
   const up='<i></i><i></i><i style="--c:#e0cc7c"></i>';
   sheet.innerHTML='<h3>Home-screen widgets</h3><p>See who’s up without opening the app. Tap Add, then confirm.</p>'+
    card("who","Who’s up now","Your friends, awake first, with Call and WhatsApp buttons. Filter and sort right on the widget.",'<u>Who’s up now</u>'+up,inf.who)+
@@ -1228,7 +1228,7 @@ sync()})();
 // neither = SMALL (looks, tweaks, fixes) → only a little round "i" in the corner, version X.Y.Z.
 // adm:1 = admin-only change → counts as a small update in the version number, but NO notification at all (owner). The shown version is worked out from these sizes.
 // apk:N = this needs app version N (a new download); the app then also shows "Update the app".
-const KIT_VER=55,KIT_APK=3;
+const KIT_VER=56,KIT_APK=3;
 const KIT_LOG=[
  {v:1,big:1,t:"Home-screen widgets",d:"See who’s awake without opening the app, with Call and WhatsApp buttons, filters and sorting.",go:"widgets"},
  {v:2,mid:1,t:"Add widgets from inside the app",d:"Menu → Home-screen widgets → Add. No more digging through your phone’s widget list.",go:"widgets",apk:1},
@@ -1275,14 +1275,15 @@ const KIT_LOG=[
  {v:50,t:"Signing in brings back every community your account is in, by itself"},
  {v:52,mid:1,t:"Your saved people and favourites are saved to your account too",d:"Sign in on any phone and your whole list comes back, with your favourites."},
  {v:54,t:"If someone added you to a community, signing up with that phone number puts you straight in it"},
- {v:55,t:"Only a community’s admins can add people to it"}
+ {v:55,t:"Only a community’s admins can add people to it"},
+ {v:56,adm:1,t:"New web address",d:"The app moved to justaboredbocher.github.io/CDate/friends."}
 ];
 function kitVerStr(b){let M=0,m=0,p=0;const by={};KIT_LOG.forEach(x=>{const l=x.big?3:x.mid?2:1;by[x.v]=Math.max(by[x.v]||0,l)});
  Object.keys(by).map(Number).sort((a,c)=>a-c).forEach(v=>{if(v>b)return;if(by[v]==3){M++;m=0;p=0}else if(by[v]==2){m++;p=0}else p++});return M+"."+m+"."+p}
 const kitIsApp=()=>!!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform());
 const kitSeenKey=()=>"kit_seen_"+(me&&me.match?slug(pkey(me.match.name,me.match.city)):"x");
 async function kitApkVer(){if(!kitIsApp())return 99;try{const P=Capacitor.Plugins.KitWidget;const r=await P.info();return r&&r.ver?r.ver:1}catch(e){return 0}}
-const APK_PAGE="https://mosheliberman03-maker.github.io/CDate/friends/download/";
+const APK_PAGE=new URL("download/",location.href).href;
 async function kitNews(){if(!me||!me.match||su||document.body.classList.contains("tour"))return;
  let seen=+lsGet(kitSeenKey())||0;
  if(!lsGet("sc_tour")){lsSet(kitSeenKey(),KIT_VER);return} // brand-new users get the tour, not a backlog
@@ -1556,7 +1557,7 @@ setTimeout(()=>{invBackfill();invCheck(1)},3500);document.addEventListener("visi
 // Shluchim (the yeshiva directory) is the built-in community: yeshiva accounts are members automatically, and others can
 // join with its link (e.g. someone who was missed). Joined communities live on this phone: kit_comms = [{id,s,st}].
 // Server: /kit/comm (looked up by code only). Each member proves who they are with their secret s (hash kept on the server).
-const CM_LINK=c=>"https://mosheliberman03-maker.github.io/CDate/friends/?join="+c;
+const CM_LINK=c=>location.origin+location.pathname.replace(/[^/]*$/,"")+"?join="+c;
 const DIRG0=DIRG.slice(),DIRP0=DIRP.slice();
 window.CM_PH={};let CM_DOCS={},cmTimer=0;
 const cmList=()=>{try{return JSON.parse(lsGet("kit_comms")||"[]")}catch(e){return[]}};

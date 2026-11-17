@@ -1,0 +1,33 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>We moved</title>
+<!-- Served only from the old address (a copy of the repo with GitHub Pages set to the docs folder).
+     Browsers are sent on to the same page at the new address; the old Android apps show an "update the app" card. -->
+<style>
+:root{--bg:#0a1131;--tx:#f4efe3;--mu:#b9bfd6;--card:rgba(255,255,255,.07);--bd:rgba(255,255,255,.14);--btn:#f4efe3;--btx:#0a1131}
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:16px;box-sizing:border-box}
+.c{max-width:380px;width:100%;box-sizing:border-box;background:var(--card);border:1px solid var(--bd);border-radius:22px;padding:26px 22px;text-align:center}
+img{width:76px;height:76px;border-radius:18px}h1{font-size:22px;margin:14px 0 6px}p{color:var(--mu);margin:8px 0}
+ol{text-align:left;color:var(--mu);padding-left:22px;margin:14px 0}li{margin:6px 0}
+a.b{display:block;margin-top:16px;padding:14px;border-radius:14px;background:var(--btn);color:var(--btx);font-weight:700;text-decoration:none}
+</style></head><body>
+<div class="c" id="c" hidden>
+<img id="ic" alt=""><h1>The app has a new home</h1>
+<p>Please install this quick update.</p>
+<ol><li>Tap <b>Download the update</b>.</li><li>Open the downloaded file and tap <b>Update</b>.</li><li>Open the app and sign in with the same name and password. <span id="bk">Your calendar comes back.</span></li></ol>
+<a class="b" id="dl">Download the update</a>
+</div>
+<script>
+(function(){
+  var NEW='https://justaboredbocher.github.io/CDate/';
+  var rest=location.pathname.replace(/^\/CDate\/?/,'')+location.search+location.hash;
+  var kit=/^friends\//.test(rest);
+  var app=false;try{var C=window.Capacitor;app=!!(C&&C.isNativePlatform&&C.isNativePlatform())}catch(e){}
+  if(!app&&/; wv\)/.test(navigator.userAgent||''))app=true;
+  if(!app){location.replace(NEW+rest);return}
+  var R='https://github.com/justaboredbocher/CDate/releases/download/';
+  document.getElementById('dl').href=kit?R+'friends-apk-latest/KeepInTouch.apk':R+'apk-latest/ChabadCalendar.apk';
+  document.getElementById('ic').src=kit?NEW+'friends/icon-192.png':NEW+'icon-192.png';
+  if(kit){document.getElementById('bk').textContent='Your list and communities come back.';document.querySelector('ol li:last-child').firstChild.textContent='Open the app and sign in with the same name and code. '}
+  document.getElementById('c').hidden=false;
+})();
+</script></body></html>
