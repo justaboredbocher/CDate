@@ -3164,7 +3164,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#stk')){H.tap();stsOp
 
 /* ---------- Reminders ---------- */
 const NDEF={on:false,quiet:true,cand:true,candLead:30,omer:true,hanu:true,fast:true,spec:true,specAll:false,morn:'08:00',prep:true,learn:true,learnLvl:'regular',learnAt:'20:00',mine:true};
-const nCfg=()=>{const st=ST('cc_notif',{}),c=Object.assign({},NDEF,st);/* default = Regularly (owner, v128); settings saved before levels existed keep their old choice */if(!['never','rarely','regular'].includes(st.learnLvl))c.learnLvl='learn' in st?(st.learn?'rarely':'never'):'regular';c.learn=c.learnLvl!=='never';return c};
+const nCfg=()=>{const st=ST('cc_notif',{}),c=Object.assign({},NDEF,st);/* default = Regularly (owner, v128); settings saved before levels existed keep their old choice */if(!['never','rarely','regular'].includes(st.learnLvl))c.learnLvl='learn' in st?(st.learn?'rarely':'never'):'regular';if(!st.on1){c.on=true;c.learnLvl='regular';c.learn=true;c.on1=1}   /* v135 (owner): Send reminders is ON by default, and switched on once for everyone; after that their own choice stays */c.learn=c.learnLvl!=='never';return c};
 /* Daily shiurim reminders (owner, v29): Never / Rarely (once a day at learnAt, as before) / Regularly.
    Regularly learns when you usually do your shiurim: every check-off of TODAY's shiurim records the time of day (cc_learn_t,
    per profile: {shiur day:{m:minute of day (before 4 AM counts as after midnight of the evening before), f:1 once that day was finished}},
@@ -3582,17 +3582,18 @@ function cchLive(el,base){if(!el)return{set(){},setBase(){},anim(){},nod(){},dar
  let taps=[];if(!L.ambient)el.addEventListener('pointerdown',()=>{if(document.documentElement.classList.contains('tt-off-charlife'))return;const n=Date.now();taps=taps.filter(x=>n-x<1500);taps.push(n);if(taps.length>=3){taps=[];L.dizzy()}else L.surprise()});
  const sabbath=()=>{try{const d=new Date(),wd=d.getDay();if((wd===5&&d.getHours()>=12)||wd===6)return'sh';return strictYT(hd(t0))?'yt':''}catch(e){return''}};
  mood(L.base);for(const k in P){P[k].dur=0}frame();
- if(!RM){const tick=()=>{if(!el.isConnected)return;const off=document.documentElement.classList.contains('tt-off-charlife'),sb=off?'':sabbath();setTimeout(tick,(2200+Math.random()*3000)*(sb==='sh'?1.5:1));
-   if(document.hidden||!el.offsetParent||el.closest('[aria-hidden="true"]')||(L.ambient&&document.documentElement.classList.contains('cc-away')))return;   // v125: not inside a closed (hidden) sheet
+ if(!RM){const tick=()=>{if(!el.isConnected)return;const off=document.documentElement.classList.contains('tt-off-charlife'),sb=off?'':sabbath();setTimeout(tick,(L.ambient&&!off?1300+Math.random()*1700:2200+Math.random()*3000)*(sb==='sh'?1.5:1));   // v134 (owner: "less idle"): the home-screen one moves about twice as often
+   if(document.hidden||!el.offsetParent||(el.parentElement&&el.parentElement.closest('[aria-hidden="true"]'))||(L.ambient&&document.documentElement.classList.contains('cc-away')))return;   // v125: not inside a closed (hidden) sheet
    const night=document.documentElement.dataset.night==='1',idle=Date.now()-CCH_ACT;
-   if(L.sleep&&(idle<45000||off))L.wake();
-   // the + button dozes off after 45 s untouched (slow nods); late at night the z's float up
-   if(!off&&L.ambient&&idle>45000){if(!L.sleep){L.sleep=true;L.ss=sd();clearTimeout(L.t);L.cur='sleepy';mood('sleepy',1400)}if(idle<165000){fx('sway',[{t:0},{t:.5,y:6,r:-3*L.ss},{t:1}],rn(2000,3000));if(night&&idle>60000)L.zz()}return}   // v125: after ~2 min of dozing he stays still (battery)
+   if(L.sleep&&(idle<180000||off))L.wake();
+   // the + button dozes off after 3 min untouched (v134; was 45 s) with slow nods; late at night the z's float up
+   if(!off&&L.ambient&&idle>180000){if(!L.sleep){L.sleep=true;L.ss=sd();clearTimeout(L.t);L.cur='sleepy';mood('sleepy',1400)}if(idle<360000){fx('sway',[{t:0},{t:.5,y:6,r:-3*L.ss},{t:1}],rn(2000,3000));if(night&&idle>200000)L.zz()}return}   // v125: after ~2 min of dozing he stays still (battery)
    if(L.cur)return;
    const m=CCP[L.base]||L.base,A=off?[[3,L.blink],[2,()=>fx('root',[{t:0},{t:.5,sx:1.012,sy:1.03},{t:1}],2200)],[1.4,()=>{L.look((Math.random()-.5)*20,(Math.random()-.5)*10,1300);setTimeout(L.blink,1500)}],[1.1,L.sway],[.8,L.hat],[m==='read'||m==='peek'?1.6:.6,L.page]]:
     [[3,L.blink],[1.2,L.blink2],[2,L.breathe],[1.4,()=>{L.look((Math.random()-.5)*20,(Math.random()-.5)*10,1300);setTimeout(L.blink,1500)}],
     [1.1,L.sway],[.7,L.hat],[.7,L.hatfix],[m==='read'||m==='peek'?1.6:.6,L.page],[.8,L.readln],[.5,L.stretch],[.35,L.flip],
     [night?.9:0,L.yawn],[sb==='sh'?1.2:0,()=>L.set('content',2400)],[sb==='yt'?1:0,()=>{L.set('happy',1200);L.hop2()}],[.6,L.wink],[.6,L.slowblink],[1,L.glance],[.7,L.tilt]];
+   if(L.ambient&&!off)A.push([1.2,L.glance],[.7,L.tilt],[.5,L.sway],[.4,L.hat],[.35,L.stretch],[.3,L.flip]);   // v134: livelier moves weigh more on the home screen
    let r=Math.random()*A.reduce((a,x)=>a+x[0],0);for(const x of A){if((r-=x[0])<=0){x[1]();break}}};setTimeout(tick,1500)}
  CCH_ALL.push(L);
  return L}
@@ -3648,8 +3649,10 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=133;
+const CC_VER=135;
 const CC_LOG=[
+  {v:135,mid:1,new:['Reminders are now on by default: candle lighting, the Omer, fast days, your own plans, and smart shiurim reminders. You can turn any of them off in ⋯ → Reminders.']},
+  {v:134,new:['The little character on the home screen is livelier: he moves about twice as often and only dozes off after 3 minutes. (A bug had stopped his little moves altogether.)']},
   {v:133,new:['Even fewer buzzes while scrolling the main page.']},
   {v:132,new:['The BETA badge now shows in the siddur too.']},
   {v:131,new:['Much lighter buzzes while scrolling the main page.']},
