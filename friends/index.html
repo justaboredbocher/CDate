@@ -1046,9 +1046,9 @@ suB.onclick=async()=>{if(suB.disabled)return;const m=suMode(),c=$("suC").value.r
  try{if(m=="login"){const a=accts[k],h=await hashCode(c,a.salt);if(h!=a.h){bad++;if(bad>=5){lockT=Date.now()+30000;bad=0}ch.className="phh bad";ch.textContent="Wrong code.";suB.disabled=false;return}bad=0;me={name:suN.value.trim()||selM.name,match:{name:selM.name,city:selM.city},phone:phoneOf(selM.name,selM.city),salt:a.salt,h:a.h}}
   else{const salt=randSalt(),h=await hashCode(c,salt),ph=pw.val().e164;setAcct(k,salt,h);setPhone(selM.name,selM.city,ph);me={name:suN.value.trim()||selM.name,match:{name:selM.name,city:selM.city},phone:ph,salt,h}}}
  catch(e){toast("Something went wrong. Try again.");suCheck();return}
- lsSet("sc_me",JSON.stringify(me));$("suC").value="";su=false;document.body.classList.remove("su");renderCards();welcome();setTimeout(()=>{try{invCheck(1);invBackfill();cmRebuild();cmRefresh();cmPendingJoin()}catch(e){}},1500)};
+ lsSet("sc_me",JSON.stringify(me));try{acctLoad()}catch(e){}$("suC").value="";su=false;document.body.classList.remove("su");renderCards();welcome();setTimeout(()=>{try{invCheck(1);invBackfill();cmRebuild();cmRefresh();cmPendingJoin()}catch(e){}},1500)};
 let soT=null;
-$("so").onclick=()=>{const b=$("so");if(!soT){b.textContent="Tap again to confirm";b.style.background="rgba(251,113,133,.35)";soT=setTimeout(()=>{soT=null;b.textContent="Log out";b.style.background=""},3000);return}clearTimeout(soT);soT=null;b.textContent="Log out";b.style.background="";try{localStorage.removeItem("sc_me")}catch(e){}me=null;try{cmRebuild()}catch(e){}selM=null;suN.value="";pw.clear();suN.oninput();open(false);su=true;document.body.classList.add("su");renderCards()};
+$("so").onclick=()=>{const b=$("so");if(!soT){b.textContent="Tap again to confirm";b.style.background="rgba(251,113,133,.35)";soT=setTimeout(()=>{soT=null;b.textContent="Log out";b.style.background=""},3000);return}clearTimeout(soT);soT=null;b.textContent="Log out";b.style.background="";try{acctStash(me)}catch(e){}try{localStorage.removeItem("sc_me")}catch(e){}me=null;try{acctMem()}catch(e){}try{cmRebuild()}catch(e){}selM=null;suN.value="";pw.clear();suN.oninput();open(false);su=true;document.body.classList.add("su");renderCards()};
 // ---------- cards + world toggle
 const gb=$("gb"),PLANET='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="5.5"/><ellipse cx="12" cy="12" rx="10.5" ry="3.8" transform="rotate(-25 12 12)"/></svg>',CARDI='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4.5" width="16" height="6.5" rx="2"/><rect x="4" y="13" width="16" height="6.5" rx="2"/></svg>';
 function setView(v){if(v=="cards"&&!saved.length)v="world";view=v;if(v!="cards"){focusK=null;document.body.classList.remove("fullc")}document.body.classList.toggle("cards",v=="cards");gb.classList.toggle("on",v=="world");gb.innerHTML=v=="cards"?PLANET:CARDI;gb.style.display=saved.length?"grid":"none";renderCards()}
@@ -1227,7 +1227,7 @@ sync()})();
 // neither = SMALL (looks, tweaks, fixes) → only a little round "i" in the corner, version X.Y.Z.
 // adm:1 = admin-only change → counts as a small update in the version number, but NO notification at all (owner). The shown version is worked out from these sizes.
 // apk:N = this needs app version N (a new download); the app then also shows "Update the app".
-const KIT_VER=43,KIT_APK=2;
+const KIT_VER=44,KIT_APK=2;
 const KIT_LOG=[
  {v:1,big:1,t:"Home-screen widgets",d:"See who’s awake without opening the app, with Call and WhatsApp buttons, filters and sorting.",go:"widgets"},
  {v:2,mid:1,t:"Add widgets from inside the app",d:"Menu → Home-screen widgets → Add. No more digging through your phone’s widget list.",go:"widgets",apk:1},
@@ -1265,7 +1265,8 @@ const KIT_LOG=[
  {v:40,t:"The Good / Borderline / Asleep filters now work everywhere, and “Mine” is now “★ Favs”"},
  {v:41,t:"Tapping a person or searching a place zooms the globe to them in the background"},
  {v:42,t:"Fixed one place showing several times on the globe (e.g. “Albany · Family · Family”)"},
- {v:43,t:"New accounts start with an empty globe until they join a community or add friends"}
+ {v:43,t:"New accounts start with an empty globe until they join a community or add friends"},
+ {v:44,t:"Each account on a phone keeps its own people and communities: logging out and in with another account no longer mixes them"}
 ];
 function kitVerStr(b){let M=0,m=0,p=0;const by={};KIT_LOG.forEach(x=>{const l=x.big?3:x.mid?2:1;by[x.v]=Math.max(by[x.v]||0,l)});
  Object.keys(by).map(Number).sort((a,c)=>a-c).forEach(v=>{if(v>b)return;if(by[v]==3){M++;m=0;p=0}else if(by[v]==2){m++;p=0}else p++});return M+"."+m+"."+p}
@@ -1514,7 +1515,7 @@ function invAsk(list){const it=list[0];if(!it)return;if(document.body.classList.
    if(doc){h=await hashCode(code,doc.salt);if(h!=doc.h){bad2++;if(bad2>=5){lock2=Date.now()+30000;bad2=0}H.className="phh bad";H.textContent="This number already has an account. Wrong code.";B.disabled=false;return}salt=doc.salt}
    else{salt=randSalt();h=await hashCode(code,salt);await kitPost("users3/set",{id:uid,data:{salt,h}})}
    const city=DIRG0.some(g=>g.city==pick.city)?pick.city+" ·":pick.city;
-   me={name:N.value.trim(),match:{name:N.value.trim(),city},gen:1,la:pick.lat,lo:pick.lon,tz:pick.tz,phone:ph,salt,h,uid};lsSet("sc_me",JSON.stringify(me));
+   me={name:N.value.trim(),match:{name:N.value.trim(),city},gen:1,la:pick.lat,lo:pick.lon,tz:pick.tz,phone:ph,salt,h,uid};lsSet("sc_me",JSON.stringify(me));try{acctLoad()}catch(e){}
    K.value="";su=false;document.body.classList.remove("su");$("su").classList.remove("su-gen");renderCards();welcome();setTimeout(()=>{invCheck(1);invBackfill();cmRebuild();cmRefresh();cmPendingJoin()},1500)}
   catch(e){H.className="phh bad";H.textContent="Couldn’t reach the server. Check your internet and try again.";B.disabled=false}}})();
 // general users change their number here (their number is never in the shared list)
@@ -1666,6 +1667,33 @@ function pOpen(x,back){sheet._gs=null;const i=savedIdx(x.n,x.city),v=i>=0?saved[
  const S=$("pvS");if(S)S.onclick=()=>{const own=!DIRP0.some(y=>y.name==x.n&&y.city==x.city);saved.push(own?{id:Date.now()+Math.random(),name:x.n,city:x.city,country:x.country||"",lat:+x.lat,lon:+x.lon,tz:x.tz,own:1,ph:ph,cm:x.cm||""}:{id:Date.now()+Math.random(),name:x.n,city:x.city,country:x.country||"",lat:+x.lat,lon:+x.lon,tz:x.tz});persist();render();renderCards();commit();hap(10);toast("Saved "+x.n);again()};
  const D=$("pvD");if(D)D.onclick=()=>{if(D.dataset.ok!="1"){D.dataset.ok="1";D.querySelector("b").textContent="Tap again to "+(v.own?"delete":"remove");hap(8);return}sheet.style.display="none";removeSaved(v.id);if(back)setTimeout(back,50)};
  sheet.querySelectorAll("[data-pcm]").forEach(b=>b.onclick=()=>cmOpen(b.dataset.pcm))}
+
+// ---------- one phone, several accounts (owner: a new account on the same phone still saw the yeshivas): every account keeps
+// its own saved people, favourites, reminders, communities… Logging out puts them away in kit_vault_<account>; logging in
+// brings that account's back (a new account starts empty). Data from before this (kept in the shared keys) is given to the
+// account the server says owns its communities; otherwise it waits in kit_vault_legacy for that account to sign in.
+const ACCT_KEYS=["sc_saved","sc_favs","sc_rem","sc_recent","kit_comms","kit_cm_def","kit_inv_no","kit_unsave","kit_shl_g","sc_tour"];
+function acctSlug(m){return m&&m.match?(slug(pkey(m.match.name,m.match.city))+(m.gen?"_"+digits(m.phone).slice(-6):"")).slice(0,160):""}
+function acctTake(){const o={};ACCT_KEYS.forEach(x=>{const v=lsGet(x);if(v!=null)o[x]=v;try{localStorage.removeItem(x)}catch(e){}});return o}
+function acctPut(o){Object.keys(o||{}).forEach(x=>{if(ACCT_KEYS.includes(x))lsSet(x,o[x])})}
+function acctMem(){try{saved=JSON.parse(localStorage.getItem("sc_saved")||"[]")}catch(e){saved=[]}
+ try{favs=new Set(JSON.parse(lsGet("sc_favs")||"[]"))}catch(e){favs=new Set()}try{rem=JSON.parse(lsGet("sc_rem")||"{}")}catch(e){rem={}}
+ try{recent=JSON.parse(localStorage.getItem("sc_recent")||"[]")}catch(e){recent=[]}
+ CM_DOCS={};CM_VIEW=lsGet("kit_cm_def")||"";CM_OPEN=new Set();if(CM_VIEW)CM_OPEN.add(CM_VIEW);try{PREP.t=0}catch(e){}}
+function acctStash(m){const k=acctSlug(m);const o=acctTake();if(k)lsSet("kit_vault_"+k,JSON.stringify(o))}
+async function acctOwns(o){let L=[];try{L=JSON.parse(o.kit_comms||"[]")}catch(e){}L=L.filter(e=>e&&e.s&&!e.sj);const C=L.filter(e=>e.id!="shluchim"),T=C.length?C:L;if(!T.length)return undefined; // nothing to check: it's whoever is signed in
+ for(const e of T){try{const r=await cmPost("status",{id:e.id,fk:cmFk(),s:e.s});if(r.status=="member"||r.status=="pending")return true}catch(x){return null}}return false}
+async function acctClaimLegacy(){const lg=lsGet("kit_vault_legacy");if(!lg||!me||!me.match)return;let o;try{o=JSON.parse(lg)}catch(e){return}
+ if(await acctOwns(o)!==true)return;const cur=acctTake();acctPut(o);try{const c=JSON.parse(cur.sc_saved||"[]");if(c.length){const s2=JSON.parse(o.sc_saved||"[]");c.forEach(v=>{if(!s2.some(x=>x.name==v.name&&x.city==v.city))s2.push(v)});lsSet("sc_saved",JSON.stringify(s2))}}catch(e){}
+ try{localStorage.removeItem("kit_vault_legacy")}catch(e){}acctMem();cmRebuild();cmMenu();renderCards();cmRefresh()}
+function acctLoad(){const k=acctSlug(me),v=lsGet("kit_vault_"+k);acctTake();if(v){try{acctPut(JSON.parse(v))}catch(e){}try{localStorage.removeItem("kit_vault_"+k)}catch(e){}}acctMem();
+ try{cmRebuild();cmMenu()}catch(e){}if(!v)setTimeout(acctClaimLegacy,300)}
+(async function acctMigrate(){if(lsGet("kit_vault1")=="1"){if(me&&me.match)setTimeout(acctClaimLegacy,2500);return}
+ const has=ACCT_KEYS.some(x=>x!="sc_tour"&&lsGet(x)!=null);if(!has){lsSet("kit_vault1","1");return}
+ if(!me||!me.match){lsSet("kit_vault_legacy",JSON.stringify(acctTake()));lsSet("kit_vault1","1");acctMem();return}
+ const o={};ACCT_KEYS.forEach(x=>{const v=lsGet(x);if(v!=null)o[x]=v});const own=await acctOwns(o);if(own===null)return; // offline: try next time
+ if(own===false){lsSet("kit_vault_legacy",JSON.stringify(acctTake()));acctMem();cmRebuild();cmMenu();renderCards()}
+ lsSet("kit_vault1","1")})();
 function cmNew(){open(false);sheet._gs=null;sheet.innerHTML='<div class="cm"><h3>Create a community</h3><p>For your family, friends, a class or a group. Everyone in it sees each other on the globe, without saving anyone. You’ll be its admin.</p><input class="ain" id="cmN" maxlength="60" placeholder="Name, e.g. Cohen family" autocapitalize="words"><div class="note">🔒 Members see each other’s name, city and number.</div><div class="btns"><button class="btn" id="cmX">Cancel</button><button class="btn p" id="cmGo" disabled>Create</button></div></div>';sheet.style.display="block";
  const N=$("cmN"),G=$("cmGo");setTimeout(()=>N.focus(),80);N.oninput=()=>G.disabled=!N.value.trim();$("cmX").onclick=()=>sheet.style.display="none";
  G.onclick=async()=>{const info=meInfo();if(!info){toast("Couldn’t find your location.");return}G.disabled=true;const s2=cmSecret();
