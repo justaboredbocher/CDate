@@ -377,6 +377,7 @@ body.om .foot,body.om .hint{opacity:0!important}
 @keyframes cflash{0%,100%{box-shadow:0 0 0 0 transparent}25%,65%{box-shadow:0 0 0 3px color-mix(in srgb,var(--ct) 70%,transparent),0 0 24px color-mix(in srgb,var(--ct) 45%,transparent)}}.flash{animation:cflash 2.4s ease;border-radius:14px}
 @media (prefers-reduced-motion:reduce){.sky-body{transition:none}}
 
+.nu-leave{display:block;width:100%;margin:12px 0 4px;padding:12px 14px;border-radius:14px;border:1px dashed rgba(142,160,255,.55);background:rgba(142,160,255,.12);color:inherit;font:600 14px Figtree,system-ui,sans-serif;text-align:center;cursor:pointer}
 #tg{position:fixed;inset:0;z-index:100002;touch-action:none;opacity:0;transition:opacity .45s ease}
 #tg.pass{pointer-events:none}#tg.pass .tg-card{pointer-events:auto}#tg.in{opacity:1}#tg.out{opacity:0;pointer-events:none}
 .tg-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:block}
@@ -912,7 +913,12 @@ body.sdo{overflow:hidden}
 body.sd-hide>:not(#sdr):not(script):not(style){visibility:hidden!important}
 @media(prefers-reduced-motion:reduce){#sdr,#sdr .sd-cue,#sdr .sd-sheet,#sdr .sd-tc{transition:none}}
 </style>
-</head><body>
+<style>/* Small green BETA badge, top-left on every screen (owner, v130). Above everything, never catches a tap. */
+#ccBeta{position:fixed;top:calc(env(safe-area-inset-top,0px) + 2px);left:calc(env(safe-area-inset-left,0px) + 3px);z-index:2147483600;pointer-events:none;
+ font:800 7.5px/1 Figtree,system-ui,sans-serif;letter-spacing:.08em;color:#fff;background:#22b35e;padding:2.5px 4px 2px;border-radius:4px;
+ box-shadow:0 1px 3px rgba(0,0,0,.28);opacity:.92}
+@media print{#ccBeta{display:none}}</style>
+</head><body><div id="ccBeta" aria-hidden="true">BETA</div>
 <div id="lightCast" aria-hidden="true"></div><div id="sky" hidden><div id="skyGrad"></div><div id="skyNight"></div><div id="stars"></div><div id="skyWaves" aria-hidden="true"></div></div>
 <div class="cc-gate" id="webOnly" role="alertdialog" aria-modal="true" aria-labelledby="webOnlyT"><div class="gc"><img src="icon-192.png" alt=""><h1 id="webOnlyT">Please use the app</h1><p class="gb">BETA</p><p>Chabad Calendar now runs in its Android app. Install it to continue: your reminders there ring as alarms, even with no internet or VPN.</p><div class="cc-andr-yes"><ol><li>Tap <b>Download the app</b>.</li><li>Open the downloaded file and allow installing.</li><li>Open the app and create your account there.</li></ol><a class="gbtn" id="webOnlyDl" href="https://github.com/justaboredbocher/CDate/releases/download/apk-latest/ChabadCalendar.apk" data-apk>Download the app</a><p class="gs" id="webOnlyS"></p></div><div class="cc-andr-no"><p>The app is for Android phones. Open this page on your Android phone to install it.</p></div></div></div>
 <div class="cc-gate" id="permGate" role="dialog" aria-modal="true" aria-labelledby="permGateT"><div class="gc"><img src="icon-192.png" alt=""><h1 id="permGateT">Two quick permissions</h1><p class="gb">BETA</p><p><b>Location</b> works out sunrise, sunset and candle-lighting for where you are. <b>Microphone</b> lets you speak to the planner instead of typing.</p><button class="gbtn" id="permAllow" type="button">Allow</button><button class="glink" id="permLater" type="button">Not now</button><p class="gs" id="permS"></p></div></div>
@@ -1007,23 +1013,37 @@ function ccIOS(){return (/iPhone|iPad|iPod/.test(navigator.userAgent)||/Macintos
    for(const k of K){localStorage.setItem('cc_profile_'+n+'_'+k.slice(pre.length),localStorage.getItem(k));localStorage.removeItem(k)}
    for(const k of ['cc_seen_ver_','cc_local_tour_done_']){const v=localStorage.getItem(k+o);if(v!=null){localStorage.setItem(k+n,v);localStorage.removeItem(k+o)}}
    db[n]=db[o];delete db[o];localStorage.setItem(USERS_KEY,JSON.stringify(db));localStorage.setItem(ACTIVE_KEY,n);return true}};
+ /* ===== New user mode (owner, v129): the admin tries the app as a brand-new person. The app closes; on reopening it shows the
+    permission screen and the sign-in card; "creating an account" makes a practice account on this phone only (never sent to the
+    server, never backed up). Leaving (⋯ home, the sign-in card, or signing in to any other account) deletes the practice account
+    and everything it saved, and signs the admin back in. ===== */
+ const NUK='cc_nu',nuGet=()=>{try{return JSON.parse(localStorage.getItem(NUK)||'null')}catch(e){return null}};
+ function nuDrop(u){if(!u)return;const pre='cc_profile_'+u+'_',K=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith(pre))K.push(k)}
+  K.forEach(k=>localStorage.removeItem(k));['cc_seen_ver_','cc_local_tour_done_','cc_sync_'].forEach(p=>localStorage.removeItem(p+u));const db=users();if(db[u]&&db[u].nu){delete db[u];localStorage.setItem(USERS_KEY,JSON.stringify(db))}}
+ function nuClear(n){if(!n)return;nuDrop(n.u);try{if(n.perm!=null)localStorage.setItem('cc_perm_asked',n.perm);else localStorage.removeItem('cc_perm_asked')}catch(e){}localStorage.removeItem(NUK)}
+ window.ccNU={get:nuGet,user:()=>{const n=nuGet();return n&&n.u||null},
+  start(back){try{localStorage.setItem(NUK,JSON.stringify({back,perm:localStorage.getItem('cc_perm_asked'),at:Date.now()}));localStorage.removeItem('cc_perm_asked');localStorage.removeItem(ACTIVE_KEY);sessionStorage.clear()}catch(e){}
+   try{const C=window.Capacitor,A=C&&C.isNativePlatform&&C.isNativePlatform()&&((C.Plugins&&C.Plugins.App)||C.registerPlugin('App'));if(A&&A.exitApp){A.exitApp();setTimeout(()=>location.reload(),1500);return}}catch(e){}location.reload()},
+  exit(){const n=nuGet();nuClear(n);try{if(n&&n.back&&users()[n.back])localStorage.setItem(ACTIVE_KEY,n.back);else localStorage.removeItem(ACTIVE_KEY);sessionStorage.setItem('cc_quiet','1')}catch(e){}location.reload()}};
  let creating=false,busy=false;
  function mode(v){creating=v;$('accountSubmit').textContent=v?'Create account':'Log in';$('accountMode').textContent=v?'Back to login':'Create account';$('accountTitle').textContent=v?'Create your calendar account':'Your Chabad Calendar';$('accountSub').textContent=v?'Choose a username and password. Everything you save is kept in your account.':'Sign in or create an account.';$('accountPass').autocomplete=v?'new-password':'current-password';$('accountPass2').hidden=$('accountPass2L').hidden=!v;$('accountPass2').required=v;$('accountPass2').value='';msg('')}
  $('accountMode').addEventListener('click',()=>mode(!creating));
- function enter(u){localStorage.setItem(ACTIVE_KEY,u);location.reload()}
+ function enter(u){const n=nuGet();if(n&&u!==n.u)nuClear(n);localStorage.setItem(ACTIVE_KEY,u);location.reload()}   // signing in to any other account ends new user mode
  $('accountForm').addEventListener('submit',async e=>{e.preventDefault();if(busy)return;const u=clean($('accountUser').value),p=$('accountPass').value;
   if(!/^[a-z0-9_.-]{3,32}$/.test(u)){msg('Use 3–32 characters: letters, numbers, dot, dash, or underscore.');return}if(p.length<4){msg('Choose a password with at least 4 characters.');return}
   const db=users(),wait=t=>{busy=true;$('accountSubmit').disabled=true;msg(t)},done=()=>{busy=false;$('accountSubmit').disabled=false};
   if(u==='test'){if(p!=='test'){msg('Username or password is incorrect.');return}if(!db[u]){db[u]={passwordHash:hash('test|test'),created:Date.now()};localStorage.setItem(USERS_KEY,JSON.stringify(db));localStorage.setItem('cc_local_tour_done_test','1')}enter(u);return}
   if(creating){if(db[u]){msg('That username already exists on this phone. Log in instead.');return}
    if($('accountPass2').value!==p){msg('The two passwords don’t match. Please type them again.');$('accountPass2').value='';$('accountPass2').focus();return}
+   const nu=nuGet();if(nu){wait('Creating your account…');await new Promise(r=>setTimeout(r,700));done();   // new user mode: a practice account on this phone only
+    if(nu.u&&nu.u!==u)nuDrop(nu.u);const d2=users();d2[u]={passwordHash:hash(u+'|'+p),created:Date.now(),nu:1};localStorage.setItem(USERS_KEY,JSON.stringify(d2));nu.u=u;localStorage.setItem(NUK,JSON.stringify(nu));enter(u);return}
    wait('Creating your account…');const r=await post('new',{u,p});done();
    if(r.s===409){msg('That username is already taken. Please choose another one.');return}
    db[u]={passwordHash:hash(u+'|'+p),created:Date.now()};localStorage.setItem(USERS_KEY,JSON.stringify(db));
    if(r.s===200&&r.j.t)stSet(u,{t:r.j.t,r:r.j.r||0,h:applyAll(u,r.j.d||{})});   // no internet: a phone-only account for now; it is backed up later
    enter(u);return}
   if(db[u]&&db[u].passwordHash===hash(u+'|'+p)){   // known on this phone: works offline; joins the server account if it isn't yet
-   if(!stGet(u).t){wait('Signing in…');await link(u,p);done()}enter(u);return}
+   if(!stGet(u).t&&!db[u].nu){wait('Signing in…');await link(u,p);done()}enter(u);return}
   wait('Signing in…');const r=await post('login',{u,p});done();
   if(r.s===200&&r.j.t){db[u]={passwordHash:hash(u+'|'+p),created:(db[u]&&db[u].created)||Date.now()};localStorage.setItem(USERS_KEY,JSON.stringify(db));
    stSet(u,{t:r.j.t,r:r.j.r||0,h:applyAll(u,r.j.d||{})});enter(u);return}
@@ -1032,6 +1052,7 @@ function ccIOS(){return (/iPhone|iPad|iPod/.test(navigator.userAgent)||/Macintos
  window.ccProfileKey=function(k){const u=localStorage.getItem(ACTIVE_KEY);return u?'cc_profile_'+u+'_'+k:k};
  const active=localStorage.getItem(ACTIVE_KEY),db=users();if(active&&db[active]){$('accountGate').style.display='none';}
  else {localStorage.removeItem(ACTIVE_KEY);$('accountGate').style.display='flex'}
+ {const n=nuGet();if(n){const b=document.createElement('button');b.type='button';b.className='nu-leave';b.textContent='🛠 Leave new user mode'+(n.back?' · back to '+n.back:'');b.onclick=()=>window.ccNU.exit();$('accountForm').appendChild(b)}}
 })();
 </script>
 <script>
@@ -3627,8 +3648,10 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=128;
+const CC_VER=130;
 const CC_LOG=[
+  {v:130,new:['A small green BETA badge in the top-left corner, while the app is in beta.']},
+  {v:129,adm:1,new:['Admin tools → New user: try the app as a brand-new person with a practice account that is never saved.']},
   {v:128,new:['Daily shiurim reminders now start on “Regularly” for new accounts (smart reminders around the time you usually learn). You can change it in ⋯ → Reminders.']},
   {v:127,new:['A new welcome tour: short, and it now shows the siddur, the streak, English for the shiurim, the widget and Shabbos rest. Replay it in ⋯ → Help.','Fixed: the tour could get stuck if you tapped Next quickly, and the phone’s Back button now closes it.']},
  {v:126,adm:1,new:['The app moved to a new web address (justaboredbocher.github.io/CDate). App version 9 opens it.']},
@@ -3859,12 +3882,13 @@ function appSync(){const el=document.getElementById('appSec'),h=document.getElem
 function appFirstRun(){try{if(CC_NATIVE||!ccAndroid||!CC_LOGGED())return;if(localStorage.getItem(AK('cc_app_seen')))return;
  localStorage.setItem(AK('cc_app_seen'),'1');setTimeout(appShow,1400)}catch(e){}}
 appSync();appFirstRun();
+if(window.ccNU&&ccNU.user()&&ccNU.user()===localStorage.getItem('cc_local_active_profile_v1')){const l=document.querySelector('#sh .shp[data-p="home"] .shl'),n=ccNU.get();if(l){const b=document.createElement('button');b.type='button';b.className='nu-leave';b.textContent='🛠 Leave new user mode'+(n&&n.back?' · back to '+n.back:'');b.onclick=()=>ccNU.exit();l.parentNode.insertBefore(b,l)}}
 
 const lo=document.createElement('div');lo.id='loBox';lo.setAttribute('aria-hidden','true');lo.innerHTML='<div class="lo-card" role="alertdialog" aria-modal="true" aria-labelledby="loT"><h2 id="loT">Log out?</h2><p>Your schedule stays saved on this device. Log back in with your password to see it again.</p><div class="lo-b"><button type="button" id="loNo">Stay signed in</button><button type="button" id="loYes">Log out</button></div></div>';document.body.appendChild(lo);
 const loShow=v=>{lo.classList.toggle('on',v);lo.setAttribute('aria-hidden',v?'false':'true');if(v)setTimeout(()=>document.getElementById('loNo').focus(),50)};
 document.getElementById('acctOut')?.addEventListener('click',()=>loShow(true));document.getElementById('loNo').addEventListener('click',()=>loShow(false));lo.addEventListener('click',e=>{if(e.target===lo)loShow(false)});
 /* ===== v89: account backup — sync now and then, and ask people signed in from before to save their account once ===== */
-(function(){const A=window.ccAcct,u=localStorage.getItem('cc_local_active_profile_v1');if(!A||!u||u==='test')return;
+(function(){const A=window.ccAcct,u=localStorage.getItem('cc_local_active_profile_v1');if(!A||!u||u==='test'||(window.ccNU&&ccNU.user()===u))return;
  let last=0,pend=false,touched=false,inF=false;const born=Date.now();
  addEventListener('pointerdown',()=>{touched=true},{capture:true,passive:true});
  const busy=()=>!!document.querySelector('#tg,.ai-backdrop.on,#rdr.on,#sdr.on,.sheet.on,#bkCard,#intro,#newsBox')||document.body.classList.contains('rdo');
@@ -5134,6 +5158,7 @@ aiEl('aiMemoryBtn').addEventListener('click',()=>{const p=aiPrefs(),names=Object
  <div class="qseg" id="ttWhen" style="margin-top:10px"><button type="button" data-w="am">Morning</button><button type="button" data-w="pm">Afternoon</button><button type="button" data-w="night">Night</button></div>
  <button class="btn" type="button" id="ttSdGo" style="width:100%;margin-top:10px">Go there and open the siddur</button><p class="mut" id="ttSdMsg" role="status" style="margin:8px 0 0;font-size:13px"></p>
  <h3 class="admh">Chabad.org English</h3><p class="mut" style="margin:0 0 6px">Downloads today's page on this phone and checks it lines up with the Hebrew.</p><div class="rw" style="flex-wrap:wrap;gap:8px"><button class="btn gh" type="button" id="ttChC">Test Chumash</button><button class="btn gh" type="button" id="ttChX" hidden>Copy page outline</button></div><p class="mut" id="ttChM" role="status" style="margin:8px 0 0;font-size:13px;white-space:pre-wrap"></p>
+ <h3 class="admh">New user</h3><p class="mut" style="margin:0 0 8px">Try the app as someone brand new. The app closes; open it again and you’ll see the permission screen and the sign-in card. Create any account (it stays on this phone only and is never saved to the server), then get the welcome tour. Leave from ⋯ or the sign-in card: the practice account is deleted and you’re signed back in.</p><button class="btn gh" type="button" id="ttNU">Try as a new user</button>
  <h3 class="admh">Animations</h3><div class="rw" style="flex-wrap:wrap;gap:8px"><button class="btn gh" type="button" id="ttPlay">Play sun/moon opening</button><button class="btn gh" type="button" id="ttIntro">Play logo intro</button></div>
  <h3 class="admh">Feature switches</h3><p class="mut" style="margin:0 0 6px">On this phone only.</p><div id="ttFlags" style="display:grid;gap:8px;margin:6px 0 4px"></div>
  ${TEST?'<h3 class="admh">Test account</h3><button class="btn gh" type="button" id="ttReset">Reset test account</button>':''}`;
@@ -5189,6 +5214,7 @@ aiEl('aiMemoryBtn').addEventListener('click',()=>{const p=aiPrefs(),names=Object
  const fl=()=>{try{return JSON.parse(localStorage.getItem('cc_test_flags')||'{}')}catch(e){return{}}},flApply=()=>{const f=fl();for(const[id,,opt]of FLAGS){if(opt)document.documentElement.classList.toggle('tt-on-'+id,f[id]===true);else document.documentElement.classList.toggle('tt-off-'+id,f[id]===false)}};
  box.querySelector('#ttFlags').innerHTML=FLAGS.map(([id,t])=>`<label style="display:flex;align-items:center;gap:10px;margin:0;font-weight:500"><input type="checkbox" data-f="${id}" style="width:20px;height:20px;accent-color:#8c94ef"> ${t}</label>`).join('');
  box.querySelectorAll('[data-f]').forEach(c=>{const opt=(FLAGS.find(x=>x[0]===c.dataset.f)||[])[2];c.checked=opt?fl()[c.dataset.f]===true:fl()[c.dataset.f]!==false;c.onchange=()=>{const f=fl();f[c.dataset.f]=c.checked;localStorage.setItem('cc_test_flags',JSON.stringify(f));flApply();H.sel();if(c.dataset.f==='side'){SKY.last=null;skyTick();render(0)}if(c.dataset.f==='swave'&&GLS.kick)GLS.kick();if(c.dataset.f==='aim'&&SKY.last)skyDomeAim(SKY.last)}});flApply();
+ {const b=box.querySelector('#ttNU');if(b)b.onclick=()=>{if(!b.dataset.arm){b.dataset.arm='1';b.textContent='Tap again to close the app';setTimeout(()=>{delete b.dataset.arm;b.textContent='Try as a new user'},4000);return}window.ccNU&&ccNU.start(localStorage.getItem('cc_local_active_profile_v1'))}}
  box.querySelector('#ttPlay').onclick=()=>{op(false);setTimeout(()=>{const pl=skyPlan(Date.now()),b=document.getElementById('skyBody');if(!pl||!b)return;b.style.opacity='0';SKYA.arm=true;setTimeout(()=>skyRun(pl),60)},450)};
  box.querySelector('#ttIntro').onclick=()=>location.reload();
  if(TEST)box.querySelector('#ttReset').onclick=()=>{if(confirm('Reset the test account? Its plans and progress go back to the starting examples.'))reset()};
