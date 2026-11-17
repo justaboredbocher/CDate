@@ -464,6 +464,21 @@ body:has(#sheet[style*="block"] .cm) #cmBar,body:has(#sheet[style*="block"] .ap)
 .cm .cmset summary{list-style:none;cursor:pointer;padding:10px 4px;font-weight:700;color:var(--mut);font-size:14px;display:flex;align-items:center;gap:6px}
 .cm .cmset summary::-webkit-details-marker{display:none}.cm .cmset summary::after{content:"›";margin-left:auto;font-size:18px;transition:transform .2s}.cm .cmset[open] summary::after{transform:rotate(90deg)}
 .cm .cmcode{margin:14px 4px 0;font-size:13px;color:var(--mut)}.cm .cmcode b{font-family:ui-monospace,monospace;letter-spacing:.1em;color:var(--tx);margin-left:6px;user-select:all}
+.cm.pv .cmhd{align-items:center}.cm .pav{width:52px;height:52px;flex:none;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:22px;color:#0b1022;background:var(--c);box-shadow:0 0 0 3px rgba(255,255,255,.08)}
+.cm.pv h3 em{font-style:normal;font-weight:500;color:var(--mut);font-size:14px}
+.cm .pvt{display:flex;align-items:baseline;gap:10px;margin:2px 4px 10px}.cm .pvt b{font-size:30px;font-weight:700;letter-spacing:-.01em}.cm .pvt span{font-size:14px;font-weight:700}.cm .pvt small{margin-left:auto;color:var(--mut);font-size:12px}
+.cm .pvn{margin:0 4px 10px;font-size:16px;font-weight:600;letter-spacing:.02em;user-select:all}
+.cm .cmact a.btn{text-align:center;text-decoration:none;display:block}
+.cm .pvl{margin-top:14px;padding:2px 4px}.cm .pvr{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;color:var(--tx);font:inherit;font-size:15px;padding:12px 6px;cursor:pointer;border-top:1px solid rgba(255,255,255,.06);text-align:left}.cm .pvr:first-child{border-top:0}.cm .pvr span{width:24px;text-align:center;font-size:17px}.cm .pvr b{font-weight:600}.cm .pvr.red{color:#ff9aa8}
+.cm .pvc{display:flex;flex-wrap:wrap;gap:8px;margin:0 2px}.cm .pvc button{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:var(--tx);border-radius:99px;padding:7px 13px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.cms .pp{cursor:pointer}.cm .mm[data-pk]{cursor:pointer}#fpl .pi{cursor:pointer}
+.cmg{display:flex;align-items:center;gap:12px;padding:13px 14px;margin-bottom:10px;border-radius:20px;cursor:pointer}
+.cmg .av{width:44px;height:44px;flex:none;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:18px;color:#0b1022;background:linear-gradient(135deg,#9db4f5,#6fd6a0)}
+.cmg>span{flex:1;min-width:0}.cmg b{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmg small{display:block;font-size:13px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.cmg .gd{display:inline-block;width:8px;height:8px;border-radius:50%;background:#6fd6a0;margin-right:6px;vertical-align:1px}
+.cmg em{font-style:normal;font-weight:800;font-size:16px;text-align:right;flex:none}.cmg em small{font-weight:600;font-size:11px;margin:0}
+.cmg .def{font-size:10px;font-weight:700;padding:1px 7px;border-radius:99px;background:rgba(157,180,245,.16);color:#9db4f5;margin-left:6px;vertical-align:2px}
 </style></head><body>
 <canvas id="g"></canvas>
 <div id="su"><div class="sucard glass"><span class="lg lg-l" role="img" aria-label="Logo"></span><h1>Shluchim Keep in Touch <span class="beta">Beta</span></h1><p>This app is in beta, so things may change or break while we test it. Pick your name from the list. First time: add your number and choose a code. Already signed up: enter your code.</p><input id="suN" placeholder="Your name" autocomplete="off" autocapitalize="words"><div id="suH"></div><div id="suM"></div><div id="suPW" style="display:none"></div><div id="suPN"></div><div id="suCW" style="display:none"><input id="suC" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="Code"><div class="phh" id="suCH"></div></div><button class="btn p" id="suB" style="width:100%" disabled>Continue</button><button class="sulink" id="suGo">Not in a yeshiva? Sign up here</button><div id="suG" style="display:none"><p class="sgp">Not in a yeshiva? No problem. Add your name, number and city to keep in touch with friends and family.</p><input id="sgN" placeholder="Your name" autocomplete="name" autocapitalize="words"><div id="sgP"></div><div class="cw"><input id="sgC" placeholder="Your city" autocomplete="off"><div id="sgS"></div><div id="sgSel"></div></div><input id="sgK" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="Code (4–8 digits)"><div class="phh" id="sgH">New here? Choose a code. Signed up before? Enter your code.</div><button class="btn p" id="sgB" style="width:100%" disabled>Continue</button><button class="sulink" id="sgBack">← I’m in a yeshiva</button></div></div></div>
@@ -1134,6 +1149,7 @@ $("cards").onclick=e=>{const f=e.target.closest("[data-f]");if(f){if(f.id=="sum"
  const c=e.target.closest(".card");if(c)openFull(c.dataset.k)};
 $("fcard").onclick=e=>{if(e.target.closest("#fback")){closeFull();return}if(Date.now()-swT<350)return;const pr=e.target.closest(".pr");if(!pr)return;const v=saved.find(x=>x.id==pr.dataset.id);if(!v)return;
  if(e.target.closest("[data-star]")){const k=fk(v);if(favs.has(k))favs.delete(k);else favs.add(k);saveF();hap(10);renderCards();return}
+ if(!e.target.closest("a,button")&&v.name){const fk0=focusK;closeFull();pOpen({n:v.name,city:v.city,tz:v.tz,lat:v.lat,lon:v.lon,p:vPhone(v),country:v.country,cm:v.cm||""},()=>{sheet.style.display="none";if(groups().some(g=>g.k==fk0))openFull(fk0)});return}
  const dl=e.target.closest("[data-del]");if(dl){if(dl.dataset.ok!="1"){dl.dataset.ok="1";dl.classList.add("sure");dl.textContent="Delete?";hap(8);setTimeout(()=>{if(dl.isConnected){dl.dataset.ok="";dl.classList.remove("sure");dl.textContent="🗑"}},3500);return}removeSaved(v.id);return}
  if(e.target.closest("[data-bell]"))toggleBell(v)};
 function swipe(root,sel,fn){let s=null;root.addEventListener("pointerdown",e=>{const el=e.target.closest(sel);if(!el||e.target.closest("a,button"))return;s={el,x:e.clientX,y:e.clientY,dx:0,on:0,id:e.pointerId}});
@@ -1202,7 +1218,7 @@ sync()})();
 // neither = SMALL (looks, tweaks, fixes) → only a little round "i" in the corner, version X.Y.Z.
 // adm:1 = admin-only change → counts as a small update in the version number, but NO notification at all (owner). The shown version is worked out from these sizes.
 // apk:N = this needs app version N (a new download); the app then also shows "Update the app".
-const KIT_VER=37,KIT_APK=2;
+const KIT_VER=39,KIT_APK=2;
 const KIT_LOG=[
  {v:1,big:1,t:"Home-screen widgets",d:"See who’s awake without opening the app, with Call and WhatsApp buttons, filters and sorting.",go:"widgets"},
  {v:2,mid:1,t:"Add widgets from inside the app",d:"Menu → Home-screen widgets → Add. No more digging through your phone’s widget list.",go:"widgets",apk:1},
@@ -1234,7 +1250,9 @@ const KIT_LOG=[
  {v:34,t:"Someone in two communities is one saved contact: save them once and they show as saved everywhere"},
  {v:35,big:1,t:"One globe, or one community at a time",d:"The globe shows everyone; tap a community at the top to see only its people. Your list is grouped by community, with “Show everyone” to see all its members. You can choose a community to open the app on."},
  {v:36,mid:1,t:"Add people to a community, delete your own contacts",d:"In a community, tap “＋ Add people” to add someone from your contacts, or create a new contact for them. Contacts you added yourself now have a 🗑 button to delete them (only for you)."},
- {v:37,t:"Clearer community window: add and invite at the top, then the members; everything else under Settings"}
+ {v:37,t:"Clearer community window: add and invite at the top, then the members; everything else under Settings"},
+ {v:38,mid:1,t:"Tap anyone to see their details",d:"Tap a person in your list, a community, or its member list: you see their local time, their number with Call and WhatsApp, and buttons to favourite, save, delete or find them on the globe."},
+ {v:39,mid:1,t:"Communities as one row each",d:"On the Everyone page each community is now a single row, like a group chat, showing who's good to call. Tap it to open that community."}
 ];
 function kitVerStr(b){let M=0,m=0,p=0;const by={};KIT_LOG.forEach(x=>{const l=x.big?3:x.mid?2:1;by[x.v]=Math.max(by[x.v]||0,l)});
  Object.keys(by).map(Number).sort((a,c)=>a-c).forEach(v=>{if(v>b)return;if(by[v]==3){M++;m=0;p=0}else if(by[v]==2){m++;p=0}else p++});return M+"."+m+"."+p}
@@ -1547,7 +1565,7 @@ async function cmOpen(id){sheet._gs=null;let d=CM_DOCS[id]||await cmFetch(id);if
  if(mem.length){h+='<div class="sh">'+(isS?'Joined with the link':'Members')+'</div><div class="cml">'+mem.map(([k,m])=>{const ad=(d.admins||[]).includes(k),own=k==d.owner,me1=k==mine;
    const tag=own?'Creator':ad?'Admin':'',sub=esc((m.c||"").replace(/ ·$/,""))+(m.ad?' · added'+(m.by==mine?' by you':''):''),
    btn=m.ad?(amAdmin||m.by==mine?'<button data-ua="'+k+'">Remove</button>':''):(amAdmin&&!me1&&!own?'<button data-mo="'+k+'" aria-label="More">⋯</button>':'');
-   return'<div class="mm"><i class="av">'+esc((m.n[0]||"?").toUpperCase())+'</i><span><b>'+esc(m.n)+(me1?' <em>(you)</em>':'')+(tag?'<span class="tg">'+tag+'</span>':'')+'</b><small>'+sub+'</small></span>'+btn+'</div>'+
+   return'<div class="mm" data-pk="'+esc(k)+'"><i class="av">'+esc((m.n[0]||"?").toUpperCase())+'</i><span><b>'+esc(m.n)+(me1?' <em>(you)</em>':'')+(tag?'<span class="tg">'+tag+'</span>':'')+'</b><small>'+sub+'</small></span>'+btn+'</div>'+
     (amAdmin&&!me1&&!own&&!m.ad?'<div class="mmo" data-mmo="'+k+'"><button data-ad="'+k+'" data-on="'+(ad?0:1)+'">'+(ad?'Remove admin':'Make admin')+'</button><button data-rm="'+k+'" class="red">Remove from '+esc(d.name)+'</button></div>':'')}).join("")+'</div>'}
  else if(!isS)h+='<div class="note">Nobody here yet. Tap “＋ Add people” or send the invite link.</div>';
  h+='<details class="cmset"><summary>Settings</summary>';
@@ -1565,6 +1583,8 @@ async function cmOpen(id){sheet._gs=null;let d=CM_DOCS[id]||await cmFetch(id);if
  sheet.querySelectorAll("[data-ap]").forEach(b=>b.onclick=()=>act("approve",{who:b.dataset.ap},"Approved"));
  sheet.querySelectorAll("[data-dc]").forEach(b=>b.onclick=()=>act("decline",{who:b.dataset.dc}));
  sheet.querySelectorAll("[data-ad]").forEach(b=>b.onclick=()=>act("admin",{who:b.dataset.ad,on:b.dataset.on=="1"}));
+ sheet.querySelectorAll(".mm[data-pk]").forEach(r=>r.onclick=ev=>{if(ev.target.closest("button"))return;const m=d.members[r.dataset.pk];if(!m)return;const city=(m.c||"").replace(/ ·$/,"")+" · "+d.name,dp=isS?DIRP0.find(y=>y.name==m.n):null;
+  pOpen(dp?{n:dp.name,city:dp.city,tz:dp.tz,lat:dp.lat,lon:dp.lon,p:m.p||"",country:dp.country}:{n:m.n,city,tz:m.tz,lat:+m.la,lon:+m.lo,p:m.p||"",country:d.name,cm:id},()=>cmOpen(id))});
  sheet.querySelectorAll("[data-mo]").forEach(b=>b.onclick=()=>{const o=sheet.querySelector('[data-mmo="'+b.dataset.mo+'"]');if(o){o.classList.toggle("on");hap(6)}});
  {const st=sheet.querySelector(".cmset");if(st&&cmOpen._set)st.open=true;if(st)st.ontoggle=()=>{cmOpen._set=st.open}}
  sheet.querySelectorAll("[data-ua]").forEach(b=>b.onclick=()=>{if(b.dataset.ok!="1"){b.dataset.ok="1";b.textContent="Sure?";return}act("unadd",{who:b.dataset.ua},"Removed from "+d.name)});
@@ -1603,6 +1623,31 @@ function cmAddOpen(id,q0){sheet._gs=null;const nm=cmName(id);
   if(!st){b.disabled=false;b.textContent="Add";toast("Couldn’t add "+x.n+". Check your internet and try again.");return}
   b.textContent=st=="pending"?"Requested":"Added ✓";b.classList.remove("ok");if(st=="pending")toast(x.n+" will be added once an admin approves")};
  $("caX").onclick=$("caC").onclick=()=>cmOpen(id)}
+// owner: "why can't I tap on a specific contact to see their details?" → tapping a person anywhere opens their card:
+// local time + status, number (Call / WhatsApp), favourite, save / delete, remind me, communities they're in, show on the globe.
+function pComms(x){const out=[];try{cmIds().forEach(id=>{if(cmPeople(id).some(y=>y.n==x.n&&baseCity(y.city)==baseCity(x.city)||(digits(x.p).length>=6&&digits(y.p||phoneOf(y.n,y.city))==digits(x.p))))out.push(id)})}catch(e){}return out}
+function pOpen(x,back){sheet._gs=null;const i=savedIdx(x.n,x.city),v=i>=0?saved[i]:null,st=status(x.tz),ph=v?vPhone(v):(x.p||phoneOf(x.n,x.city)||""),dg=digits(ph),k=v?fk(v):"",fav=v&&favs.has(k),cms=pComms(Object.assign({},x,{p:ph}));
+ const isMe=me&&me.match&&x.n==me.match.name&&baseCity(x.city)==baseCity(me.match.city);
+ let h='<div class="cm pv"><div class="cmhd"><i class="pav" style="--c:'+COL[st]+'">'+esc((x.n[0]||"?").toUpperCase())+'</i><div><h3>'+esc(x.n)+(isMe?' <em>(you)</em>':'')+'</h3><p>'+esc(baseCity(x.city))+'</p></div><button class="cmx" id="pvX" aria-label="Close">✕</button></div>';
+ h+='<div class="pvt"><b>'+clock(x.tz)+'</b><span style="color:'+COL[st]+'">● '+LBL[st]+'</span><small>their time</small></div>';
+ h+=dg.length>=6?'<div class="pvn">'+esc(fmtPhone(ph))+'</div><div class="cmact"><a class="btn p" href="tel:+'+dg+'">📞 Call</a><a class="btn" href="https://wa.me/'+dg+'" target="_blank" rel="noopener">💬 WhatsApp</a></div>':'<div class="note" style="margin:0 4px 6px">No number saved yet.</div>';
+ if(!isMe){h+='<div class="cml pvl">';
+  if(v)h+='<button class="pvr" id="pvF"><span>'+(fav?'★':'☆')+'</span><b>'+(fav?'Favourite':'Add to favourites')+'</b></button>';
+  if(v&&st!="day")h+='<button class="pvr" id="pvB"><span>'+(rem[k]?'🔔':'🔕')+'</span><b>'+(rem[k]?'I’ll tell you when they’re up':'Remind me when they’re up')+'</b></button>';
+  h+='<button class="pvr" id="pvG"><span>🌍</span><b>Show on the globe</b></button>';
+  h+=v?'<button class="pvr red" id="pvD"><span>'+(v.own?'🗑':'✕')+'</span><b>'+(v.own?'Delete contact':'Remove from my contacts')+'</b></button>':'<button class="pvr" id="pvS"><span>＋</span><b>Save to my contacts</b></button>';
+  h+='</div>'}
+ if(cms.length)h+='<div class="sh">Communities</div><div class="pvc">'+cms.map(id=>'<button data-pcm="'+esc(id)+'">'+esc(cmName(id))+'</button>').join("")+'</div>';
+ if(v&&v.own)h+='<div class="note">'+(cms.length?'Members of '+esc(cms.map(cmName).join(', '))+' can see them too.':v.cm?'Saved from '+esc(cmName(v.cm))+'.':'Only you can see this contact.')+'</div>';
+ h+='</div>';sheet.innerHTML=h;sheet.style.display="block";sheet.scrollTop=0;hap(8);
+ const again=()=>pOpen(x,back),close=()=>{if(back)back();else sheet.style.display="none"};
+ $("pvX").onclick=close;
+ const F=$("pvF");if(F)F.onclick=()=>{if(favs.has(k))favs.delete(k);else favs.add(k);saveF();hap(10);renderCards();again()};
+ const B=$("pvB");if(B)B.onclick=()=>{toggleBell(v);again()};
+ $("pvG")&&($("pvG").onclick=()=>{sheet.style.display="none";try{closeFull();if(view=="cards")setView("world")}catch(e){}auto=false;fly(+x.lon,+x.lat);zoomT=6});
+ const S=$("pvS");if(S)S.onclick=()=>{const own=!DIRP0.some(y=>y.name==x.n&&y.city==x.city);saved.push(own?{id:Date.now()+Math.random(),name:x.n,city:x.city,country:x.country||"",lat:+x.lat,lon:+x.lon,tz:x.tz,own:1,ph:ph,cm:x.cm||""}:{id:Date.now()+Math.random(),name:x.n,city:x.city,country:x.country||"",lat:+x.lat,lon:+x.lon,tz:x.tz});persist();render();renderCards();commit();hap(10);toast("Saved "+x.n);again()};
+ const D=$("pvD");if(D)D.onclick=()=>{if(D.dataset.ok!="1"){D.dataset.ok="1";D.querySelector("b").textContent="Tap again to "+(v.own?"delete":"remove");hap(8);return}sheet.style.display="none";removeSaved(v.id);if(back)setTimeout(back,50)};
+ sheet.querySelectorAll("[data-pcm]").forEach(b=>b.onclick=()=>cmOpen(b.dataset.pcm))}
 function cmNew(){open(false);sheet._gs=null;sheet.innerHTML='<div class="cm"><h3>Create a community</h3><p>For your family, friends, a class or a group. Everyone in it sees each other on the globe, without saving anyone. You’ll be its admin.</p><input class="ain" id="cmN" maxlength="60" placeholder="Name, e.g. Cohen family" autocapitalize="words"><div class="note">🔒 Members see each other’s name, city and number.</div><div class="btns"><button class="btn" id="cmX">Cancel</button><button class="btn p" id="cmGo" disabled>Create</button></div></div>';sheet.style.display="block";
  const N=$("cmN"),G=$("cmGo");setTimeout(()=>N.focus(),80);N.oninput=()=>G.disabled=!N.value.trim();$("cmX").onclick=()=>sheet.style.display="none";
  G.onclick=async()=>{const info=meInfo();if(!info){toast("Couldn’t find your location.");return}G.disabled=true;const s2=cmSecret();
@@ -1655,7 +1700,7 @@ function cmBar(){const b=$("cmBar");if(!b)return;const ids=me&&me.match?cmIds():
  b.innerHTML='<button data-v=""'+(CM_VIEW?'':' class="on"')+'>Everyone</button>'+ids.map(id=>'<button data-v="'+id+'"'+(CM_VIEW==id?' class="on"':'')+'>'+esc(cmName(id))+'</button>').join("");
  b.querySelectorAll("[data-v]").forEach(x=>x.onclick=()=>{CM_VIEW=x.dataset.v;if(CM_VIEW)CM_OPEN.add(CM_VIEW);hap(8);cmRebuild();try{if(view!="cards"){auto=true;zoomT=1}}catch(e){}})}
 function cmPersonRow(x,id){const i=savedIdx(x.n,x.city),sv=i>=0,v=sv?saved[i]:null,st=status(x.tz),ph=sv?vPhone(v):(x.p||phoneOf(x.n,x.city)),dg=digits(ph),fav=v&&favs.has(fk(v));
- return'<div class="pp"><i class="d" style="background:'+COL[st]+'"></i><span><b>'+(fav?"★ ":"")+esc(x.n)+'</b><small>'+esc(baseCity(x.city))+' · '+clock(x.tz)+' · '+LBL[st]+'</small></span>'+(dg?'<a class="call" href="tel:+'+dg+'">Call</a>':'')+'<button class="sv" data-cs="'+esc(id)+'" data-n="'+esc(x.n)+'" data-c="'+esc(x.city)+'">'+(sv?'Saved ✓':'Save')+'</button></div>'}
+ return'<div class="pp" data-pn="'+esc(x.n)+'" data-pc="'+esc(x.city)+'" data-pid="'+esc(id)+'"><i class="d" style="background:'+COL[st]+'"></i><span><b>'+(fav?"★ ":"")+esc(x.n)+'</b><small>'+esc(baseCity(x.city))+' · '+clock(x.tz)+' · '+LBL[st]+'</small></span>'+(dg?'<a class="call" href="tel:+'+dg+'">Call</a>':'')+'<button class="sv" data-cs="'+esc(id)+'" data-n="'+esc(x.n)+'" data-c="'+esc(x.city)+'">'+(sv?'Saved ✓':'Save')+'</button></div>'}
 function cmSection(id){const ppl=cmPeople(id),ord={day:0,gray:1,night:2},sort=(a,b)=>ord[status(a.tz)]-ord[status(b.tz)]||callRank(a.tz)-callRank(b.tz)||a.n.localeCompare(b.n);
  const mineS=ppl.filter(x=>savedIdx(x.n,x.city)>=0).sort(sort),open=CM_OPEN.has(id),def=lsGet("kit_cm_def")==id;
  let h='<div class="cms"><div class="hd" data-cmo="'+esc(id)+'"><i class="av" style="font-style:normal">'+esc((cmName(id)[0]||"?").toUpperCase())+'</i><span><b>'+esc(cmName(id))+(def?'<span class="def">Default</span>':'')+'</b><small>'+mineS.length+' saved · '+ppl.length+' in the community</small></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5"><path d="m9 6 6 6-6 6"/></svg></div>';
@@ -1665,12 +1710,18 @@ function cmSection(id){const ppl=cmPeople(id),ord={day:0,gray:1,night:2},sort=(a
 // saved contacts that belong to one of my communities (they're listed in that community's section, not under "My contacts")
 function cmSavedSet(){if(!me||!me.match||CM_VIEW)return null;const ids=cmIds();if(!ids.length)return null;const set=new Set();
  ids.forEach(id=>cmPeople(id).forEach(x=>{const i=savedIdx(x.n,x.city);if(i>=0)set.add(saved[i])}));return set}
+function cmRow(id){const ppl=cmPeople(id),up=ppl.filter(x=>status(x.tz)=="day").sort((a,b)=>callRank(a.tz)-callRank(b.tz)),sv=ppl.filter(x=>savedIdx(x.n,x.city)>=0).length,def=lsGet("kit_cm_def")==id;
+ let sub;if(!ppl.length)sub="Nobody here yet";else if(up.length){const nm=up.slice(0,3).map(x=>x.n.split(" ")[0]);sub='<i class="gd"></i>'+up.length+' good to call · '+esc(nm.join(", "))+(up.length>3?"…":"")}
+ else{let nx=null,nm=1e9;ppl.forEach(x=>{const st=status(x.tz);if(st=="day")return;const t=lt(x.tz).min;let d=510-t;if(d<0)d+=1440;if(d<nm){nm=d;nx=x}});sub=nx?'Nobody up now · '+esc(nx.n.split(" ")[0])+' in '+(nm<60?nm+' min':Math.round(nm/60)+' h'):'Nobody up now'}
+ return'<div class="cmg glass" data-cmv="'+esc(id)+'"><i class="av">'+esc((cmName(id)[0]||"?").toUpperCase())+'</i><span><b>'+esc(cmName(id))+(def?'<span class="def">Default</span>':'')+'</b><small>'+sub+'</small></span><em>'+ppl.length+'<small>'+(sv?sv+' saved':'people')+'</small></em><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;flex:none"><path d="m9 6 6 6-6 6"/></svg></div>'}
 function cmCardsWrap(h){const ids=me&&me.match?cmIds():[];if(!ids.length)return h;
  if(CM_VIEW){const i=h.indexOf('<div class="card');const top=i>0?h.slice(0,i):h;return top.replace(/<div class="empty">[^<]*<\/div>/,"")+cmSection(CM_VIEW)}
  const i=h.indexOf('<div class="card');h=i>0?h.slice(0,i)+'<div class="cmh" style="margin-top:6px">My contacts</div>'+h.slice(i):h.replace(/<div class="empty">[^<]*<\/div>/,"");
- return h+'<div class="cmh">Communities</div>'+ids.map(cmSection).join("")}
-$("cards").addEventListener("click",e=>{const o=e.target.closest("[data-cmo]");if(o){e.stopImmediatePropagation();cmOpen(o.dataset.cmo);return}
+ return h+'<div class="cmh">Communities</div>'+ids.map(cmRow).join("")}
+$("cards").addEventListener("click",e=>{const g=e.target.closest("[data-cmv]");if(g){e.stopImmediatePropagation();CM_VIEW=g.dataset.cmv;hap(8);cmRebuild();$("cards").scrollTop=0;return}
+ const o=e.target.closest("[data-cmo]");if(o){e.stopImmediatePropagation();cmOpen(o.dataset.cmo);return}
  const x=e.target.closest("[data-cme]");if(x){e.stopImmediatePropagation();const id=x.dataset.cme;if(CM_OPEN.has(id))CM_OPEN.delete(id);else CM_OPEN.add(id);hap(8);renderCards();return}
+ const pr=e.target.closest(".pp[data-pn]");if(pr&&!e.target.closest("a,button")){e.stopImmediatePropagation();const x=cmPeople(pr.dataset.pid).find(p=>p.n==pr.dataset.pn&&p.city==pr.dataset.pc);if(x)pOpen({n:x.n,city:x.city,tz:x.tz,lat:x.lat,lon:x.lon,p:x.p||"",country:x.country,cm:x.dir?"":pr.dataset.pid});return}
  const sv=e.target.closest("[data-cs]");if(sv){e.stopImmediatePropagation();const n=sv.dataset.n,c=sv.dataset.c,i=savedIdx(n,c);
   if(i>=0){saved.splice(i,1)}else{const x=cmPeople(sv.dataset.cs).find(p=>p.n==n&&p.city==c);if(!x)return;
    const v=x.dir?{id:Date.now()+Math.random(),name:x.n,city:x.city,country:x.country,lat:x.lat,lon:x.lon,tz:x.tz}:{id:Date.now()+Math.random(),name:x.n,city:x.city,country:x.country,lat:x.lat,lon:x.lon,tz:x.tz,own:1,ph:x.p||"",cm:sv.dataset.cs};saved.push(v)}
