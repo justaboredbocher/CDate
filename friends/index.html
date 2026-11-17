@@ -1227,7 +1227,7 @@ sync()})();
 // neither = SMALL (looks, tweaks, fixes) → only a little round "i" in the corner, version X.Y.Z.
 // adm:1 = admin-only change → counts as a small update in the version number, but NO notification at all (owner). The shown version is worked out from these sizes.
 // apk:N = this needs app version N (a new download); the app then also shows "Update the app".
-const KIT_VER=47,KIT_APK=3;
+const KIT_VER=48,KIT_APK=3;
 const KIT_LOG=[
  {v:1,big:1,t:"Home-screen widgets",d:"See who’s awake without opening the app, with Call and WhatsApp buttons, filters and sorting.",go:"widgets"},
  {v:2,mid:1,t:"Add widgets from inside the app",d:"Menu → Home-screen widgets → Add. No more digging through your phone’s widget list.",go:"widgets",apk:1},
@@ -1701,7 +1701,12 @@ function acctMem(){try{saved=JSON.parse(localStorage.getItem("sc_saved")||"[]")}
  try{favs=new Set(JSON.parse(lsGet("sc_favs")||"[]"))}catch(e){favs=new Set()}try{rem=JSON.parse(lsGet("sc_rem")||"{}")}catch(e){rem={}}
  try{recent=JSON.parse(localStorage.getItem("sc_recent")||"[]")}catch(e){recent=[]}
  CM_DOCS={};CM_VIEW=lsGet("kit_cm_def")||"";CM_OPEN=new Set();if(CM_VIEW)CM_OPEN.add(CM_VIEW);try{PREP.t=0}catch(e){}}
-function acctStash(m){const k=acctSlug(m);const o=acctTake();if(k)lsSet("kit_vault_"+k,JSON.stringify(o))}
+// never overwrite a vault that is already there: merge (saved people / communities joined, other keys kept)
+function vaultPut(key,o){let old=null;try{old=JSON.parse(lsGet(key)||"null")}catch(e){}if(old){const J=(x,d)=>{try{return JSON.parse(x||d)}catch(e){return JSON.parse(d)}};
+  const sv=J(old.sc_saved,"[]");J(o.sc_saved,"[]").forEach(v=>{if(!sv.some(x=>x.name==v.name&&x.city==v.city))sv.push(v)});
+  const cm=J(old.kit_comms,"[]");J(o.kit_comms,"[]").forEach(e=>{if(!cm.some(x=>x.id==e.id))cm.push(e)});
+  o=Object.assign({},old,o);if(sv.length)o.sc_saved=JSON.stringify(sv);if(cm.length)o.kit_comms=JSON.stringify(cm)}lsSet(key,JSON.stringify(o))}
+function acctStash(m){const k=acctSlug(m);const o=acctTake();if(k)vaultPut("kit_vault_"+k,o)}
 async function acctOwns(o){let L=[];try{L=JSON.parse(o.kit_comms||"[]")}catch(e){}L=L.filter(e=>e&&e.s&&!e.sj);const C=L.filter(e=>e.id!="shluchim"),T=C.length?C:L;if(!T.length)return undefined; // nothing to check: it's whoever is signed in
  for(const e of T){try{const r=await cmPost("status",{id:e.id,fk:cmFk(),s:e.s});if(r.status=="member"||r.status=="pending")return true}catch(x){return null}}return false}
 async function acctClaimLegacy(){const lg=lsGet("kit_vault_legacy");if(!lg||!me||!me.match)return;let o;try{o=JSON.parse(lg)}catch(e){return}
@@ -1711,20 +1716,20 @@ function acctLoad(){const k=acctSlug(me),v=lsGet("kit_vault_"+k);acctTake();if(v
  try{cmRebuild();cmMenu()}catch(e){}setTimeout(acctRecover,600)}
 (async function acctMigrate(){if(lsGet("kit_vault1")=="1"){if(me&&me.match)setTimeout(acctClaimLegacy,2500);return}
  const has=ACCT_KEYS.some(x=>x!="sc_tour"&&lsGet(x)!=null);if(!has){lsSet("kit_vault1","1");return}
- if(!me||!me.match){lsSet("kit_vault_legacy",JSON.stringify(acctTake()));lsSet("kit_vault1","1");acctMem();return}
+ if(!me||!me.match){vaultPut("kit_vault_legacy",acctTake());lsSet("kit_vault1","1");acctMem();return}
  const o={};ACCT_KEYS.forEach(x=>{const v=lsGet(x);if(v!=null)o[x]=v});const own=await acctOwns(o);if(own===null)return; // offline: try next time
- if(own===false){lsSet("kit_vault_legacy",JSON.stringify(acctTake()));acctMem();cmRebuild();cmMenu();renderCards()}
+ if(own===false){vaultPut("kit_vault_legacy",acctTake());acctMem();cmRebuild();cmMenu();renderCards()}
  lsSet("kit_vault1","1")})();
 
 // owner: "I just re-logged in and all my communities are gone" — the switch could file this account's things under another
 // account's vault (or the legacy one). On every sign-in / opening: look through every vault on the phone, ask the server which
 // of their communities really belong to the signed-in account (comm/status with its secret) and bring those back. If ALL of a
 // vault's communities are this account's, that vault was really this account's data: its saved people/favourites come back too.
-async function acctRecover(){if(!me||!me.match||acctRecover.busy)return;acctRecover.busy=1;let got=0;
+async function acctRecover(){if(!me||!me.match)return;if(acctRecover.busy){acctRecover.again=1;return}acctRecover.busy=1;acctRecover.again=0;let got=0;
  try{const mine=acctSlug(me),fkm=cmFk();
   for(const k of Object.keys(localStorage)){if(!k.startsWith("kit_vault_")||k=="kit_vault_"+mine)continue;let o;try{o=JSON.parse(lsGet(k))}catch(e){continue}
    let L=[];try{L=JSON.parse(o.kit_comms||"[]")}catch(e){}const cand=L.filter(e=>e&&e.s&&!e.sj);if(!cand.length)continue;
-   const own=[];for(const e of cand){try{const r=await cmPost("status",{id:e.id,fk:fkm,s:e.s});if(r.status=="member"||r.status=="pending")own.push(e)}catch(x){acctRecover.busy=0;return}}
+   const own=[];for(const e of cand){try{const r=await cmPost("status",{id:e.id,fk:fkm,s:e.s});if(r.status=="member"||r.status=="pending")own.push(e)}catch(x){acctRecover.busy=0;setTimeout(acctRecover,30000);return}}
    if(!own.length)continue;const cur=cmList();own.forEach(e=>{if(!cur.some(x=>x.id==e.id)){cur.push(e);got++}else{const x=cur.find(y=>y.id==e.id);if(x.sj||x.st!="member"){Object.assign(x,e);delete x.sj;got++}}});cmSave(cur);
    if(own.length==cand.length){
     try{const a=JSON.parse(lsGet("sc_saved")||"[]"),b=JSON.parse(o.sc_saved||"[]");b.forEach(v=>{if(!a.some(x=>x.name==v.name&&x.city==v.city))a.push(v)});lsSet("sc_saved",JSON.stringify(a))}catch(e){}
@@ -1733,7 +1738,7 @@ async function acctRecover(){if(!me||!me.match||acctRecover.busy)return;acctReco
     if(o.kit_cm_def&&!lsGet("kit_cm_def"))lsSet("kit_cm_def",o.kit_cm_def);if(o.sc_tour)lsSet("sc_tour",o.sc_tour);
     try{localStorage.removeItem(k)}catch(e){}}
    else{o.kit_comms=JSON.stringify(L.filter(e=>!own.includes(e)));lsSet(k,JSON.stringify(o))}}
-  if(got){acctMem();cmRebuild();cmMenu();renderCards();cmRefresh();toast("Your communities are back")}}catch(e){}acctRecover.busy=0}
+  if(got){acctMem();cmRebuild();cmMenu();renderCards();cmRefresh();toast("Your communities are back")}}catch(e){}acctRecover.busy=0;if(acctRecover.again)setTimeout(acctRecover,100)}
 setTimeout(acctRecover,3000);
 function cmNew(){open(false);sheet._gs=null;sheet.innerHTML='<div class="cm"><h3>Create a community</h3><p>For your family, friends, a class or a group. Everyone in it sees each other on the globe, without saving anyone. You’ll be its admin.</p><input class="ain" id="cmN" maxlength="60" placeholder="Name, e.g. Cohen family" autocapitalize="words"><div class="note">🔒 Members see each other’s name, city and number.</div><div class="btns"><button class="btn" id="cmX">Cancel</button><button class="btn p" id="cmGo" disabled>Create</button></div></div>';sheet.style.display="block";
  const N=$("cmN"),G=$("cmGo");setTimeout(()=>N.focus(),80);N.oninput=()=>G.disabled=!N.value.trim();$("cmX").onclick=()=>sheet.style.display="none";
