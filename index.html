@@ -3627,8 +3627,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=126;
+const CC_VER=127;
 const CC_LOG=[
+  {v:127,new:['A new welcome tour: short, and it now shows the siddur, the streak, English for the shiurim, the widget and Shabbos rest. Replay it in ⋯ → Help.','Fixed: the tour could get stuck if you tapped Next quickly, and the phone’s Back button now closes it.']},
  {v:126,adm:1,new:['The app moved to a new web address (justaboredbocher.github.io/CDate). App version 9 opens it.']},
  {v:125,new:['Uses less battery: when you leave the app open without touching it, the floating pieces hold still after 20 seconds and the assistant settles down; the hidden assistant no longer moves in the background.','Opens and changes days a little faster (less redrawing of the water letters and the sky).']},
  {v:124,new:['No opening screen any more: the app opens straight away.','While the Hayom Yom or a shiur loads, the assistant’s little black silhouette pulses instead of the old logo.']},
@@ -3803,7 +3804,7 @@ function ccNewsBar(items){let o=document.getElementById('newsBar');if(o)o.remove
  const up=()=>{if(!drag)return;drag=false;if(Math.abs(dx)>70)bye(dx>0?innerWidth:-innerWidth,0);else if(dy<-40)bye(0,-120);else{o.style.transition='transform .25s ease,opacity .25s';o.style.transform='';o.style.opacity=''}setTimeout(()=>{o._sw=false},0)};
  o.addEventListener('pointerup',up);o.addEventListener('pointercancel',up)}
 // First-run guided tour (see ccTourStart). Also hooks up profile name / log out.
-(function(){const u=localStorage.getItem('cc_local_active_profile_v1');if(!u)return;const name=document.getElementById('profileName');if(name)name.textContent=u;const gate=document.getElementById('accountGate');if(gate)gate.style.display='none';const key='cc_local_tour_done_'+u,sv='cc_seen_ver_'+u;function waitForIntro(){if(document.getElementById('intro')){setTimeout(waitForIntro,180);return}if(!localStorage.getItem(key)){if(!ccIsApp()&&!ccIOS())return;try{localStorage.setItem(sv,String(CC_VER))}catch(e){}const demoDay=findDemoDay();if(demoDay&&+demoDay!==+t0){window.tourDemoDay=demoDay;sel=demoDay;upd()}setTimeout(()=>ccTourStart(key),1200)}else ccWhatsNew(sv)}waitForIntro();
+(function(){const u=localStorage.getItem('cc_local_active_profile_v1');if(!u)return;const name=document.getElementById('profileName');if(name)name.textContent=u;const gate=document.getElementById('accountGate');if(gate)gate.style.display='none';const key='cc_local_tour_done_'+u,sv='cc_seen_ver_'+u;function waitForIntro(){if(document.getElementById('intro')){setTimeout(waitForIntro,180);return}if(document.documentElement.classList.contains('cc-shab')){setTimeout(waitForIntro,5000);return}if(!localStorage.getItem(key)){if(!ccIsApp()&&!ccIOS())return;try{localStorage.setItem(sv,String(CC_VER))}catch(e){}setTimeout(()=>ccTourStart(key),1200)}else ccWhatsNew(sv)}waitForIntro();
 const rp=document.getElementById('tourReplay');if(rp)rp.addEventListener('click',()=>{op(false);setTimeout(()=>ccTourStart(key,true),450)});
 
 /* ===== The native app, controlled only through the web app =====
@@ -3909,29 +3910,39 @@ function ccTourStart(key,replay,which){
  root.innerHTML='<svg class="tg-svg" id="tgSvg" aria-hidden="true"><path id="tgDim" fill="rgba(7,8,20,.68)" fill-rule="evenodd"></path><rect id="tgRing" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2"></rect></svg><div class="tg-card" id="tgCard" role="dialog" aria-live="polite" aria-labelledby="tgT"><div class="tg-bar"><i id="tgBar"></i></div><div class="tg-top"><span id="tgN"></span><button class="tg-skip" id="tgSkip" type="button">Skip tour</button></div><h2 id="tgT"></h2><p id="tgP"></p><button class="tg-next" id="tgNext" type="button"></button></div>';
  document.body.appendChild(root);document.documentElement.classList.add('tour-on');
  const dim=root.querySelector('#tgDim'),ring=root.querySelector('#tgRing'),card=root.querySelector('#tgCard');let cardH=0,lastKey='',lastCard='',radCache=new WeakMap();
- let cur=null,tgt=null,run=0,idx=-1,alive=true,raf=0,last=0,cardY=null,cardTgt=0,busy=false;
+ let popped=false,cur=null,tgt=null,run=0,idx=-1,alive=true,raf=0,last=0,cardY=null,cardTgt=0,busy=false;
  const sleep=(ms,t)=>new Promise((res,rej)=>setTimeout(()=>t===run?res():rej('x'),reduce?Math.min(ms,120):ms));
  const unionRect=els=>{let r=null;for(const e of els){if(!e)continue;const b=e.getBoundingClientRect();if(!b.width&&!b.height)continue;r=r?{l:Math.min(r.l,b.left),t:Math.min(r.t,b.top),r:Math.max(r.r,b.right),b:Math.max(r.b,b.bottom)}:{l:b.left,t:b.top,r:b.right,b:b.bottom}}return r};
  const radiusOf=e=>{try{return parseFloat(getComputedStyle(e).borderTopLeftRadius)||12}catch(_){return 12}};
  const typeInto=async(el,text,t)=>{el.value='';for(const ch of text){el.value+=ch;el.dispatchEvent(new Event('input',{bubbles:true}));await sleep(26+Math.random()*34,t)}};
  const scrollSmooth=y=>scrollTo({top:y,behavior:reduce?'auto':'smooth'});
 
- const firstShiur=()=>q('#sd .ck');
+ const firstShiur=()=>q('#sd .ck[data-k]');let base=null,demo=null;
+ const toEl=(el,off)=>{if(el)scrollSmooth(Math.max(0,el.getBoundingClientRect().top+scrollY-off))};
+ const aiReset=()=>{try{aiEl('aiPreview').classList.remove('show');aiEl('aiInput').value='';aiSetStatus('');aiClose()}catch(e){}};
  const pressEl=async(el,t)=>{if(el){el.classList.add('tg-press');await sleep(360,t);el.classList.remove('tg-press')}};
  const SETS={
   onboard:[
-   {t:'Welcome',p:'Your Chabad calendar — Hebrew dates under a living sky, today’s learning and holidays, and a planner you just talk to. Swipe, or tap the week strip, to move between days. Let’s set it up.',els:()=>[q('#hdr')],pad:6,enter:async()=>{scrollTo(0,0)}},
-   {t:'Set your location',p:'Zmanim, candle-lighting and sunset are all worked out for where you are. Tap “Detect my location,” or type your city — then Next.',els:()=>[q('#locNow'),q('#ul'),q('#cs'),q('#csb')],pad:12,interactive:true,
+   {t:'Welcome',p:'Your Chabad calendar: the Hebrew date under a live sky that follows the real sun and moon. Swipe left or right, or tap a day in the week strip, to change days. Let’s set it up.',els:()=>[q('#hdr .wk')||q('#hdr')],pad:10,
+    enter:async t=>{scrollTo(0,0);base=sel;await sleep(1500,t);pick(ad(base,1));H.sel();await sleep(1300,t);pick(base)},leave:()=>{if(base&&+sel!==+base){pick(base)}}},
+   {t:'Set your location',p:'Zmanim, candle lighting and Shabbos times are worked out for where you are. Tap “Detect my location” or type your city, then Next.',els:()=>[q('#locNow'),q('#ul'),q('#cs'),q('#csb')],pad:12,interactive:true,
     enter:async t=>{shGo('loc',0,1);op(true);await sleep(480,t);const l=q('#ul');l&&l.scrollIntoView({block:'center',behavior:reduce?'auto':'smooth'})},leave:()=>op(false)},
-   {t:'Everything for today',p:'Scroll down for holidays and your plans, Hayom Yom, today’s learning (Chitas & Rambam), and the zmanim for your location.',els:()=>[q('#hint')],pad:8,round:true,
-    enter:async t=>{await sleep(400,t);const sd=q('#sd');if(sd)scrollSmooth(Math.max(0,sd.getBoundingClientRect().top+scrollY-110));await sleep(900,t)},leave:()=>scrollTo(0,0)},
-   {t:'Learn in one tap',p:'Tap a learning row to read it in Hebrew. Reach the end and leave — it checks off by itself. Or tap the circle to check it without opening.',els:()=>[firstShiur()||q('#sd')],pad:8,skip:()=>!firstShiur(),
-    enter:async t=>{const sd=q('#sd');if(sd)scrollSmooth(Math.max(0,sd.getBoundingClientRect().top+scrollY-110));await sleep(600,t)},leave:()=>scrollTo(0,0)},
-   {t:'Just ask',p:'Tap + and say it in plain words — “chavrusa with Adam every night at 8, remind me 2 hours before.” It sets the day, time and reminders; you confirm before anything saves.',els:()=>[aiEl('aiInput'),aiEl('aiPlan')],pad:10,top:true,
-    enter:async t=>{const b=aiEl('aiBackdrop');b.classList.add('on');b.setAttribute('aria-hidden','false');await sleep(800,t);await typeInto(aiEl('aiInput'),'Chavrusa with Adam every night at 8pm, remind me 2 hours before',t);await sleep(500,t);const go=aiEl('aiPlan');await pressEl(go,t);go.click();await sleep(2400,t)},
-    leave:()=>{try{const no=aiEl('aiNo');if(no&&aiEl('aiPreview').offsetParent)no.click()}catch(e){}aiEl('aiInput').value='';aiSetStatus('');aiClose()}},
-   {t:'Never miss it',p:'Turn on reminders in ⋯ → Reminders. Install the phone app (⋯ → App) and they ring even with no internet or VPN.',els:()=>[q('.dock #mn')],pad:8,enter:async()=>{scrollSmooth(0)}},
-   {t:'You’re all set',p:'Change your location, turn on reminders, or replay this tour anytime in ⋯ → Help.',els:()=>null,last:true,enter:async()=>{scrollTo({top:0,behavior:'auto'})}}
+   {t:'Your day',p:()=>{demo=null;try{if((info(t0).ev||[]).length<2)for(let i=1;i<40;i++){const d=ad(t0,i);if((info(d).ev||[]).length>=2){demo=d;break}}}catch(e){}
+     return (demo?'Here’s '+demo.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})+' as an example. ':'')+'Under the date: the day’s holidays and what to do for them, your own plans, Hayom Yom, what’s coming up, and the zmanim.'},
+    els:()=>[q('#p'),q('#hy')],pad:8,
+    enter:async t=>{base=sel;if(demo){pick(demo)}await sleep(250,t);toEl(q('#top'),70);await sleep(700,t)},leave:()=>{if(demo&&base){pick(base)}demo=null;scrollTo(0,0)}},
+   {t:'Learn in one tap',p:'Tap a shiur to read it, in Hebrew or English. Read to the end and it checks itself off; or tap the circle. Finish all four each day to build your streak.',els:()=>[q('#stk'),firstShiur()||q('#sd')],pad:8,
+    enter:async t=>{toEl(q('#sd'),70);await sleep(700,t)},leave:()=>scrollTo(0,0)},
+   {t:'Siddur and more',p:'Today jumps back to today, Month shows the whole month. Siddur opens on the tefillah for right now, with only what’s said today. ⋯ has your settings.',els:()=>[q('.dock')],pad:6,
+    enter:async t=>{scrollSmooth(0);await sleep(700,t);for(const id of['#td','#mo','.dock #sd','.dock #mn']){await pressEl(q(id),t);await sleep(160,t)}}},
+   {t:'Just ask',p:'Tap the little character and say it in plain words. The assistant sets the day, time and reminders, and nothing saves until you say yes.',els:()=>[aiEl('aiInput'),aiEl('aiPlan')],pad:10,top:true,
+    enter:async t=>{await pressEl(q('#aiFab'),t);const b=aiEl('aiBackdrop');b.classList.add('on');b.setAttribute('aria-hidden','false');await sleep(800,t);await typeInto(aiEl('aiInput'),'Chavrusa with Adam every night at 8pm, remind me 2 hours before',t);await sleep(450,t);const go=aiEl('aiPlan');await pressEl(go,t);go.click();
+     for(let i=0;i<30&&!aiEl('aiPreview').classList.contains('show');i++)await sleep(100,t);if(aiEl('aiPreview').classList.contains('show')){await sleep(250,t);spotOverride=()=>[aiEl('aiPreview')]}},
+    leave:()=>{spotOverride=null;aiReset();setTimeout(()=>{if(!aiEl('aiBackdrop').classList.contains('on'))aiReset()},2500)}},
+   {t:'Never miss it',p:()=>ccIsApp()?'Turn on Reminders here; they ring on time even with no internet or VPN. Under App you can add a home-screen widget with the date, zmanim and your plans.':ccIOS()?'Turn on Reminders here. Tip: in Safari tap Share, then “Add to Home Screen”, to keep the calendar one tap away.':'Turn on Reminders here, and get the phone app under App so they ring even with no internet.',
+    els:()=>[q('#rmOpen'),q('#sh .shr[data-go="app"]')],pad:6,
+    enter:async t=>{shGo('home',0,1);op(true);await sleep(520,t)},leave:()=>op(false)},
+   {t:'You’re all set',p:'Your account is saved online, so everything comes back on a new phone. On Shabbos and Yom Tov the app rests until it’s over. Replay this tour anytime in ⋯ → Help.',els:()=>null,last:true,enter:async()=>{scrollTo({top:0,behavior:'auto'})}}
   ],
   app:[
    {t:'The phone app',p:'A small app that adds alarms which ring even without a VPN — and soon a home-screen widget. Everything is still controlled right here in the calendar.',els:()=>[q('.dock #mn')],pad:8,enter:async()=>{scrollTo(0,0)}},
@@ -3967,19 +3978,22 @@ function ccTourStart(key,replay,which){
    let s=steps[n];while(s&&s.skip&&s.skip()){n++;s=steps[n]}if(!s)return finish();
    card.classList.add('swap');await new Promise(r=>setTimeout(r,reduce?0:170));if(t!==run)return;
    idx=n;document.getElementById('tg').classList.toggle('pass',!!s.interactive);const L=live(),pos=L.indexOf(s)+1;
-   q('#tgN').textContent=pos+' of '+L.length;cardH=0;q('#tgBar').style.width=(pos/L.length*100)+'%';q('#tgT').textContent=s.t;q('#tgP').textContent=s.p;
+   q('#tgN').textContent=pos+' of '+L.length;cardH=0;q('#tgBar').style.width=(pos/L.length*100)+'%';q('#tgT').textContent=s.t;q('#tgP').textContent=typeof s.p==='function'?s.p():s.p;
    const nx=q('#tgNext');nx.textContent=s.last?'Start using the calendar':'Next';q('#tgSkip').hidden=!!s.last;
    card.classList.toggle('center',!!s.last);void card.offsetWidth;cardH=card.offsetHeight;card.classList.remove('swap');busy=false;
    if(s.enter){try{await s.enter(t)}catch(e){if(e!=='x')console.error(e)}}
   }catch(e){if(e!=='x')console.error(e)}finally{if(t===run)busy=false}}
  function finish(){if(!alive)return;alive=false;run++;try{const o=steps[idx];o&&o.leave&&o.leave()}catch(e){}
   try{localStorage.setItem(key,'1')}catch(e){}
-  root.classList.add('out');cancelAnimationFrame(raf);setTimeout(()=>{document.documentElement.classList.remove('tour-on');root.remove();if(window.tourDemoDay){window.tourDemoDay=null;sel=t0;upd()}scrollTo({top:0,behavior:reduce?'auto':'smooth'})},reduce?0:380)}
- q('#tgNext').addEventListener('click',()=>{H.tap();if(steps[idx].last)finish();else{run++;busy=false;go(idx+1)}});
+  try{if(!popped&&history.state&&history.state.tg)history.back()}catch(e){}spotOverride=null;
+  root.classList.add('out');cancelAnimationFrame(raf);setTimeout(()=>{document.documentElement.classList.remove('tour-on');root.remove();scrollTo({top:0,behavior:reduce?'auto':'smooth'})},reduce?0:380)}
+ q('#tgNext').addEventListener('click',()=>{if(busy||!alive)return;H.tap();if(steps[idx].last)finish();else{run++;go(idx+1)}});
  q('#tgSkip').addEventListener('click',()=>{H.tap();finish()});
  addEventListener('keydown',function k(e){if(!alive){removeEventListener('keydown',k);return}if(e.key==='Escape')finish();else if(e.key==='ArrowRight'||e.key==='Enter'){e.preventDefault();q('#tgNext').click()}},true);
  requestAnimationFrame(t0=>{last=t0;raf=requestAnimationFrame(frame)});
- root.addEventListener('wheel',e=>e.preventDefault(),{passive:false});root.classList.add('in');go(0,true)}
+ root.addEventListener('wheel',e=>e.preventDefault(),{passive:false});
+ try{history.pushState({tg:1},'')}catch(e){}addEventListener('popstate',function pb(){removeEventListener('popstate',pb);if(alive){popped=true;finish()}});
+ root.classList.add('in');go(0,true)}
 
 function aiPrefs(){try{return JSON.parse(localStorage.getItem(AK(AI_PREF_KEY))||'{}')}catch(e){return {}}}
 function aiSavePrefs(p){try{localStorage.setItem(AK(AI_PREF_KEY),JSON.stringify(p))}catch(e){}}
