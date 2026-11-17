@@ -3142,8 +3142,8 @@ function stsOpen(){STS_F=undefined;let b=$('#sts');
 document.addEventListener('click',e=>{if(e.target.closest('#stk')){H.tap();stsOpen()}});
 
 /* ---------- Reminders ---------- */
-const NDEF={on:false,quiet:true,cand:true,candLead:30,omer:true,hanu:true,fast:true,spec:true,specAll:false,morn:'08:00',prep:true,learn:false,learnAt:'20:00',mine:true};
-const nCfg=()=>{const c=Object.assign({},NDEF,ST('cc_notif',{}));if(!['never','rarely','regular'].includes(c.learnLvl))c.learnLvl=c.learn?'rarely':'never';c.learn=c.learnLvl!=='never';return c};
+const NDEF={on:false,quiet:true,cand:true,candLead:30,omer:true,hanu:true,fast:true,spec:true,specAll:false,morn:'08:00',prep:true,learn:true,learnLvl:'regular',learnAt:'20:00',mine:true};
+const nCfg=()=>{const st=ST('cc_notif',{}),c=Object.assign({},NDEF,st);/* default = Regularly (owner, v128); settings saved before levels existed keep their old choice */if(!['never','rarely','regular'].includes(st.learnLvl))c.learnLvl='learn' in st?(st.learn?'rarely':'never'):'regular';c.learn=c.learnLvl!=='never';return c};
 /* Daily shiurim reminders (owner, v29): Never / Rarely (once a day at learnAt, as before) / Regularly.
    Regularly learns when you usually do your shiurim: every check-off of TODAY's shiurim records the time of day (cc_learn_t,
    per profile: {shiur day:{m:minute of day (before 4 AM counts as after midnight of the evening before), f:1 once that day was finished}},
@@ -3627,8 +3627,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=127;
+const CC_VER=128;
 const CC_LOG=[
+  {v:128,new:['Daily shiurim reminders now start on “Regularly” for new accounts (smart reminders around the time you usually learn). You can change it in ⋯ → Reminders.']},
   {v:127,new:['A new welcome tour: short, and it now shows the siddur, the streak, English for the shiurim, the widget and Shabbos rest. Replay it in ⋯ → Help.','Fixed: the tour could get stuck if you tapped Next quickly, and the phone’s Back button now closes it.']},
  {v:126,adm:1,new:['The app moved to a new web address (justaboredbocher.github.io/CDate). App version 9 opens it.']},
  {v:125,new:['Uses less battery: when you leave the app open without touching it, the floating pieces hold still after 20 seconds and the assistant settles down; the hidden assistant no longer moves in the background.','Opens and changes days a little faster (less redrawing of the water letters and the sky).']},
