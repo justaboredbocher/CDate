@@ -147,6 +147,22 @@ async function handle(req, env) {
         if (got.length) await save();
         return j({ ok: true, got });
       }
+      // owner: "anyone who signs into their account should automatically have all of the communities this account was tied to".
+      // At sign-in the phone proves the account with the stored code hash (same check as the sign-in screen), and gets its member
+      // secret put on every community where this account is a member and the phone doesn't already have it (`have`).
+      if (op === 'mine') {
+        // the server checks the typed code itself against the account's stored hash (PBKDF2, same as the sign-in screen)
+        const code = str(b.code, 12); if (!/^\d{4,8}$/.test(code)) return j({ error: 'bad code' }, 400);
+        const rec = b.uid ? ((await env.KV.get('kit:users3', 'json')) || {})[str(b.uid, 64)] : ((await env.KV.get('kit:accounts3', 'json')) || {})[fk];
+        if (!rec || !rec.salt || !rec.h) return j({ error: 'no account' }, 404);
+        const en = new TextEncoder(), key = await crypto.subtle.importKey('raw', en.encode(code), 'PBKDF2', false, ['deriveBits']);
+        const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: en.encode(rec.salt), iterations: 150000, hash: 'SHA-256' }, key, 256);
+        if ([...new Uint8Array(bits)].map((x) => x.toString(16).padStart(2, '0')).join('') !== rec.h) return j({ error: 'wrong code' }, 403);
+        const have = Array.isArray(b.have) ? b.have : [], got = [];
+        for (const [cid, d] of Object.entries(all)) { const m = d.members && d.members[fk]; if (!m || have.includes(cid)) continue; m.sh = sh; got.push({ id: cid, name: d.name }); }
+        if (got.length) await save();
+        return j({ ok: true, got });
+      }
       const id = b.id; if (!okC(id)) return j({ error: 'bad id' }, 400);
       if (!all[id] && id === 'shluchim') all[id] = { name: 'Shluchim', mode: 'open', owner: '', admins: [], members: {}, pending: {} };
       const d = all[id]; if (!d) return j({ error: 'no such community' }, 404);
