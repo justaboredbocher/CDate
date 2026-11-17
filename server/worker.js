@@ -121,7 +121,7 @@ async function handle(req, env) {
       const str = (v, n) => typeof v === 'string' && v.length <= n ? v : '';
       const sha = async (t) => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))].map((x) => x.toString(16).padStart(2, '0')).join('');
       const pub = (d) => ({ name: d.name, mode: d.mode, owner: d.owner, admins: d.admins,
-        members: Object.fromEntries(Object.entries(d.members).map(([k, v]) => [k, { n: v.n, c: v.c, la: v.la, lo: v.lo, tz: v.tz, p: v.p }])),
+        members: Object.fromEntries(Object.entries(d.members).map(([k, v]) => [k, v.ad ? { n: v.n, c: v.c, la: v.la, lo: v.lo, tz: v.tz, p: v.p, ad: 1, by: v.by } : { n: v.n, c: v.c, la: v.la, lo: v.lo, tz: v.tz, p: v.p }])),
         pending: Object.fromEntries(Object.entries(d.pending || {}).map(([k, v]) => [k, { n: v.n, c: v.c }])) });
       if (req.method === 'GET' && op === 'get') { const id = url.searchParams.get('id'); if (!okC(id)) return j({ error: 'bad id' }, 400); const d = all[id]; return j({ doc: d ? pub(d) : (id === 'shluchim' ? { name: 'Shluchim', mode: 'open', owner: '', admins: [], members: {}, pending: {} } : null) }); }
       if (req.method !== 'POST') return j({ error: 'not found' }, 404);
@@ -145,6 +145,9 @@ async function handle(req, env) {
       const isMe = d.members[fk] && d.members[fk].sh === sh;
       if (op === 'join') {
         const me = info(b.me); if (!me) return j({ error: 'bad data' }, 400);
+        // someone added this person earlier (no account then): their real joining replaces that entry
+        const mp = (me.p || '').replace(/\D/g, '');
+        if (mp.length >= 6) for (const L of [d.members, d.pending]) for (const [k, v] of Object.entries(L)) if (v.ad && (v.p || '').replace(/\D/g, '') === mp) delete L[k];
         if (d.members[fk]) { if (!isMe) return j({ error: 'taken' }, 403); d.members[fk] = { ...me, sh }; await save(); return j({ ok: true, status: 'member' }); }
         if (Object.keys(d.members).length >= 1000) return j({ error: 'full' }, 507);
         if (d.mode === 'approve') { d.pending[fk] = { ...me, sh }; await save(); return j({ ok: true, status: 'pending' }); }
@@ -164,6 +167,26 @@ async function handle(req, env) {
         if (d.owner && !d.admins.length) d.admins = [d.owner];
         if (!Object.keys(d.members).length && id !== 'shluchim') delete all[id];
         await save(); return j({ ok: true });
+      }
+      // owner: a member adds someone (an existing contact or a new one) to the community. In a community that needs
+      // approval, a non-admin's addition waits for an admin. Added people have no account; if they join later, that replaces it.
+      if (op === 'add') {
+        if (!isMe) return j({ error: 'not a member' }, 403);
+        const m = info(b.m); if (!m) return j({ error: 'bad data' }, 400);
+        const pd = (m.p || '').replace(/\D/g, ''), same = (o) => o && ((pd.length >= 6 && (o.p || '').replace(/\D/g, '') === pd) || (o.n.toLowerCase() === m.n.toLowerCase() && o.c === m.c));
+        if (Object.values(d.members).some(same)) return j({ ok: true, status: 'already' });
+        if (Object.values(d.pending).some(same)) return j({ ok: true, status: 'pending' });
+        if (Object.keys(d.members).length >= 1000) return j({ error: 'full' }, 507);
+        const k = 'a_' + [...crypto.getRandomValues(new Uint8Array(10))].map((x) => 'abcdefghjkmnpqrstuvwxyz23456789'[x % 31]).join('');
+        const rec = { ...m, ad: 1, by: fk };
+        if (d.mode === 'approve' && !d.admins.includes(fk)) { d.pending[k] = rec; await save(); return j({ ok: true, status: 'pending' }); }
+        d.members[k] = rec; await save(); return j({ ok: true, status: 'member' });
+      }
+      // whoever added someone may take them out again
+      if (op === 'unadd') {
+        const who = b.who, v = d.members[who] || d.pending[who];
+        if (!isMe || !v || !v.ad || (v.by !== fk && !d.admins.includes(fk))) return j({ error: 'not allowed' }, 403);
+        delete d.members[who]; delete d.pending[who]; await save(); return j({ ok: true });
       }
       // admin actions: only admins, proven by their secret
       if (!isMe || !d.admins.includes(fk)) return j({ error: 'not an admin' }, 403);
