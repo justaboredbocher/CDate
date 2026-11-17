@@ -1127,9 +1127,9 @@ function groups(){const m={};saved.forEach(v=>{const k=v.city+"|"+v.tz;(m[k]=m[k
 const pinned=g=>g.ppl.some(v=>v.name&&favs.has(fk(v)));
 function renderCards(){const el=$("cards"),ord={day:0,gray:1,night:2},good=saved.filter(v=>v.name&&status(v.tz)=="day").length,onlyDay=flt.size==1&&flt.has("day");
  let cmIn=null;try{cmIn=cmSavedSet()}catch(e){}
- const gs=groups().map(g=>({g,s:status(g.tz)})).filter(x=>!cmIn||x.g.ppl.some(v=>!cmIn.has(v))).filter(x=>(!flt.size||flt.has(x.s))&&(!mineOnly||(me&&me.match&&x.g.city==me.match.city))).sort((a,b)=>pinned(b.g)-pinned(a.g)||ord[a.s]-ord[b.s]||callRank(a.g.tz)-callRank(b.g.tz)||a.g.city.localeCompare(b.g.city));
+ const gs=groups().map(g=>({g,s:status(g.tz)})).filter(x=>!cmIn||x.g.ppl.some(v=>!cmIn.has(v))).filter(x=>x.g.ppl.some(v=>fltPass(v.name,v.city,v.tz))).sort((a,b)=>pinned(b.g)-pinned(a.g)||ord[a.s]-ord[b.s]||callRank(a.g.tz)-callRank(b.g.tz)||a.g.city.localeCompare(b.g.city));
  const sc=el.scrollTop;
- let h='<div id="fb"><button id="sum" class="glass'+(onlyDay?" on":"")+'" data-f="day"><span><b>'+good+"</b>"+(good==1?"person":"people")+' good to call</span><em>'+(onlyDay?"Showing · tap to clear":"Tap to show")+'</em></button><div id="fr">'+["day","gray","night"].map(x=>'<button class="fc'+(flt.has(x)?" on":"")+'" data-f="'+x+'">'+({day:"Good",gray:"Borderline",night:"Asleep"})[x]+"</button>").join("")+'<button class="fc'+(mineOnly?" on":"")+'" data-mine="1">Mine</button></div></div>';
+ let h='<div id="fb"><button id="sum" class="glass'+(onlyDay?" on":"")+'" data-f="day"><span><b>'+good+"</b>"+(good==1?"person":"people")+' good to call</span><em>'+(onlyDay?"Showing · tap to clear":"Tap to show")+'</em></button><div id="fr">'+["day","gray","night"].map(x=>'<button class="fc'+(flt.has(x)?" on":"")+'" data-f="'+x+'">'+({day:"Good",gray:"Borderline",night:"Asleep"})[x]+"</button>").join("")+'<button class="fc'+(mineOnly?" on":"")+'" data-mine="1">★ Favs</button></div></div>';
  h+=gs.map(({g,s})=>{const n=g.ppl.length;return'<div class="card glass'+(g.city==newCity?" pop":"")+'" data-k="'+esc(g.k)+'" style="--c:'+COL[s]+'"><div class="ch"><div class="m"><b>'+(pinned(g)?"★ ":"")+esc(g.city)+"</b><small>"+n+" "+(n==1?"person":"people")+'</small></div><div class="tm">'+clock(g.tz)+'<small style="color:'+COL[s]+'">'+LBL[s]+'</small></div><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></div></div>'}).join("");
  if(!gs.length&&!CM_VIEW)h+='<div class="empty">No cards match these filters.</div>';try{h=cmCardsWrap(h)}catch(e){}
  el.innerHTML=h;el.scrollTop=sc;
@@ -1218,7 +1218,7 @@ sync()})();
 // neither = SMALL (looks, tweaks, fixes) → only a little round "i" in the corner, version X.Y.Z.
 // adm:1 = admin-only change → counts as a small update in the version number, but NO notification at all (owner). The shown version is worked out from these sizes.
 // apk:N = this needs app version N (a new download); the app then also shows "Update the app".
-const KIT_VER=39,KIT_APK=2;
+const KIT_VER=40,KIT_APK=2;
 const KIT_LOG=[
  {v:1,big:1,t:"Home-screen widgets",d:"See who’s awake without opening the app, with Call and WhatsApp buttons, filters and sorting.",go:"widgets"},
  {v:2,mid:1,t:"Add widgets from inside the app",d:"Menu → Home-screen widgets → Add. No more digging through your phone’s widget list.",go:"widgets",apk:1},
@@ -1252,7 +1252,8 @@ const KIT_LOG=[
  {v:36,mid:1,t:"Add people to a community, delete your own contacts",d:"In a community, tap “＋ Add people” to add someone from your contacts, or create a new contact for them. Contacts you added yourself now have a 🗑 button to delete them (only for you)."},
  {v:37,t:"Clearer community window: add and invite at the top, then the members; everything else under Settings"},
  {v:38,mid:1,t:"Tap anyone to see their details",d:"Tap a person in your list, a community, or its member list: you see their local time, their number with Call and WhatsApp, and buttons to favourite, save, delete or find them on the globe."},
- {v:39,mid:1,t:"Communities as one row each",d:"On the Everyone page each community is now a single row, like a group chat, showing who's good to call. Tap it to open that community."}
+ {v:39,mid:1,t:"Communities as one row each",d:"On the Everyone page each community is now a single row, like a group chat, showing who's good to call. Tap it to open that community."},
+ {v:40,t:"The Good / Borderline / Asleep filters now work everywhere, and “Mine” is now “★ Favs”"}
 ];
 function kitVerStr(b){let M=0,m=0,p=0;const by={};KIT_LOG.forEach(x=>{const l=x.big?3:x.mid?2:1;by[x.v]=Math.max(by[x.v]||0,l)});
  Object.keys(by).map(Number).sort((a,c)=>a-c).forEach(v=>{if(v>b)return;if(by[v]==3){M++;m=0;p=0}else if(by[v]==2){m++;p=0}else p++});return M+"."+m+"."+p}
@@ -1704,20 +1705,23 @@ function cmPersonRow(x,id){const i=savedIdx(x.n,x.city),sv=i>=0,v=sv?saved[i]:nu
 function cmSection(id){const ppl=cmPeople(id),ord={day:0,gray:1,night:2},sort=(a,b)=>ord[status(a.tz)]-ord[status(b.tz)]||callRank(a.tz)-callRank(b.tz)||a.n.localeCompare(b.n);
  const mineS=ppl.filter(x=>savedIdx(x.n,x.city)>=0).sort(sort),open=CM_OPEN.has(id),def=lsGet("kit_cm_def")==id;
  let h='<div class="cms"><div class="hd" data-cmo="'+esc(id)+'"><i class="av" style="font-style:normal">'+esc((cmName(id)[0]||"?").toUpperCase())+'</i><span><b>'+esc(cmName(id))+(def?'<span class="def">Default</span>':'')+'</b><small>'+mineS.length+' saved · '+ppl.length+' in the community</small></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5"><path d="m9 6 6 6-6 6"/></svg></div>';
- const list=open?ppl.slice().sort(sort):mineS;
- h+=list.length?list.slice(0,open?400:50).map(x=>cmPersonRow(x,id)).join(""):'<div class="none">'+(open?'Nobody here yet.':'Nobody saved yet from '+esc(cmName(id))+'.')+'</div>';
+ const list=(open?ppl.slice().sort(sort):mineS).filter(x=>fltPass(x.n,x.city,x.tz));
+ h+=list.length?list.slice(0,open?400:50).map(x=>cmPersonRow(x,id)).join(""):'<div class="none">'+(fltOn()?'Nobody matches these filters'+(open?'':' among your saved people')+'.':open?'Nobody here yet.':'Nobody saved yet from '+esc(cmName(id))+'.')+'</div>';
  h+='<button class="more" data-cme="'+esc(id)+'">'+(open?'Show only saved':'Show everyone ('+ppl.length+')')+'</button></div>';return h}
 // saved contacts that belong to one of my communities (they're listed in that community's section, not under "My contacts")
 function cmSavedSet(){if(!me||!me.match||CM_VIEW)return null;const ids=cmIds();if(!ids.length)return null;const set=new Set();
  ids.forEach(id=>cmPeople(id).forEach(x=>{const i=savedIdx(x.n,x.city);if(i>=0)set.add(saved[i])}));return set}
-function cmRow(id){const ppl=cmPeople(id),up=ppl.filter(x=>status(x.tz)=="day").sort((a,b)=>callRank(a.tz)-callRank(b.tz)),sv=ppl.filter(x=>savedIdx(x.n,x.city)>=0).length,def=lsGet("kit_cm_def")==id;
+function cmRow(id){const all0=cmPeople(id),ppl=fltOn()?all0.filter(x=>fltPass(x.n,x.city,x.tz)):all0;if(fltOn()&&!ppl.length)return"";const up=ppl.filter(x=>status(x.tz)=="day").sort((a,b)=>callRank(a.tz)-callRank(b.tz)),sv=ppl.filter(x=>savedIdx(x.n,x.city)>=0).length,def=lsGet("kit_cm_def")==id;
  let sub;if(!ppl.length)sub="Nobody here yet";else if(up.length){const nm=up.slice(0,3).map(x=>x.n.split(" ")[0]);sub='<i class="gd"></i>'+up.length+' good to call · '+esc(nm.join(", "))+(up.length>3?"…":"")}
  else{let nx=null,nm=1e9;ppl.forEach(x=>{const st=status(x.tz);if(st=="day")return;const t=lt(x.tz).min;let d=510-t;if(d<0)d+=1440;if(d<nm){nm=d;nx=x}});sub=nx?'Nobody up now · '+esc(nx.n.split(" ")[0])+' in '+(nm<60?nm+' min':Math.round(nm/60)+' h'):'Nobody up now'}
+ if(fltOn()&&!(flt.size==1&&flt.has("day"))){const nm=ppl.slice(0,3).map(x=>x.n.split(" ")[0]);sub=ppl.length+(flt.size==1&&!mineOnly?' '+({gray:'borderline',night:'asleep'})[[...flt][0]]:mineOnly&&!flt.size?' favourite'+(ppl.length==1?'':'s'):' match'+(ppl.length==1?'':'es'))+' · '+esc(nm.join(", "))+(ppl.length>3?"…":"")}
  return'<div class="cmg glass" data-cmv="'+esc(id)+'"><i class="av">'+esc((cmName(id)[0]||"?").toUpperCase())+'</i><span><b>'+esc(cmName(id))+(def?'<span class="def">Default</span>':'')+'</b><small>'+sub+'</small></span><em>'+ppl.length+'<small>'+(sv?sv+' saved':'people')+'</small></em><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;flex:none"><path d="m9 6 6 6-6 6"/></svg></div>'}
+function fltOn(){return flt.size>0||mineOnly}
+function fltPass(n,city,tz){if(flt.size&&!flt.has(status(tz)))return false;if(mineOnly){const i=savedIdx(n,city);if(i<0||!favs.has(fk(saved[i])))return false}return true}
 function cmCardsWrap(h){const ids=me&&me.match?cmIds():[];if(!ids.length)return h;
  if(CM_VIEW){const i=h.indexOf('<div class="card');const top=i>0?h.slice(0,i):h;return top.replace(/<div class="empty">[^<]*<\/div>/,"")+cmSection(CM_VIEW)}
  const i=h.indexOf('<div class="card');h=i>0?h.slice(0,i)+'<div class="cmh" style="margin-top:6px">My contacts</div>'+h.slice(i):h.replace(/<div class="empty">[^<]*<\/div>/,"");
- return h+'<div class="cmh">Communities</div>'+ids.map(cmRow).join("")}
+ const rows=ids.map(cmRow).join("");if(!rows&&fltOn()&&h.indexOf('<div class="card')<0)return h+'<div class="empty">Nobody matches these filters right now.</div>';return h+(rows?'<div class="cmh">Communities</div>'+rows:'')}
 $("cards").addEventListener("click",e=>{const g=e.target.closest("[data-cmv]");if(g){e.stopImmediatePropagation();CM_VIEW=g.dataset.cmv;hap(8);cmRebuild();$("cards").scrollTop=0;return}
  const o=e.target.closest("[data-cmo]");if(o){e.stopImmediatePropagation();cmOpen(o.dataset.cmo);return}
  const x=e.target.closest("[data-cme]");if(x){e.stopImmediatePropagation();const id=x.dataset.cme;if(CM_OPEN.has(id))CM_OPEN.delete(id);else CM_OPEN.add(id);hap(8);renderCards();return}
