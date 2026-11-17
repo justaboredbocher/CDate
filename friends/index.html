@@ -1046,7 +1046,7 @@ suB.onclick=async()=>{if(suB.disabled)return;const m=suMode(),c=$("suC").value.r
  try{if(m=="login"){const a=accts[k],h=await hashCode(c,a.salt);if(h!=a.h){bad++;if(bad>=5){lockT=Date.now()+30000;bad=0}ch.className="phh bad";ch.textContent="Wrong code.";suB.disabled=false;return}bad=0;me={name:suN.value.trim()||selM.name,match:{name:selM.name,city:selM.city},phone:phoneOf(selM.name,selM.city),salt:a.salt,h:a.h};me.vk=await vkMake(c)}
   else{const salt=randSalt(),h=await hashCode(c,salt),ph=pw.val().e164;setAcct(k,salt,h);setPhone(selM.name,selM.city,ph);me={name:suN.value.trim()||selM.name,match:{name:selM.name,city:selM.city},phone:ph,salt,h};me.vk=await vkMake(c)}}
  catch(e){toast("Something went wrong. Try again.");suCheck();return}
- lsSet("sc_me",JSON.stringify(me));try{acctLoad()}catch(e){}setTimeout(vaultPull,800);$("suC").value="";su=false;document.body.classList.remove("su");renderCards();welcome();setTimeout(()=>{try{invCheck(1);invBackfill();cmRebuild();cmRefresh();cmPendingJoin()}catch(e){}},1500)};
+ lsSet("sc_me",JSON.stringify(me));try{acctLoad()}catch(e){}setTimeout(vaultPull,800);setTimeout(()=>cmMine(c),1500);$("suC").value="";su=false;document.body.classList.remove("su");renderCards();welcome();setTimeout(()=>{try{invCheck(1);invBackfill();cmRebuild();cmRefresh();cmPendingJoin()}catch(e){}},1500)};
 let soT=null;
 $("so").onclick=()=>{const b=$("so");if(!soT){b.textContent="Tap again to confirm";b.style.background="rgba(251,113,133,.35)";soT=setTimeout(()=>{soT=null;b.textContent="Log out";b.style.background=""},3000);return}clearTimeout(soT);soT=null;b.textContent="Log out";b.style.background="";try{acctStash(me)}catch(e){}try{localStorage.removeItem("sc_me")}catch(e){}me=null;try{acctMem()}catch(e){}try{cmRebuild()}catch(e){}selM=null;suN.value="";pw.clear();suN.oninput();open(false);su=true;document.body.classList.add("su");renderCards()};
 // ---------- cards + world toggle
@@ -1227,7 +1227,7 @@ sync()})();
 // neither = SMALL (looks, tweaks, fixes) → only a little round "i" in the corner, version X.Y.Z.
 // adm:1 = admin-only change → counts as a small update in the version number, but NO notification at all (owner). The shown version is worked out from these sizes.
 // apk:N = this needs app version N (a new download); the app then also shows "Update the app".
-const KIT_VER=49,KIT_APK=3;
+const KIT_VER=51,KIT_APK=3;
 const KIT_LOG=[
  {v:1,big:1,t:"Home-screen widgets",d:"See who’s awake without opening the app, with Call and WhatsApp buttons, filters and sorting.",go:"widgets"},
  {v:2,mid:1,t:"Add widgets from inside the app",d:"Menu → Home-screen widgets → Add. No more digging through your phone’s widget list.",go:"widgets",apk:1},
@@ -1270,7 +1270,8 @@ const KIT_LOG=[
  {v:45,t:"Shooting stars only fly between places that are on your globe"},
  {v:46,apk:3,t:"Signing up without a yeshiva now finds your location by itself (it asks for permission first)"},
  {v:47,t:"Fixed communities going missing after switching accounts on one phone (they come back by themselves)"},
- {v:49,mid:1,t:"Your communities are saved to your account",d:"Sign in on any phone, or after reinstalling, and all your communities come back by themselves."}
+ {v:49,mid:1,t:"Your communities are saved to your account",d:"Sign in on any phone, or after reinstalling, and all your communities come back by themselves."},
+ {v:50,t:"Signing in brings back every community your account is in, by itself"}
 ];
 function kitVerStr(b){let M=0,m=0,p=0;const by={};KIT_LOG.forEach(x=>{const l=x.big?3:x.mid?2:1;by[x.v]=Math.max(by[x.v]||0,l)});
  Object.keys(by).map(Number).sort((a,c)=>a-c).forEach(v=>{if(v>b)return;if(by[v]==3){M++;m=0;p=0}else if(by[v]==2){m++;p=0}else p++});return M+"."+m+"."+p}
@@ -1537,7 +1538,7 @@ function invAsk(list){const it=list[0];if(!it)return;if(document.body.classList.
    if(doc){h=await hashCode(code,doc.salt);if(h!=doc.h){bad2++;if(bad2>=5){lock2=Date.now()+30000;bad2=0}H.className="phh bad";H.textContent="This number already has an account. Wrong code.";B.disabled=false;return}salt=doc.salt}
    else{salt=randSalt();h=await hashCode(code,salt);await kitPost("users3/set",{id:uid,data:{salt,h}})}
    const city=DIRG0.some(g=>g.city==pick.city)?pick.city+" ·":pick.city;
-   me={name:N.value.trim(),match:{name:N.value.trim(),city},gen:1,la:pick.lat,lo:pick.lon,tz:pick.tz,phone:ph,salt,h,uid};try{me.vk=await vkMake(code)}catch(e){}lsSet("sc_me",JSON.stringify(me));try{acctLoad()}catch(e){}setTimeout(vaultPull,800);
+   me={name:N.value.trim(),match:{name:N.value.trim(),city},gen:1,la:pick.lat,lo:pick.lon,tz:pick.tz,phone:ph,salt,h,uid};try{me.vk=await vkMake(code)}catch(e){}lsSet("sc_me",JSON.stringify(me));try{acctLoad()}catch(e){}setTimeout(vaultPull,800);setTimeout(()=>cmMine(code),1500);
    K.value="";su=false;document.body.classList.remove("su");$("su").classList.remove("su-gen");renderCards();welcome();setTimeout(()=>{invCheck(1);invBackfill();cmRebuild();cmRefresh();cmPendingJoin()},1500)}
   catch(e){H.className="phh bad";H.textContent="Couldn’t reach the server. Check your internet and try again.";B.disabled=false}}})();
 // general users change their number here (their number is never in the shared list)
@@ -1760,14 +1761,21 @@ async function vaultPull(){try{const id=await vaultId();if(!id)return;const d=aw
  if(n){lsSet("kit_comms",JSON.stringify(cur));CM_DOCS={};await cmRefresh();cmMenu();renderCards();toast(n==1?"Your community is back":"Your "+n+" communities are back")}
  vaultSoon()}catch(e){}}
 // signed in from before this (no vk yet): ask for the code once, so the communities can be kept on the account
-function vkAsk(){if(!me||!me.match||me.vk||sessionStorage.getItem("kit_vk_no")||sheet.style.display=="block"||document.body.classList.contains("tour"))return;
+function vkAsk(){if(!me||!me.match||(me.vk&&me.mk)||sessionStorage.getItem("kit_vk_no")||sheet.style.display=="block"||document.body.classList.contains("tour"))return;
  sheet._gs=null;sheet.innerHTML='<div class="cm"><div class="cmhd"><div><h3>Keep your communities</h3><p>Type your code once, and your communities will come back whenever you sign in, on any phone.</p></div><button class="cmx" id="vkX" aria-label="Not now">✕</button></div><input class="ain" id="vkC" type="password" inputmode="numeric" maxlength="8" placeholder="Your code"><div class="note" id="vkH"></div><div class="btns"><button class="btn p" id="vkGo">Save to my account</button></div></div>';sheet.style.display="block";
  const C=$("vkC"),H=$("vkH");setTimeout(()=>C.focus(),80);$("vkX").onclick=()=>{sessionStorage.setItem("kit_vk_no","1");sheet.style.display="none"};
  $("vkGo").onclick=async()=>{const c=C.value.replace(/\D/g,"");if(c.length<4){H.textContent="Your code is 4–8 digits.";return}H.textContent="Checking…";
   const a=me.gen?{salt:me.salt,h:me.h}:(accts[pkey(me.match.name,me.match.city)]||{salt:me.salt,h:me.h});
   if(!a||!a.salt||(await hashCode(c,a.salt))!=a.h){H.textContent="That’s not your code.";hap(30);return}
-  me.vk=await vkMake(c);lsSet("sc_me",JSON.stringify(me));sheet.style.display="none";hap([12,40,12]);await vaultPull();vaultSoon();toast("Your communities are saved to your account")}}
+  me.vk=await vkMake(c);lsSet("sc_me",JSON.stringify(me));sheet.style.display="none";hap([12,40,12]);await vaultPull();await cmMine(c);vaultSoon();toast("Your communities are saved to your account")}}
 setTimeout(()=>{if(me&&me.match){if(me.vk)vaultPull();else setTimeout(vkAsk,1500)}},4000);
+// owner: signing in is enough — the server gives back every community this account belongs to (it checks the account with the
+// stored code hash, the same check as the sign-in screen), for the ones this phone doesn't have yet. Runs at sign-in and on opening.
+async function cmMine(code){code=String(code||"").replace(/\D/g,"");if(!me||!me.match||cmMine.busy||code.length<4)return;const h=me.gen?me.h:((accts[pkey(me.match.name,me.match.city)]||{}).h||me.h);cmMine.busy=1;
+ const s2=cmSecret();try{const r=await cmPost("mine",{fk:cmFk(),s:s2,code,h:h||"",uid:me.gen?(me.uid||""):"",have:cmList().filter(e=>e&&e.s&&!e.sj).map(e=>e.id)});
+  if(r.ok&&!me.mk){me.mk=1;lsSet("sc_me",JSON.stringify(me))}
+  if(r.got&&r.got.length){const cur=cmList();r.got.forEach(g=>{const x=cur.find(y=>y.id==g.id);if(x){x.s=s2;x.st="member";delete x.sj}else cur.push({id:g.id,s:s2,st:"member",all:"no"})});
+   cmSave(cur);CM_DOCS={};await cmRefresh();cmMenu();renderCards();toast(r.got.length==1?r.got[0].name+" is back":"Your communities are back: "+r.got.map(g=>g.name).join(", "))}}catch(e){}cmMine.busy=0}
 // the app's admin (owner): get every community back with the admin code, even when this phone has lost them
 async function cmReclaim(){const code=prompt("Admin code");if(!code)return;const s2=cmSecret();
  try{const r=await cmPost("reclaim",{fk:cmFk(),s:s2,code:code.trim()});const cur=cmList();(r.got||[]).forEach(g=>{const x=cur.find(y=>y.id==g.id);if(x){x.s=s2;x.st="member";delete x.sj}else cur.push({id:g.id,s:s2,st:"member",all:"no"})});
