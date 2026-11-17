@@ -3677,8 +3677,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=146;
+const CC_VER=147;
 const CC_LOG=[
+  {v:147,new:['Some admin updates.']},
   {v:146,new:['After sunset the little character gets sleepy quickly: he starts dozing off after 20 seconds without a touch.']},
   {v:145,new:['“How & when” guides checked against Chabad custom: the menorah (an inside doorway, left side, lit after sunset; who lights), lulav in the sukkah before Shacharis in the Chabad order, nothing eaten outside the sukkah, no kittel, L’Dovid at Shacharis and Mincha, Malkos after Mincha, not selling real chametz, a siyum each day of the Nine Days, and more.']},
   {v:144,mid:1,new:['On Chanukah the siddur adds the menorah lighting (blessings and Haneiros Halalu) at the end of Maariv, and on Friday at the end of Mincha, with a “How to” button for the steps.']},
@@ -3927,6 +3928,12 @@ function appSync(){const el=document.getElementById('appSec'),h=document.getElem
 function appFirstRun(){try{if(CC_NATIVE||!ccAndroid||!CC_LOGGED())return;if(localStorage.getItem(AK('cc_app_seen')))return;
  localStorage.setItem(AK('cc_app_seen'),'1');setTimeout(appShow,1400)}catch(e){}}
 appSync();appFirstRun();
+/* v147 (owner: "how many phones opened it and how many downloaded the app"): anonymous usage counts for Admin tools → Usage.
+   A random id per phone (cc_sid) is sent once a day with "app or browser"; taps on the app download link send a beacon. No names. */
+setTimeout(()=>{try{let id=localStorage.getItem('cc_sid');if(!/^[a-f0-9]{16}$/.test(id||'')){id=[...crypto.getRandomValues(new Uint8Array(8))].map(x=>x.toString(16).padStart(2,'0')).join('');localStorage.setItem('cc_sid',id)}
+ const d=new Date().toDateString();if(localStorage.getItem('cc_sid_d')===d)return;
+ fetch(PUSH_DEFAULT+'/stats/hit',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({id,a:CC_NATIVE?1:0})}).then(r=>{if(r.ok)localStorage.setItem('cc_sid_d',d)}).catch(()=>{})}catch(e){}},5000);
+document.addEventListener('click',e=>{const a=e.target.closest('a[href*="ChabadCalendar.apk"]');if(a)try{fetch(PUSH_DEFAULT+'/stats/'+(CC_NATIVE?'up':'dl'),{method:'POST',keepalive:true}).catch(()=>{})}catch(x){}},true);
 if(window.ccNU&&ccNU.user()&&ccNU.user()===localStorage.getItem('cc_local_active_profile_v1')){const l=document.querySelector('#sh .shp[data-p="home"] .shl'),n=ccNU.get();if(l){const b=document.createElement('button');b.type='button';b.className='nu-leave';b.textContent='🛠 Leave new user mode'+(n&&n.back?' · back to '+n.back:'');b.onclick=()=>ccNU.exit();l.parentNode.insertBefore(b,l)}}
 
 const lo=document.createElement('div');lo.id='loBox';lo.setAttribute('aria-hidden','true');lo.innerHTML='<div class="lo-card" role="alertdialog" aria-modal="true" aria-labelledby="loT"><h2 id="loT">Log out?</h2><p>Your schedule stays saved on this device. Log back in with your password to see it again.</p><div class="lo-b"><button type="button" id="loNo">Stay signed in</button><button type="button" id="loYes">Log out</button></div></div>';document.body.appendChild(lo);
@@ -5203,6 +5210,7 @@ aiEl('aiMemoryBtn').addEventListener('click',()=>{const p=aiPrefs(),names=Object
  <div class="qseg" id="ttWhen" style="margin-top:10px"><button type="button" data-w="am">Morning</button><button type="button" data-w="pm">Afternoon</button><button type="button" data-w="night">Night</button></div>
  <button class="btn" type="button" id="ttSdGo" style="width:100%;margin-top:10px">Go there and open the siddur</button><p class="mut" id="ttSdMsg" role="status" style="margin:8px 0 0;font-size:13px"></p>
  <h3 class="admh">Chabad.org English</h3><p class="mut" style="margin:0 0 6px">Downloads today's page on this phone and checks it lines up with the Hebrew.</p><div class="rw" style="flex-wrap:wrap;gap:8px"><button class="btn gh" type="button" id="ttChC">Test Chumash</button><button class="btn gh" type="button" id="ttChX" hidden>Copy page outline</button></div><p class="mut" id="ttChM" role="status" style="margin:8px 0 0;font-size:13px;white-space:pre-wrap"></p>
+ <h3 class="admh">Usage</h3><div id="admUse" class="mut" style="margin:0 0 8px">Loading…</div><button class="btn gh" type="button" id="ttUse">Refresh</button>
  <h3 class="admh">New user</h3><p class="mut" style="margin:0 0 8px">Try the app as someone brand new. The app closes; open it again and you’ll see the permission screen and the sign-in card. Create any account (it stays on this phone only and is never saved to the server), then get the welcome tour. Leave from ⋯ or the sign-in card: the practice account is deleted and you’re signed back in.</p><button class="btn gh" type="button" id="ttNU">Try as a new user</button>
  <h3 class="admh">Animations</h3><div class="rw" style="flex-wrap:wrap;gap:8px"><button class="btn gh" type="button" id="ttPlay">Play sun/moon opening</button><button class="btn gh" type="button" id="ttIntro">Play logo intro</button></div>
  <h3 class="admh">Feature switches</h3><p class="mut" style="margin:0 0 6px">On this phone only.</p><div id="ttFlags" style="display:grid;gap:8px;margin:6px 0 4px"></div>
@@ -5259,6 +5267,10 @@ aiEl('aiMemoryBtn').addEventListener('click',()=>{const p=aiPrefs(),names=Object
  const fl=()=>{try{return JSON.parse(localStorage.getItem('cc_test_flags')||'{}')}catch(e){return{}}},flApply=()=>{const f=fl();for(const[id,,opt]of FLAGS){if(opt)document.documentElement.classList.toggle('tt-on-'+id,f[id]===true);else document.documentElement.classList.toggle('tt-off-'+id,f[id]===false)}};
  box.querySelector('#ttFlags').innerHTML=FLAGS.map(([id,t])=>`<label style="display:flex;align-items:center;gap:10px;margin:0;font-weight:500"><input type="checkbox" data-f="${id}" style="width:20px;height:20px;accent-color:#8c94ef"> ${t}</label>`).join('');
  box.querySelectorAll('[data-f]').forEach(c=>{const opt=(FLAGS.find(x=>x[0]===c.dataset.f)||[])[2];c.checked=opt?fl()[c.dataset.f]===true:fl()[c.dataset.f]!==false;c.onchange=()=>{const f=fl();f[c.dataset.f]=c.checked;localStorage.setItem('cc_test_flags',JSON.stringify(f));flApply();H.sel();if(c.dataset.f==='side'){SKY.last=null;skyTick();render(0)}if(c.dataset.f==='swave'&&GLS.kick)GLS.kick();if(c.dataset.f==='aim'&&SKY.last)skyDomeAim(SKY.last)}});flApply();
+ {const u=box.querySelector('#admUse'),ld=()=>{u.textContent='Loading…';fetch(PUSH_DEFAULT+'/stats/get').then(r=>r.json()).then(j=>{if(j.error)throw 0;const row=(l,v,s)=>'<div style="display:flex;justify-content:space-between;gap:12px;padding:3px 0"><span>'+l+'</span><b>'+v+(s?' <small style="font-weight:400;opacity:.7">'+s+'</small>':'')+'</b></div>';
+   u.innerHTML=row('Phones today',j.today,j.todayApp+' in the app')+row('Phones this week',j.week)+row('Phones this month',j.month)+row('Phones in total',j.total,j.totalApp+' used the app')+row('Accounts',j.accounts)+row('App downloads (download page)',j.dl)+row('App updates (from the app)',j.up)+
+    '<details style="margin-top:6px"><summary>Last 14 days</summary>'+j.days.map(d=>row(new Date(d[0]+'T12:00:00Z').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}),d[1],d[2]+' app')).join('')+'</details>'+(j.since?'<p style="margin:6px 0 0;font-size:12px">Counting since '+new Date(j.since+'T12:00:00Z').toLocaleDateString('en-US',{month:'long',day:'numeric'})+'. Downloads made before then aren’t included.</p>':'')}).catch(()=>{u.textContent='Couldn’t load the numbers (no internet, or the server update isn’t live yet).'})};
+  ld();box.querySelector('#ttUse').onclick=ld}
  {const b=box.querySelector('#ttNU');if(b)b.onclick=()=>{if(!b.dataset.arm){b.dataset.arm='1';b.textContent='Tap again to close the app';setTimeout(()=>{delete b.dataset.arm;b.textContent='Try as a new user'},4000);return}window.ccNU&&ccNU.start(localStorage.getItem('cc_local_active_profile_v1'))}}
  box.querySelector('#ttPlay').onclick=()=>{op(false);setTimeout(()=>{const pl=skyPlan(Date.now()),b=document.getElementById('skyBody');if(!pl||!b)return;b.style.opacity='0';SKYA.arm=true;setTimeout(()=>skyRun(pl),60)},450)};
  box.querySelector('#ttIntro').onclick=()=>location.reload();

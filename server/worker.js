@@ -107,6 +107,40 @@ async function handle(req, env) {
   }
   // "Keep in Touch" friends app (/CDate/friends/ and its Android app): the shared list of phone numbers and
   // sign-in codes (salted hashes only). One KV key per collection; a few dozen people, so a whole-list read is cheap.
+  // Usage counts for the owner's Admin tools (owner, Nov 2026: "how many phones opened it and how many downloaded the app").
+  // Anonymous: a phone sends a random id once a day (st:d:<UTC day> = {id: 1 app | 0 browser}, st:all = {id: [first day, app]});
+  // the download page and the app's update button send a beacon (st:dl / st:up). No names, no accounts, no addresses.
+  if (p.startsWith('/stats/')) {
+    if (!ALLOW.includes(originOf(req))) return j({ error: 'This request did not come from the Chabad Calendar app.' }, 403);
+    const op = p.slice(7), day = (t) => new Date(t).toISOString().slice(0, 10), today = day(Date.now());
+    if (req.method === 'POST' && op === 'hit') {
+      let b; try { b = await req.json(); } catch (e) { return j({ error: 'bad json' }, 400); }
+      const id = String((b && b.id) || ''), a = b && b.a ? 1 : 0;
+      if (!/^[a-f0-9]{16}$/.test(id)) return j({ error: 'bad id' }, 400);
+      const dk = 'st:d:' + today, d = (await env.KV.get(dk, 'json')) || {};
+      if (d[id] === undefined || (a && !d[id])) { d[id] = a; await env.KV.put(dk, JSON.stringify(d), { expirationTtl: 120 * 86400 }); }
+      const all = (await env.KV.get('st:all', 'json')) || {};
+      if (!all[id] || (a && !all[id][1])) { all[id] = [all[id] ? all[id][0] : today, a || (all[id] ? all[id][1] : 0)]; await env.KV.put('st:all', JSON.stringify(all)); }
+      return j({ ok: true });
+    }
+    if (req.method === 'POST' && (op === 'dl' || op === 'up')) {
+      const k = 'st:' + op, n = (+(await env.KV.get(k)) || 0) + 1; await env.KV.put(k, String(n)); return j({ ok: true, n });
+    }
+    if (req.method === 'GET' && op === 'get') {
+      const days = [], seen7 = new Set(), seen30 = new Set();
+      for (let i = 0; i < 30; i++) {
+        const dd = day(Date.now() - i * 864e5), d = (await env.KV.get('st:d:' + dd, 'json')) || {}, ids = Object.keys(d);
+        if (i < 14) days.push([dd, ids.length, ids.filter((x) => d[x]).length]);
+        ids.forEach((x) => { seen30.add(x); if (i < 7) seen7.add(x); });
+      }
+      const all = (await env.KV.get('st:all', 'json')) || {}, A = Object.values(all);
+      let accounts = 0, cur;
+      do { const r = await env.KV.list({ prefix: 'acct:', cursor: cur }); accounts += r.keys.length; cur = r.list_complete ? null : r.cursor; } while (cur);
+      return j({ today: days[0][1], todayApp: days[0][2], week: seen7.size, month: seen30.size, total: A.length, totalApp: A.filter((x) => x[1]).length,
+        since: A.reduce((m, x) => (!m || x[0] < m ? x[0] : m), ''), days, accounts, dl: +(await env.KV.get('st:dl')) || 0, up: +(await env.KV.get('st:up')) || 0 });
+    }
+    return j({ error: 'not found' }, 404);
+  }
   if (p.startsWith('/kit/')) {
     if (!ALLOW.includes(originOf(req))) return j({ error: 'This request did not come from the Keep in Touch app.' }, 403);
     const [, , col, op] = p.split('/');

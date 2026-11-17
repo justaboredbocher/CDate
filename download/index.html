@@ -156,6 +156,8 @@ footer a{color:var(--acc);text-decoration:none}
   <footer>Chabad Calendar · Beta<br><a href="../">Open the calendar</a></footer>
 </div>
 <script>
+/* count downloads (anonymous; shown only in the owner's Admin tools) */
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href*="ChabadCalendar.apk"]');if(a)try{fetch('https://cdate-push.mosheliberman03.workers.dev/stats/dl',{method:'POST',keepalive:true}).catch(function(){})}catch(x){}},true);
 (function(){var u=navigator.userAgent,h=document.documentElement;
  var ios=/iPhone|iPad|iPod/.test(u)||(/Macintosh/.test(u)&&navigator.maxTouchPoints>1),and=/Android/i.test(u);
  if(ios){h.className='ios';var s=document.querySelector('.android-only');if(s)s.style.display='none'}
