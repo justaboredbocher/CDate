@@ -164,8 +164,14 @@ async function handle(req, env) {
           const salt = [...crypto.getRandomValues(new Uint8Array(12))].map((x) => x.toString(16).padStart(2, '0')).join('');
           rec = ak[fk] = { salt, h: await pb(code, salt) }; await env.KV.put(akk, JSON.stringify(ak));
         }
-        const have = Array.isArray(b.have) ? b.have : [], got = [];
-        for (const [cid, d] of Object.entries(all)) { const m = d.members && d.members[fk]; if (!m || have.includes(cid)) continue; m.sh = sh; got.push({ id: cid, name: d.name }); }
+        const have = Array.isArray(b.have) ? b.have : [], got = [], pd = str(b.p, 32).replace(/\D/g, ''), me = info(b.me);
+        for (const [cid, d] of Object.entries(all)) {
+          // someone added this person (by phone number) before they had an account: that entry becomes their membership now
+          if (pd.length >= 6 && me) for (const L of [d.members, d.pending || {}]) for (const [k, v] of Object.entries(L)) {
+            if (k !== fk && v.ad && (v.p || '').replace(/\D/g, '') === pd) { delete L[k]; if (L === d.members) d.members[fk] = { ...me, sh }; else (d.pending || {})[fk] = { ...me, sh }; }
+          }
+          const m = d.members && d.members[fk]; if (!m || have.includes(cid)) continue; m.sh = sh; got.push({ id: cid, name: d.name });
+        }
         if (got.length) await save();
         return j({ ok: true, got });
       }

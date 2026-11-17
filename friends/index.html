@@ -1032,7 +1032,7 @@ function suFind(q){const qt=toks(q);if(!qt.length)return[];const out=[],seen=new
  if(out.length<6)matches(q).forEach(x=>add(x.p,Math.min(x.sc,.89)));
  return out.slice(0,8)}
 suN.oninput=()=>{selM=null;$("suC").value="";$("suCH").className="phh";suAutoClear();const q=suN.value.trim(),m=suFind(q);suM._m=m;
- suH.textContent=!q?"":m.length?(m.length==1||m[0].sc>=1?"Is this you? Tap your name:":"Tap your name:"):(toks(q).length<2?"Keep typing your first and last name.":"No similar name found. Check the spelling.");
+ suH.textContent=!q?"":m.length?(m.length==1||m[0].sc>=1?"Is this you? Tap your name:":"Tap your name:"):(toks(q).length<2?"Keep typing your first and last name. Not in the yeshiva list? Tap “Not in a yeshiva? Sign up here” below.":"That name isn’t in the yeshiva list. If someone added you to a community, tap “Not in a yeshiva? Sign up here” below and use the same phone number.");
  suM.innerHTML=m.map((x,i)=>{const ph=phoneOf(x.p.name,x.p.city);return'<div class="r" data-i="'+i+'"><div><b>'+esc(x.p.name)+'</b><small>'+esc(x.p.city)+'</small></div>'+(accts[pkey(x.p.name,x.p.city)]?'<span class="tag">Has account</span>':ph?'<span class="tag">📞 Number saved</span>':'')+'</div>'}).join("");
  if(m.length&&m[0].sc>=1&&(m.length==1||m[1].sc<1))pickM(0);suCheck()};
 // keep the name box near the top while typing, so the suggestions stay above the keyboard
@@ -1228,7 +1228,7 @@ sync()})();
 // neither = SMALL (looks, tweaks, fixes) → only a little round "i" in the corner, version X.Y.Z.
 // adm:1 = admin-only change → counts as a small update in the version number, but NO notification at all (owner). The shown version is worked out from these sizes.
 // apk:N = this needs app version N (a new download); the app then also shows "Update the app".
-const KIT_VER=53,KIT_APK=3;
+const KIT_VER=54,KIT_APK=3;
 const KIT_LOG=[
  {v:1,big:1,t:"Home-screen widgets",d:"See who’s awake without opening the app, with Call and WhatsApp buttons, filters and sorting.",go:"widgets"},
  {v:2,mid:1,t:"Add widgets from inside the app",d:"Menu → Home-screen widgets → Add. No more digging through your phone’s widget list.",go:"widgets",apk:1},
@@ -1273,7 +1273,8 @@ const KIT_LOG=[
  {v:47,t:"Fixed communities going missing after switching accounts on one phone (they come back by themselves)"},
  {v:49,mid:1,t:"Your communities are saved to your account",d:"Sign in on any phone, or after reinstalling, and all your communities come back by themselves."},
  {v:50,t:"Signing in brings back every community your account is in, by itself"},
- {v:52,mid:1,t:"Your saved people and favourites are saved to your account too",d:"Sign in on any phone and your whole list comes back, with your favourites."}
+ {v:52,mid:1,t:"Your saved people and favourites are saved to your account too",d:"Sign in on any phone and your whole list comes back, with your favourites."},
+ {v:54,t:"If someone added you to a community, signing up with that phone number puts you straight in it"}
 ];
 function kitVerStr(b){let M=0,m=0,p=0;const by={};KIT_LOG.forEach(x=>{const l=x.big?3:x.mid?2:1;by[x.v]=Math.max(by[x.v]||0,l)});
  Object.keys(by).map(Number).sort((a,c)=>a-c).forEach(v=>{if(v>b)return;if(by[v]==3){M++;m=0;p=0}else if(by[v]==2){m++;p=0}else p++});return M+"."+m+"."+p}
@@ -1779,7 +1780,7 @@ setTimeout(()=>{if(me&&me.match){if(me.vk)vaultPull();else setTimeout(vkAsk,1500
 // owner: signing in is enough — the server gives back every community this account belongs to (it checks the account with the
 // stored code hash, the same check as the sign-in screen), for the ones this phone doesn't have yet. Runs at sign-in and on opening.
 async function cmMine(code){code=String(code||"").replace(/\D/g,"");if(!me||!me.match||cmMine.busy||code.length<4)return;const h=me.gen?me.h:((accts[pkey(me.match.name,me.match.city)]||{}).h||me.h);cmMine.busy=1;
- const s2=cmSecret();try{const r=await cmPost("mine",{fk:cmFk(),s:s2,code,h:h||"",uid:me.gen?(me.uid||""):"",have:cmList().filter(e=>e&&e.s&&!e.sj).map(e=>e.id)});
+ const s2=cmSecret();try{const r=await cmPost("mine",{fk:cmFk(),s:s2,code,h:h||"",uid:me.gen?(me.uid||""):"",p:me.phone||"",me:meInfo(),have:cmList().filter(e=>e&&e.s&&!e.sj).map(e=>e.id)});
   if(r.ok&&!me.mk){me.mk=1;lsSet("sc_me",JSON.stringify(me))}
   if(r.got&&r.got.length){const cur=cmList();r.got.forEach(g=>{const x=cur.find(y=>y.id==g.id);if(x){x.s=s2;x.st="member";delete x.sj}else cur.push({id:g.id,s:s2,st:"member",all:g.id=="shluchim"?"no":""})});
    cmSave(cur);CM_DOCS={};await cmRefresh();cmMenu();renderCards();try{setView(view)}catch(e){}toast(r.got.length==1?r.got[0].name+" is back":"Your communities are back: "+r.got.map(g=>g.name).join(", "))}}catch(e){}cmMine.busy=0}
