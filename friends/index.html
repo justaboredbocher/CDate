@@ -479,6 +479,9 @@ body:has(#sheet[style*="block"] .cm) #cmBar,body:has(#sheet[style*="block"] .ap)
 .cmg .gd{display:inline-block;width:8px;height:8px;border-radius:50%;background:#6fd6a0;margin-right:6px;vertical-align:1px}
 .cmg em{font-style:normal;font-weight:800;font-size:16px;text-align:right;flex:none}.cmg em small{font-weight:600;font-size:11px;margin:0}
 .cmg .def{font-size:10px;font-weight:700;padding:1px 7px;border-radius:99px;background:rgba(157,180,245,.16);color:#9db4f5;margin-left:6px;vertical-align:2px}
+#emH{position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top,0px) + 120px);z-index:4;padding:16px;border-radius:20px;text-align:center}
+#emH b{display:block;font-size:17px}#emH small{display:block;color:var(--mut);font-size:13.5px;margin:6px 0 12px}#emH div{display:flex;gap:8px}#emH .btn{flex:1;padding:11px 8px;font-size:14px}
+body:has(#sheet[style*="block"]) #emH{display:none}
 </style></head><body>
 <canvas id="g"></canvas>
 <div id="su"><div class="sucard glass"><span class="lg lg-l" role="img" aria-label="Logo"></span><h1>Shluchim Keep in Touch <span class="beta">Beta</span></h1><p>This app is in beta, so things may change or break while we test it. Pick your name from the list. First time: add your number and choose a code. Already signed up: enter your code.</p><input id="suN" placeholder="Your name" autocomplete="off" autocapitalize="words"><div id="suH"></div><div id="suM"></div><div id="suPW" style="display:none"></div><div id="suPN"></div><div id="suCW" style="display:none"><input id="suC" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="Code"><div class="phh" id="suCH"></div></div><button class="btn p" id="suB" style="width:100%" disabled>Continue</button><button class="sulink" id="suGo">Not in a yeshiva? Sign up here</button><div id="suG" style="display:none"><p class="sgp">Not in a yeshiva? No problem. Add your name, number and city to keep in touch with friends and family.</p><input id="sgN" placeholder="Your name" autocomplete="name" autocapitalize="words"><div id="sgP"></div><div class="cw"><input id="sgC" placeholder="Your city" autocomplete="off"><div id="sgS"></div><div id="sgSel"></div></div><input id="sgK" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="Code (4–8 digits)"><div class="phh" id="sgH">New here? Choose a code. Signed up before? Enter your code.</div><button class="btn p" id="sgB" style="width:100%" disabled>Continue</button><button class="sulink" id="sgBack">← I’m in a yeshiva</button></div></div></div>
@@ -981,7 +984,7 @@ function lev(a,b){const m=a.length,n=b.length;let p=Array.from({length:n+1},(_,i
 const sim=(a,b)=>a==b?1:1-lev(a,b)/Math.max(a.length,b.length,1);
 const toks=x=>x.toLowerCase().replace(/\(.*?\)/g," ").replace(/[^a-z\u00c0-\u024f\s]/g," ").split(/\s+/).filter(Boolean);
 function matches(q){const qt=toks(q);if(!qt.length)return[];const qs=qt.join("");
- return DIRP.map(p=>{const ct=toks(p.name);if(!ct.length)return{p,sc:0};const full=sim(qs,ct.join("")),tk=qt.reduce((a,t)=>a+Math.max(...ct.map(c=>Math.max(sim(t,c),NG[t]!=null&&NG[t]==NG[c]?.96:0))),0)/qt.length;let sc=Math.max(full,tk*.95);if(qt.length<2)sc*=.6;return{p,sc}}).filter(x=>x.sc>=.62).sort((a,b)=>b.sc-a.sc).slice(0,6)}
+ return (su?DIRP0:DIRP).map(p=>{const ct=toks(p.name);if(!ct.length)return{p,sc:0};const full=sim(qs,ct.join("")),tk=qt.reduce((a,t)=>a+Math.max(...ct.map(c=>Math.max(sim(t,c),NG[t]!=null&&NG[t]==NG[c]?.96:0))),0)/qt.length;let sc=Math.max(full,tk*.95);if(qt.length<2)sc*=.6;return{p,sc}}).filter(x=>x.sc>=.62).sort((a,b)=>b.sc-a.sc).slice(0,6)}
 let selM=null;const suN=$("suN"),suM=$("suM"),suB=$("suB"),suH=$("suH");
 const CC2=new Set([20,27,30,31,32,33,34,36,39,40,41,43,44,45,46,47,48,49,51,52,53,54,55,56,57,58,60,61,62,63,64,65,66,81,82,84,86,90,91,92,93,94,95,98]),CC3=[[211,213],[216,216],[218,218],[220,258],[260,269],[290,291],[297,299],[350,359],[370,389],[420,423],[500,509],[590,599],[670,692],[850,850],[852,853],[855,856],[880,880],[886,886],[960,977],[992,998]],LEN={1:[10,10],7:[10,10],33:[9,9],44:[10,10],27:[9,9],61:[9,9],91:[10,10],52:[10,10],55:[10,11],972:[8,9]};
 function ccOf(d){if(d[0]=="1"||d[0]=="7")return d[0];if(CC2.has(+d.slice(0,2)))return d.slice(0,2);const h=+d.slice(0,3);return CC3.some(r=>h>=r[0]&&h<=r[1])?d.slice(0,3):""}
@@ -1024,7 +1027,7 @@ function suAutoClear(){if(suAuto&&pw.val().e164==suAuto)pw.clear();suAuto="";con
 function pickM(i){suAutoClear();selM=suM._m[i].p;const ph=phoneOf(selM.name,selM.city);if(ph&&!pw.val().ok){pw.set(ph);suAuto=pw.val().e164||"";const n=$("suPN");if(n&&suAuto)n.textContent="We already have this number for you. Change it if it’s wrong."}pw.tz(selM.tz);[...suM.children].forEach((r,k)=>r.classList.toggle("sel",k==i));suCheck()}
 // sign-up name box: suggestions from the first letters (any word), then fuzzy matches for typos
 function suFind(q){const qt=toks(q);if(!qt.length)return[];const out=[],seen=new Set(),add=(p,sc)=>{const k=p.name+"|"+p.city;if(seen.has(k))return;seen.add(k);out.push({p,sc})};
- DIRP.forEach(p=>{const w=toks(p.name);if(qt.every(t=>w.some(x=>x.startsWith(t)||(NG[t]!=null&&NG[t]==NG[x]))))add(p,qt.length>1&&w.join(" ")==qt.join(" ")?1:.9)});
+ DIRP0.forEach(p=>{const w=toks(p.name);if(qt.every(t=>w.some(x=>x.startsWith(t)||(NG[t]!=null&&NG[t]==NG[x]))))add(p,qt.length>1&&w.join(" ")==qt.join(" ")?1:.9)});
  out.sort((a,b)=>b.sc-a.sc||a.p.name.localeCompare(b.p.name));
  if(out.length<6)matches(q).forEach(x=>add(x.p,Math.min(x.sc,.89)));
  return out.slice(0,8)}
@@ -1082,9 +1085,10 @@ const tour={i:0,T:[],off:[],who:null,
  pass(){document.body.classList.add("tpass")},
  show(){this.i=0;this.who=null;document.body.classList.add("tour");closeAll();closeFull();$("tc").innerHTML="";this.step()},
  next(){this.i++;this.step()},
- step(){this.clear();const S=[this.s0,this.s1,this.s2,this.s3,this.s4,this.s5,this.s6][this.i];if(S)S.call(this);else this.end()},
+ step(){this.clear();if(!DIRP.length&&this.i>=1&&this.i<=5)this.i=6;const S=[this.s0,this.s1,this.s2,this.s3,this.s4,this.s5,this.s6][this.i];if(S)S.call(this);else this.end()},
  // 1. the globe and its colours
  s0(){setView("world");focusK=null;tween=null;auto=true;zoomT=1;
+  if(!DIRP.length){this.card("bot","Welcome!","Your globe fills up with the people you keep in touch with. Each pin’s colour tells you if it’s a good time to call there.<br><br>To start: open ☰ and tap <b>Join with a link or code</b> (if someone sent you one), or <b>Add a friend or family</b>.",{extra:TOUR_LEG,next:"Next"});return}
   this.card("bot","Who’s awake right now?","Every pin is a yeshiva or a shliach. Its colour tells you if it’s a good time to call there.",{extra:TOUR_LEG,next:"Next"})},
  // 2. search a bochur (the real search bar)
  s1(){setView("world");auto=false;this.pass();this.pulse($("sb"));
@@ -1223,7 +1227,7 @@ sync()})();
 // neither = SMALL (looks, tweaks, fixes) → only a little round "i" in the corner, version X.Y.Z.
 // adm:1 = admin-only change → counts as a small update in the version number, but NO notification at all (owner). The shown version is worked out from these sizes.
 // apk:N = this needs app version N (a new download); the app then also shows "Update the app".
-const KIT_VER=42,KIT_APK=2;
+const KIT_VER=43,KIT_APK=2;
 const KIT_LOG=[
  {v:1,big:1,t:"Home-screen widgets",d:"See who’s awake without opening the app, with Call and WhatsApp buttons, filters and sorting.",go:"widgets"},
  {v:2,mid:1,t:"Add widgets from inside the app",d:"Menu → Home-screen widgets → Add. No more digging through your phone’s widget list.",go:"widgets",apk:1},
@@ -1260,7 +1264,8 @@ const KIT_LOG=[
  {v:39,mid:1,t:"Communities as one row each",d:"On the Everyone page each community is now a single row, like a group chat, showing who's good to call. Tap it to open that community."},
  {v:40,t:"The Good / Borderline / Asleep filters now work everywhere, and “Mine” is now “★ Favs”"},
  {v:41,t:"Tapping a person or searching a place zooms the globe to them in the background"},
- {v:42,t:"Fixed one place showing several times on the globe (e.g. “Albany · Family · Family”)"}
+ {v:42,t:"Fixed one place showing several times on the globe (e.g. “Albany · Family · Family”)"},
+ {v:43,t:"New accounts start with an empty globe until they join a community or add friends"}
 ];
 function kitVerStr(b){let M=0,m=0,p=0;const by={};KIT_LOG.forEach(x=>{const l=x.big?3:x.mid?2:1;by[x.v]=Math.max(by[x.v]||0,l)});
  Object.keys(by).map(Number).sort((a,c)=>a-c).forEach(v=>{if(v>b)return;if(by[v]==3){M++;m=0;p=0}else if(by[v]==2){m++;p=0}else p++});return M+"."+m+"."+p}
@@ -1447,7 +1452,7 @@ function apOpen(o){o=o&&o.cm?o:{};open(false);sheet._gs=null;let pick=null;
  $("apX").onclick=()=>{if(o.cm)cmAddOpen(o.cm,o.q);else sheet.style.display="none"};
  ok.onclick=()=>{if(ok.disabled)return;const nm=N.value.trim(),ph=pw2.val().ok?pw2.val().e164:"";
   // keep a personal place name separate from a yeshiva of the same name, so their pins don't merge with the shared directory
-  const city=DIRG.some(g=>g.city==pick.city)?pick.city+" ·":pick.city;
+  const city=DIRG0.some(g=>g.city==pick.city)?pick.city+" ·":pick.city;
   const nv={id:Date.now()+Math.random(),name:nm,city,country:pick.sub||"",lat:pick.lat,lon:pick.lon,tz:pick.tz,own:1,ph};saved.push(nv);
   persist();invPush(nv);sheet.style.display="none";render();commit(city,true);hap([12,40,12]);
   if(o.cm){cmAddOne(o.cm,{n:nm,c:pick.city,la:String(pick.lat),lo:String(pick.lon),tz:pick.tz,p:ph}).then(st=>{toast(st=="pending"?"Saved "+nm+" · waiting for an admin to approve them in "+cmName(o.cm):st?"Saved "+nm+" and added them to "+cmName(o.cm):"Saved "+nm+", but couldn’t add them to "+cmName(o.cm)+". Try again.");cmAddOpen(o.cm,"")})}
@@ -1466,7 +1471,7 @@ const kitPost=(path,body)=>fetch(KIT_SRV+path,{method:"POST",headers:{"content-t
 const kitGet1=async(col,id)=>{const r=await fetch(KIT_SRV+col+"/get?id="+id,{cache:"no-store"});if(!r.ok)throw new Error(r.status);return(await r.json()).doc};
 const myFk=()=>slug(pkey(me.match.name,me.match.city)).slice(0,140);
 function meInfo(){if(!me||!me.match)return null;let la,lo,tz,c=me.match.city;
- if(me.gen){la=me.la;lo=me.lo;tz=me.tz}else{const g=DIRG.find(x=>x.city==c);if(!g)return null;la=g.lat;lo=g.lon;tz=g.tz}
+ if(me.gen){la=me.la;lo=me.lo;tz=me.tz}else{const g=DIRG0.find(x=>x.city==c);if(!g)return null;la=g.lat;lo=g.lon;tz=g.tz}
  return{n:me.match.name,c,la:String(la),lo:String(lo),tz,p:me.phone||phoneOf(me.match.name,me.match.city)||""}}
 async function invPush(v){try{if(!v||!v.own||!v.ph||!me||!me.match)return;const info=meInfo();if(!info)return;const id=await invId(v.name,v.ph);
  await kitPost("inv3/add",{id,fk:myFk(),data:info});v.inv=id;v.invFk=myFk();persist()}catch(e){}}
@@ -1494,7 +1499,7 @@ function invAsk(list){const it=list[0];if(!it)return;if(document.body.classList.
  $("ivY").onclick=()=>{const la=+it.la,lo=+it.lo;let nv;
   const dp=DIRP.find(x=>x.name==it.n&&x.city==it.c);
   if(dp&&!saved.some(v=>v.name==dp.name&&v.city==dp.city)){nv={id:Date.now()+Math.random(),name:dp.name,city:dp.city,country:dp.country,lat:dp.lat,lon:dp.lon,tz:dp.tz};saved.push(nv)}
-  else{const city=DIRG.some(g=>g.city==it.c)?it.c+" ·":it.c;nv={id:Date.now()+Math.random(),name:it.n,city,country:"",lat:la,lon:lo,tz:it.tz,own:1,ph:it.p||""};saved.push(nv);invPush(nv)}
+  else{const city=DIRG0.some(g=>g.city==it.c)?it.c+" ·":it.c;nv={id:Date.now()+Math.random(),name:it.n,city,country:"",lat:la,lon:lo,tz:it.tz,own:1,ph:it.p||""};saved.push(nv);invPush(nv)}
   persist();render();commit(nv.city,true);toast("Added "+it.n+" to your map");next()}}
 // sign-up for people who are not in the yeshiva list
 (()=>{let pick=null,bad2=0,lock2=0;const N=$("sgN"),K=$("sgK"),B=$("sgB"),H=$("sgH");const pwG=mkPhone($("sgP"),()=>chk());
@@ -1508,7 +1513,7 @@ function invAsk(list){const it=list[0];if(!it)return;if(document.body.classList.
   try{const uid=await userId(ph),doc=await kitGet1("users3",uid);let salt,h;
    if(doc){h=await hashCode(code,doc.salt);if(h!=doc.h){bad2++;if(bad2>=5){lock2=Date.now()+30000;bad2=0}H.className="phh bad";H.textContent="This number already has an account. Wrong code.";B.disabled=false;return}salt=doc.salt}
    else{salt=randSalt();h=await hashCode(code,salt);await kitPost("users3/set",{id:uid,data:{salt,h}})}
-   const city=DIRG.some(g=>g.city==pick.city)?pick.city+" ·":pick.city;
+   const city=DIRG0.some(g=>g.city==pick.city)?pick.city+" ·":pick.city;
    me={name:N.value.trim(),match:{name:N.value.trim(),city},gen:1,la:pick.lat,lo:pick.lon,tz:pick.tz,phone:ph,salt,h,uid};lsSet("sc_me",JSON.stringify(me));
    K.value="";su=false;document.body.classList.remove("su");$("su").classList.remove("su-gen");renderCards();welcome();setTimeout(()=>{invCheck(1);invBackfill();cmRebuild();cmRefresh();cmPendingJoin()},1500)}
   catch(e){H.className="phh bad";H.textContent="Couldn’t reach the server. Check your internet and try again.";B.disabled=false}}})();
@@ -1531,13 +1536,17 @@ const cmSave=l=>lsSet("kit_comms",JSON.stringify(l));
 const cmEntry=id=>cmList().find(x=>x.id==id);
 const cmSecret=()=>{try{return[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,"0")).join("")}catch(e){return(Math.random().toString(36)+Math.random().toString(36)).slice(2,34)}};
 function cmFk(){if(!me||!me.match)return"";if(!me.gen)return myFk();return(slug(me.match.name).slice(0,60)+"_"+digits(me.phone).slice(-6)+(me.uid?me.uid.slice(0,6):"")).slice(0,140)}
-const isShlMember=()=>!!(me&&me.match&&(!me.gen||(cmEntry("shluchim")||{}).st=="member"));
+const isShlMember=()=>!!(me&&me.match&&(cmEntry("shluchim")||{}).st=="member");
+(function shlGrand(){try{if(!me||!me.match||me.gen||cmEntry("shluchim")||lsGet("kit_shl_g")=="1")return;const sv=+lsGet(kitSeenKey())||0;lsSet("kit_shl_g","1");
+ if(!(sv>0&&sv<43)&&!saved.some(v=>v.name&&!v.own))return;const l=cmList();l.push({id:"shluchim",s:cmSecret(),st:"member",sj:1});cmSave(l)}catch(e){}})();
+async function shlJoinPending(){const e=cmEntry("shluchim");if(!e||!e.sj||!me||!me.match)return;const info=meInfo();if(!info)return;
+ try{const r=await cmPost("join",{id:"shluchim",fk:cmFk(),s:e.s,me:info});const l=cmList(),x=l.find(y=>y.id=="shluchim");if(x){delete x.sj;x.st=r.status=="member"?"member":x.st;cmSave(l)}}catch(err){}}
 (function fixCities(){let ch=0;saved.forEach(v=>{if(!v||!v.own||v.cm||typeof v.city!="string"||v.city.indexOf(" · ")<0)return;const b=baseCity(v.city),c=DIRG0.some(g=>g.city==b)?b+" ·":b;if(c!=v.city){v.city=c;ch=1}});if(ch)persist()})();
 function cmFix(v){const g=DIRG.find(x=>x.city==v.city);if(g&&g.comm){v.own=1;v.ph=phoneOf(v.name,v.city);v.cm=g.comm}return v}
 async function cmFetch(id){try{const r=await fetch(KIT_SRV+"comm/get?id="+id,{cache:"no-store"});if(!r.ok)return null;return(await r.json()).doc}catch(e){return null}}
 const cmPost=(op,body)=>kitPost("comm/"+op,body);
 // rebuild what the globe/search can see: Shluchim (if a member, or before signing in) + members of my communities
-function cmRebuild(){const showS=!me||!me.match||isShlMember(),mine=me&&me.match?cmFk():"",G=[],P=[];CM_PH={};
+function cmRebuild(){const showS=isShlMember(),mine=me&&me.match?cmFk():"",G=[],P=[];CM_PH={};
  let ids=cmList().filter(x=>x.st=="member").map(x=>x.id);if(showS&&!ids.includes("shluchim"))ids.push("shluchim");
  if(CM_VIEW&&!ids.includes(CM_VIEW))CM_VIEW="";const V=CM_VIEW;
  if(showS&&(!V||V=="shluchim")){G.push(...DIRG0);P.push(...DIRP0)}
@@ -1550,9 +1559,9 @@ function cmRebuild(){const showS=!me||!me.match||isShlMember(),mine=me&&me.match
    const g=by[city]||(by[city]={city,lat:+m.la,lon:+m.lo,tz:m.tz,country:d.name,people:[],comm:id});g.people.push(m.n);if(m.p)CM_PH[pkey(m.n,city)]=m.p});
   Object.values(by).forEach(g=>{if(!isFinite(g.lat)||!isFinite(g.lon))return;G.push(g);g.people.forEach(n=>P.push({name:n,city:g.city,country:g.country,lat:g.lat,lon:g.lon,tz:g.tz}))})});
  DIRG.length=0;DIRG.push(...G);DIRP.length=0;DIRP.push(...P);try{cmBar();render();renderCards()}catch(e){}}
-async function cmRefresh(){if(!me||!me.match)return;const ids=cmList().map(x=>x.id);if(isShlMember()&&!ids.includes("shluchim"))ids.push("shluchim");
+async function cmRefresh(){if(!me||!me.match)return;await shlJoinPending();const ids=cmList().map(x=>x.id);if(isShlMember()&&!ids.includes("shluchim"))ids.push("shluchim");
  const l=cmList();let ch=false;
- await Promise.all(ids.map(async id=>{const d=await cmFetch(id);if(d){CM_DOCS[id]=d;const e=l.find(x=>x.id==id);if(e){const st=d.members[cmFk()]?"member":(d.pending[cmFk()]?"pending":"none");if(st!=e.st&&!(st=="none"&&e.st=="claim")){e.st=st;ch=true}}}}));
+ await Promise.all(ids.map(async id=>{const d=await cmFetch(id);if(d){CM_DOCS[id]=d;const e=l.find(x=>x.id==id);if(e){const st=d.members[cmFk()]?"member":(d.pending[cmFk()]?"pending":"none");if(st!=e.st&&!(st=="none"&&(e.st=="claim"||e.sj))){e.st=st;ch=true}}}}));
  if(ch)cmSave(l.filter(x=>x.st!="none"));cmRebuild();cmMenu();try{if(!document.body.classList.contains("tour")&&sheet.style.display!="block")cmAutoSave();else cmList().forEach(e=>{if(e.st=="member"&&e.all&&e.all!="no")cmSaveMembers(e.id)})}catch(x){}}
 function cmMenu(){const el=$("cmL");if(!el)return;const rows=[];const l=cmList();
  if(me&&me.match&&isShlMember())rows.push({id:"shluchim",name:"Shluchim",n:DIRP0.length+Object.keys((CM_DOCS.shluchim||{}).members||{}).filter(k=>!DIRP0.some(x=>x.name==((CM_DOCS.shluchim.members[k]||{}).n))).length});
@@ -1565,7 +1574,7 @@ async function cmOpen(id){sheet._gs=null;let d=CM_DOCS[id]||await cmFetch(id);if
  const e=cmEntry(id),mine=cmFk(),amAdmin=!!(d.admins||[]).includes(mine)&&!!(d.members||{})[mine],isS=id=="shluchim";
  const mem=Object.entries(d.members||{}).sort((a,b)=>a[1].n.localeCompare(b[1].n));
  const total=isS?DIRP0.length+mem.filter(([k,m])=>!DIRP0.some(x=>x.name==m.n)).length:mem.length;
- const inC=e&&e.st=="member"||isS&&!me.gen,pend=amAdmin?Object.entries(d.pending||{}):[],defH=lsGet("kit_cm_def")==id;
+ const inC=!!(e&&e.st=="member"),pend=amAdmin?Object.entries(d.pending||{}):[],defH=lsGet("kit_cm_def")==id;
  // owner: "the windows are very ugly now and the UX is quite confusing" → one clear header, two main actions, the members, and everything else folded under Settings
  let h='<div class="cm"><div class="cmhd"><div><h3>'+esc(d.name)+(amAdmin?'<span class="cmb">Admin</span>':'')+'</h3><p>'+total+' member'+(total==1?'':'s')+(e&&e.st=="pending"?' · waiting for approval':'')+'</p></div><button class="cmx" id="cmX" aria-label="Close">✕</button></div>';
  h+='<div class="cmact">'+(inC?'<button class="btn p" id="cmAdd">＋ Add people</button>':'')+'<button class="btn" id="cmSh">Invite with a link</button></div>';
@@ -1582,7 +1591,7 @@ async function cmOpen(id){sheet._gs=null;let d=CM_DOCS[id]||await cmFetch(id);if
  h+='<div class="sh">Open the app on</div><div class="seg"><button data-df=""'+(defH?'':' class="on"')+'>Everyone</button><button data-df="'+id+'"'+(defH?' class="on"':'')+'>'+esc(d.name)+'</button></div>';
  if(inC)h+='<button class="btn cmw" id="cmAll">★ Save everyone as favourites</button>';
  h+='<div class="cmcode">Invite code <b>'+esc(id)+'</b></div>';
- if(!isS||me.gen)h+='<button class="btn cmw red" id="cmLeave">Leave '+esc(d.name)+'</button>';
+ h+='<button class="btn cmw red" id="cmLeave">Leave '+esc(d.name)+'</button>';
  h+='</details></div>';
  sheet.innerHTML=h;sheet.style.display="block";const sec=(e||{}).s;
  const act=async(op,extra,msg)=>{try{await cmPost(op,Object.assign({id,fk:mine,s:sec},extra));hap(10);if(msg)toast(msg);CM_DOCS[id]=await cmFetch(id)||CM_DOCS[id];cmRebuild();cmMenu();cmOpen(id)}catch(x){toast("Couldn’t do that. Try again.")}};
@@ -1665,7 +1674,7 @@ function cmJoinAsk(code){open(false);sheet._gs=null;sheet.innerHTML='<div class=
  const C=$("cmC"),G=$("cmGo"),I=$("cmI");let id="",t=0;$("cmX").onclick=()=>sheet.style.display="none";
  const look=async()=>{const v=C.value.trim(),m=v.match(/join=([a-z0-9]+)/i);id=(m?m[1]:v).toLowerCase().replace(/[^a-z0-9]/g,"");G.disabled=true;I.innerHTML="";
   if(!/^([a-z0-9]{8}|shluchim)$/.test(id))return;const d=await cmFetch(id);if(!d){I.innerHTML='<div class="note">No community with that code.</div>';return}
-  const e=cmEntry(id);if(e&&e.st=="member"||id=="shluchim"&&!me.gen){I.innerHTML='<div class="note">You’re already in '+esc(d.name)+'.</div>';return}
+  const e=cmEntry(id);if(e&&e.st=="member"){I.innerHTML='<div class="note">You’re already in '+esc(d.name)+'.</div>';return}
   I.innerHTML='<div class="note"><b>'+esc(d.name)+'</b> · '+Object.keys(d.members).length+' members. '+(d.mode=="approve"?'An admin will approve you.':'You’ll join right away.')+' Its members will see your name, city and number.</div>';G.disabled=false};
  C.oninput=()=>{clearTimeout(t);t=setTimeout(look,250)};if(code)look();else setTimeout(()=>C.focus(),80);
  G.onclick=async()=>{const info=meInfo();if(!info){toast("Couldn’t find your location.");return}G.disabled=true;const e=cmEntry(id),s2=(e&&e.s)||cmSecret();
@@ -1674,6 +1683,11 @@ function cmJoinAsk(code){open(false);sheet._gs=null;sheet.innerHTML='<div class=
 $("cmNew").onclick=cmNew;$("cmJoin").onclick=()=>cmJoinAsk("");
 // a join link opened the page: ask after signing in
 (()=>{const m=location.search.match(/[?&]join=([a-z0-9]+)/i);if(m)try{sessionStorage.setItem("kit_join",m[1].toLowerCase())}catch(e){}})();
+function emptyHint(){let el=$("emH");const on=!!(me&&me.match)&&!DIRP.length&&!saved.length&&!document.body.classList.contains("tour")&&!document.body.classList.contains("su");
+ if(!on){if(el)el.remove();return}if(el)return;el=document.createElement("div");el.id="emH";el.className="glass";
+ el.innerHTML='<b>Your globe is empty</b><small>Join a community with a link or code someone sent you, or add your own friends and family.</small><div><button class="btn p" id="emJ">Join a community</button><button class="btn" id="emA">Add a friend</button></div>';
+ document.body.appendChild(el);$("emJ").onclick=()=>cmJoinAsk("");$("emA").onclick=apOpen}
+setInterval(emptyHint,1500);
 function cmPendingJoin(){if(!me||!me.match)return;let c="";try{c=sessionStorage.getItem("kit_join")||"";sessionStorage.removeItem("kit_join")}catch(e){}if(c)setTimeout(()=>cmJoinAsk(c),900)}
 cmRebuild();setTimeout(()=>{cmRefresh();cmPendingJoin()},1200);setInterval(()=>{if(!document.hidden)cmRefresh()},60000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)cmRefresh()});
