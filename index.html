@@ -3611,9 +3611,10 @@ function cchLive(el,base){if(!el)return{set(){},setBase(){},anim(){},nod(){},dar
  if(!RM){const tick=()=>{if(!el.isConnected)return;const off=document.documentElement.classList.contains('tt-off-charlife'),sb=off?'':sabbath();setTimeout(tick,(L.ambient&&!off?1800+Math.random()*2200:2800+Math.random()*3400)*(sb==='sh'?1.5:1));   // v137: slightly less often (home 1.8–4 s, elsewhere 2.8–6.2 s)   // v134 (owner: "less idle"): the home-screen one moves about twice as often
    if(document.hidden||!el.offsetParent||(el.parentElement&&el.parentElement.closest('[aria-hidden="true"]'))||(L.ambient&&document.documentElement.classList.contains('cc-away')))return;   // v125: not inside a closed (hidden) sheet
    const night=document.documentElement.dataset.night==='1',idle=Date.now()-CCH_ACT;
-   if(L.sleep&&(idle<180000||off))L.wake();
+   const DZ=(night||(typeof HSH!=='undefined'&&HSH))?20000:180000;   // v146 (owner): after sunset he starts dozing after 20 s untouched (3 min by day)
+   if(L.sleep&&(idle<DZ||off))L.wake();
    // the + button dozes off after 3 min untouched (v134; was 45 s) with slow nods; late at night the z's float up
-   if(!off&&L.ambient&&idle>180000){if(!L.sleep){L.sleep=true;L.ss=sd();clearTimeout(L.t);L.cur='sleepy';mood('sleepy',1400)}if(idle<360000){fx('sway',[{t:0},{t:.5,y:6,r:-3*L.ss},{t:1}],rn(2000,3000));if(night&&idle>200000)L.zz()}return}   // v125: after ~2 min of dozing he stays still (battery)
+   if(!off&&L.ambient&&idle>DZ){if(!L.sleep){L.sleep=true;L.ss=sd();clearTimeout(L.t);L.cur='sleepy';mood('sleepy',1400)}if(idle<DZ+180000){fx('sway',[{t:0},{t:.5,y:6,r:-3*L.ss},{t:1}],rn(2000,3000));if(night&&idle>DZ+15000)L.zz()}return}   // v125: after ~2 min of dozing he stays still (battery)
    if(L.cur)return;
    if(!off&&Math.random()<.22){L.side=-L.side;mood(L.base,700);return}   // v137: now and then he turns his head to the other side and carries on from there
    const m=CCP[L.base]||L.base,A=off?[[3,L.blink],[2,()=>fx('root',[{t:0},{t:.5,sx:1.012,sy:1.03},{t:1}],2200)],[1.4,()=>{L.look((Math.random()-.5)*20,(Math.random()-.5)*10,1300);setTimeout(L.blink,1500)}],[1.1,L.sway],[.8,L.hat],[m==='read'||m==='peek'?1.6:.6,L.page]]:
@@ -3676,8 +3677,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=145;
+const CC_VER=146;
 const CC_LOG=[
+  {v:146,new:['After sunset the little character gets sleepy quickly: he starts dozing off after 20 seconds without a touch.']},
   {v:145,new:['“How & when” guides checked against Chabad custom: the menorah (an inside doorway, left side, lit after sunset; who lights), lulav in the sukkah before Shacharis in the Chabad order, nothing eaten outside the sukkah, no kittel, L’Dovid at Shacharis and Mincha, Malkos after Mincha, not selling real chametz, a siyum each day of the Nine Days, and more.']},
   {v:144,mid:1,new:['On Chanukah the siddur adds the menorah lighting (blessings and Haneiros Halalu) at the end of Maariv, and on Friday at the end of Mincha, with a “How to” button for the steps.']},
   {v:143,new:['Chanukah menorah steps now follow Chabad custom: in the doorway opposite the mezuzah, and Haneiros Halalu without Maoz Tzur.']},
