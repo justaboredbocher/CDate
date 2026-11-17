@@ -3533,7 +3533,13 @@ function cchLive(el,base){if(!el)return{set(){},setBase(){},anim(){},nod(){},dar
  const curOf=(p,t)=>{if(!p.dur||t>=p.t0+p.dur)return p.to;const u=(t-p.t0)/p.dur;return mix(p.from,p.to,cchBack(u))};
  const tween=(k,to,dur)=>{const p=P[k];if(!p)return;const t=now();p.from=curOf(p,t);p.to=to;p.t0=t;p.dur=RM?0:dur;kick()};
  const mood=(m,d)=>{m=CCP[m]||m;el.dataset.m=m;for(const k in P)if(k!=='look'&&k!=='sway'&&k!=='hatb'&&k!=='root'&&k!=='page'&&k!=='zz')tween(k,mir(cchS(L.side<0?(SW[k]||k):k,m)),d||440);
-  tween('hatb',{x:L.side<0?21.2:0,y:0,r:0,sx:L.side,sy:1,o:1},d||440)};   // v139 (owner): the hat's own drawn tilt flips with him (mirrored about the face centre 182.6; it turns through edge-on)
+  if(P.hatb&&P.hatb.to.sx!==L.side)hatFlip(d)};
+ /* v139/v140 (owner: "the hat should tilt with the head … it shouldn't spin, just tilt"): the hat's drawing has its own ~14° tilt, so when he turns
+    to the other side the hat first rotates level, swaps to its mirror image while level (looks the same there), then rotates on to the new tilt */
+ const HS=s=>({x:s<0?21.2:0,y:0,r:0,sx:s,sy:1,o:1}),hatFlip=d=>{const s1=L.side,s0=-s1,hd=(d||440)/2;clearTimeout(L.hft);
+  if(L.init){tween('hatb',HS(s1),0);return}
+  tween('hatb',Object.assign(HS(s0),{r:14*s0}),hd);
+  L.hft=setTimeout(()=>{tween('hatb',Object.assign(HS(s1),{r:14*s1}),0);tween('hatb',HS(s1),hd)},hd)};
  /* one-shot moves: keyframes [{t,...state deltas}] added on top (x,y,r add; sx,sy multiply; o overrides) */
  const fx=(k,kf,dur)=>{if(L.side<0){k=SW[k]||k;kf=kf.map(f=>{const g=Object.assign({},f);if(g.x!=null)g.x=-g.x;if(g.r!=null)g.r=-g.r;return g})}if(RM||!P[k])return;L.fx.push({k,kf,t0:now(),dur});kick()};
  const fxAt=(f,t)=>{const u=Math.min(1,(t-f.t0)/f.dur),kf=f.kf;let i=0;while(i<kf.length-2&&u>kf[i+1].t)i++;const a=kf[i],b=kf[i+1],w=b.t>a.t?(u-a.t)/(b.t-a.t):1,e=w<.5?2*w*w:1-Math.pow(-2*w+2,2)/2,g=(q,d)=>(a[q]??d)+((b[q]??d)-(a[q]??d))*e;
@@ -3592,7 +3598,7 @@ function cchLive(el,base){if(!el)return{set(){},setBase(){},anim(){},nod(){},dar
  /* tap him (anywhere but the + button, which opens the assistant): a surprised bounce; 3 quick taps make him dizzy */
  let taps=[];if(!L.ambient)el.addEventListener('pointerdown',()=>{if(document.documentElement.classList.contains('tt-off-charlife'))return;const n=Date.now();taps=taps.filter(x=>n-x<1500);taps.push(n);if(taps.length>=3){taps=[];L.dizzy()}else L.surprise()});
  const sabbath=()=>{try{const d=new Date(),wd=d.getDay();if((wd===5&&d.getHours()>=12)||wd===6)return'sh';return strictYT(hd(t0))?'yt':''}catch(e){return''}};
- mood(L.base);for(const k in P){P[k].dur=0}frame();
+ L.init=1;mood(L.base);L.init=0;for(const k in P){P[k].dur=0}frame();
  if(!RM){const tick=()=>{if(!el.isConnected)return;const off=document.documentElement.classList.contains('tt-off-charlife'),sb=off?'':sabbath();setTimeout(tick,(L.ambient&&!off?1800+Math.random()*2200:2800+Math.random()*3400)*(sb==='sh'?1.5:1));   // v137: slightly less often (home 1.8–4 s, elsewhere 2.8–6.2 s)   // v134 (owner: "less idle"): the home-screen one moves about twice as often
    if(document.hidden||!el.offsetParent||(el.parentElement&&el.parentElement.closest('[aria-hidden="true"]'))||(L.ambient&&document.documentElement.classList.contains('cc-away')))return;   // v125: not inside a closed (hidden) sheet
    const night=document.documentElement.dataset.night==='1',idle=Date.now()-CCH_ACT;
@@ -3661,9 +3667,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=139;
+const CC_VER=140;
 const CC_LOG=[
-  {v:139,new:['The little character’s hat now tilts to the other side together with his head.']},
+  {v:139,new:['The little character’s hat now tilts to the other side together with his head (a simple tilt, no spin).']},
   {v:138,new:['No more buzzing while you scroll the main page.']},
   {v:137,new:['The app opens faster: the sun and moon no longer play an opening animation.','The little character moves a bit less often, and now tilts and moves both ways (left and right).','Smoother scrolling where the date fades out and the cards come up.']},
   {v:136,new:['The loading figure is light blue at night, so it shows up on the dark screen.']},
