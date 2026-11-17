@@ -835,7 +835,8 @@ function draw(){
  const items=[],seen={};
  DIRG.forEach(g=>{const p=P(g.lon,g.lat);if(p[2]<.05)return;items.push({x:p[0],y:p[1],lon:g.lon,lat:g.lat,tz:g.tz,sv:g.people.some(n=>savedIdx(n,g.city)>=0),grp:g})});
  saved.forEach(v=>{if(DIRG.some(g=>g.city==v.city))return;if(window.CM_VIEW)return;const k=v.city+"|"+v.tz;if(seen[k])return;const p=P(v.lon,v.lat);if(p[2]<.05)return;
-  const it={x:p[0],y:p[1],lon:v.lon,lat:v.lat,tz:v.tz,sv:true,grp:{city:v.city,tz:v.tz,people:saved.filter(s=>s.city==v.city&&s.name).map(s=>s.name)}};seen[k]=1;items.push(it)});
+  const rep=pinRep(),ppl=saved.filter(s=>s.city==v.city&&s.name&&!rep.has(s)).map(s=>s.name);seen[k]=1;if(!ppl.length)return;
+  const it={x:p[0],y:p[1],lon:v.lon,lat:v.lat,tz:v.tz,sv:true,grp:{city:v.city,tz:v.tz,people:ppl}};items.push(it)});
  const cl=[];
  items.forEach(it=>{let c=null;for(const k of cl){if(Math.hypot(k.x-it.x,k.y-it.y)<26){c=k;break}}
   if(c){c.items.push(it);const n=c.items.length;c.x+=(it.x-c.x)/n;c.y+=(it.y-c.y)/n}else cl.push({x:it.x,y:it.y,items:[it]})});
@@ -860,6 +861,8 @@ cv.addEventListener("pointermove",e=>{if(!ptrs.has(e.pointerId))return;const o=p
 const up=e=>{ptrs.delete(e.pointerId);if(!ptrs.size){drag=false;cv.style.cursor="grab";if(moved<6&&Date.now()-t0<400)tap(e.clientX,e.clientY)}};
 cv.addEventListener("pointerup",up);cv.addEventListener("pointercancel",up);
 cv.addEventListener("wheel",e=>{e.preventDefault();zoomT=null;zoom=Math.max(.8,Math.min(30,zoom*(1-e.deltaY*.001)))},{passive:false});
+// saved contacts already shown inside a pin on the globe (a community member, a yeshiva person); rebuilt at most once a second
+let PREP={t:0,s:new Set()};function pinRep(){const n=Date.now();if(n-PREP.t<1000)return PREP.s;const S=new Set();DIRG.forEach(g=>g.people.forEach(nm=>{const i=savedIdx(nm,g.city);if(i>=0)S.add(saved[i])}));PREP={t:n,s:S};return S}
 function tap(x,y){closeAll();let best=null,bd=1e9;pins.forEach(p=>{const d=Math.hypot(p.x+(p.hx||0)-x,p.y-(p.hy||0)-y);if(d<p.r+14&&d<bd){bd=d;best=p}});if(!best)return;
  if(best.items.length==1){showSheet([best.items[0].grp]);return}
  if(zoom<20){const n=best.items.length;fly(best.items.reduce((a,i)=>a+i.lon,0)/n,best.items.reduce((a,i)=>a+i.lat,0)/n);zoomT=Math.min(30,Math.max(zoom*3,4))}
@@ -1220,7 +1223,7 @@ sync()})();
 // neither = SMALL (looks, tweaks, fixes) → only a little round "i" in the corner, version X.Y.Z.
 // adm:1 = admin-only change → counts as a small update in the version number, but NO notification at all (owner). The shown version is worked out from these sizes.
 // apk:N = this needs app version N (a new download); the app then also shows "Update the app".
-const KIT_VER=41,KIT_APK=2;
+const KIT_VER=42,KIT_APK=2;
 const KIT_LOG=[
  {v:1,big:1,t:"Home-screen widgets",d:"See who’s awake without opening the app, with Call and WhatsApp buttons, filters and sorting.",go:"widgets"},
  {v:2,mid:1,t:"Add widgets from inside the app",d:"Menu → Home-screen widgets → Add. No more digging through your phone’s widget list.",go:"widgets",apk:1},
@@ -1256,7 +1259,8 @@ const KIT_LOG=[
  {v:38,mid:1,t:"Tap anyone to see their details",d:"Tap a person in your list, a community, or its member list: you see their local time, their number with Call and WhatsApp, and buttons to favourite, save, delete or find them on the globe."},
  {v:39,mid:1,t:"Communities as one row each",d:"On the Everyone page each community is now a single row, like a group chat, showing who's good to call. Tap it to open that community."},
  {v:40,t:"The Good / Borderline / Asleep filters now work everywhere, and “Mine” is now “★ Favs”"},
- {v:41,t:"Tapping a person or searching a place zooms the globe to them in the background"}
+ {v:41,t:"Tapping a person or searching a place zooms the globe to them in the background"},
+ {v:42,t:"Fixed one place showing several times on the globe (e.g. “Albany · Family · Family”)"}
 ];
 function kitVerStr(b){let M=0,m=0,p=0;const by={};KIT_LOG.forEach(x=>{const l=x.big?3:x.mid?2:1;by[x.v]=Math.max(by[x.v]||0,l)});
  Object.keys(by).map(Number).sort((a,c)=>a-c).forEach(v=>{if(v>b)return;if(by[v]==3){M++;m=0;p=0}else if(by[v]==2){m++;p=0}else p++});return M+"."+m+"."+p}
@@ -1417,7 +1421,7 @@ const AP_GEO="https://geocoding-api.open-meteo.com/v1/search";
 
 // city input with suggestions: the app's own places at once, then worldwide (Open-Meteo geocoder: lat/lon/time zone)
 function cityBox(C,S,Sel,onPick,onClear){let tq=0,seq=0;
- const local=q=>{const s=q.toLowerCase(),seen=new Set(),out=[];CITIES.concat(DIRG.map(g=>({city:g.city,country:g.country,lat:g.lat,lon:g.lon,tz:g.tz}))).forEach(c=>{if((c.city+" "+c.country).toLowerCase().includes(s)&&!seen.has(c.city)){seen.add(c.city);out.push({city:c.city,sub:c.country,lat:c.lat,lon:c.lon,tz:c.tz})}});return out.slice(0,4)};
+ const local=q=>{const s=q.toLowerCase(),seen=new Set(),out=[];CITIES.concat(DIRG.filter(g=>!g.comm).map(g=>({city:g.city,country:g.country,lat:g.lat,lon:g.lon,tz:g.tz}))).forEach(c=>{if((c.city+" "+c.country).toLowerCase().includes(s)&&!seen.has(c.city)){seen.add(c.city);out.push({city:c.city,sub:c.country,lat:c.lat,lon:c.lon,tz:c.tz})}});return out.slice(0,4)};
  const show=list=>{S.innerHTML=list.map((c,i)=>'<div class="r" data-i="'+i+'"><span class="dot" style="background:'+COL[status(c.tz)]+'"></span><div><b>'+esc(c.city)+'</b><small>'+esc(c.sub||"")+' · '+clock(c.tz)+'</small></div></div>').join("");S._l=list};
  C.addEventListener("focus",()=>setTimeout(()=>C.scrollIntoView({block:"start",behavior:"smooth"}),250));
  C.oninput=()=>{Sel.innerHTML="";C.style.display="";onClear();const q=C.value.trim();if(q.length<2){S.innerHTML="";return}
@@ -1528,6 +1532,7 @@ const cmEntry=id=>cmList().find(x=>x.id==id);
 const cmSecret=()=>{try{return[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,"0")).join("")}catch(e){return(Math.random().toString(36)+Math.random().toString(36)).slice(2,34)}};
 function cmFk(){if(!me||!me.match)return"";if(!me.gen)return myFk();return(slug(me.match.name).slice(0,60)+"_"+digits(me.phone).slice(-6)+(me.uid?me.uid.slice(0,6):"")).slice(0,140)}
 const isShlMember=()=>!!(me&&me.match&&(!me.gen||(cmEntry("shluchim")||{}).st=="member"));
+(function fixCities(){let ch=0;saved.forEach(v=>{if(!v||!v.own||v.cm||typeof v.city!="string"||v.city.indexOf(" · ")<0)return;const b=baseCity(v.city),c=DIRG0.some(g=>g.city==b)?b+" ·":b;if(c!=v.city){v.city=c;ch=1}});if(ch)persist()})();
 function cmFix(v){const g=DIRG.find(x=>x.city==v.city);if(g&&g.comm){v.own=1;v.ph=phoneOf(v.name,v.city);v.cm=g.comm}return v}
 async function cmFetch(id){try{const r=await fetch(KIT_SRV+"comm/get?id="+id,{cache:"no-store"});if(!r.ok)return null;return(await r.json()).doc}catch(e){return null}}
 const cmPost=(op,body)=>kitPost("comm/"+op,body);
@@ -1538,9 +1543,9 @@ function cmRebuild(){const showS=!me||!me.match||isShlMember(),mine=me&&me.match
  if(showS&&(!V||V=="shluchim")){G.push(...DIRG0);P.push(...DIRP0)}
  const all=ids.slice();if(V)ids=[V];
  // numbers of everyone in my communities stay known (for saved people and the lists), whatever the globe shows
- all.forEach(id=>{const d=CM_DOCS[id];if(!d)return;Object.values(d.members||{}).forEach(m=>{if(m.p&&m.tz)CM_PH[pkey(m.n,(m.c||"").replace(/ ·$/,"")+" · "+d.name)]=m.p})});
+ all.forEach(id=>{const d=CM_DOCS[id];if(!d)return;Object.values(d.members||{}).forEach(m=>{if(m.p&&m.tz)CM_PH[pkey(m.n,baseCity(m.c)+" · "+d.name)]=m.p})});
  ids.forEach(id=>{const d=CM_DOCS[id];if(!d)return;const by={};
-  Object.entries(d.members||{}).forEach(([fk,m])=>{if(fk==mine||!m.tz)return;const city=(m.c||"").replace(/ ·$/,"")+" · "+d.name;
+  Object.entries(d.members||{}).forEach(([fk,m])=>{if(fk==mine||!m.tz)return;const city=baseCity(m.c)+" · "+d.name;
    if(id=="shluchim"&&DIRP0.some(x=>x.name==m.n))return; // already in the directory
    const g=by[city]||(by[city]={city,lat:+m.la,lon:+m.lo,tz:m.tz,country:d.name,people:[],comm:id});g.people.push(m.n);if(m.p)CM_PH[pkey(m.n,city)]=m.p});
   Object.values(by).forEach(g=>{if(!isFinite(g.lat)||!isFinite(g.lon))return;G.push(g);g.people.forEach(n=>P.push({name:n,city:g.city,country:g.country,lat:g.lat,lon:g.lon,tz:g.tz}))})});
@@ -1565,9 +1570,9 @@ async function cmOpen(id){sheet._gs=null;let d=CM_DOCS[id]||await cmFetch(id);if
  let h='<div class="cm"><div class="cmhd"><div><h3>'+esc(d.name)+(amAdmin?'<span class="cmb">Admin</span>':'')+'</h3><p>'+total+' member'+(total==1?'':'s')+(e&&e.st=="pending"?' · waiting for approval':'')+'</p></div><button class="cmx" id="cmX" aria-label="Close">✕</button></div>';
  h+='<div class="cmact">'+(inC?'<button class="btn p" id="cmAdd">＋ Add people</button>':'')+'<button class="btn" id="cmSh">Invite with a link</button></div>';
  if(isS&&!amAdmin&&typeof isAdmin=="function"&&isAdmin())h+='<button class="btn cmw" id="cmClaim">Manage Shluchim (admin code)</button>';
- if(pend.length)h+='<div class="sh">Waiting to join · '+pend.length+'</div><div class="cml">'+pend.map(([k,m])=>'<div class="mm"><i class="av">'+esc((m.n[0]||"?").toUpperCase())+'</i><span><b>'+esc(m.n)+'</b><small>'+esc((m.c||"").replace(/ ·$/,""))+'</small></span><button class="ok" data-ap="'+k+'">Approve</button><button data-dc="'+k+'">Decline</button></div>').join("")+'</div>';
+ if(pend.length)h+='<div class="sh">Waiting to join · '+pend.length+'</div><div class="cml">'+pend.map(([k,m])=>'<div class="mm"><i class="av">'+esc((m.n[0]||"?").toUpperCase())+'</i><span><b>'+esc(m.n)+'</b><small>'+esc(baseCity(m.c))+'</small></span><button class="ok" data-ap="'+k+'">Approve</button><button data-dc="'+k+'">Decline</button></div>').join("")+'</div>';
  if(mem.length){h+='<div class="sh">'+(isS?'Joined with the link':'Members')+'</div><div class="cml">'+mem.map(([k,m])=>{const ad=(d.admins||[]).includes(k),own=k==d.owner,me1=k==mine;
-   const tag=own?'Creator':ad?'Admin':'',sub=esc((m.c||"").replace(/ ·$/,""))+(m.ad?' · added'+(m.by==mine?' by you':''):''),
+   const tag=own?'Creator':ad?'Admin':'',sub=esc(baseCity(m.c))+(m.ad?' · added'+(m.by==mine?' by you':''):''),
    btn=m.ad?(amAdmin||m.by==mine?'<button data-ua="'+k+'">Remove</button>':''):(amAdmin&&!me1&&!own?'<button data-mo="'+k+'" aria-label="More">⋯</button>':'');
    return'<div class="mm" data-pk="'+esc(k)+'"><i class="av">'+esc((m.n[0]||"?").toUpperCase())+'</i><span><b>'+esc(m.n)+(me1?' <em>(you)</em>':'')+(tag?'<span class="tg">'+tag+'</span>':'')+'</b><small>'+sub+'</small></span>'+btn+'</div>'+
     (amAdmin&&!me1&&!own&&!m.ad?'<div class="mmo" data-mmo="'+k+'"><button data-ad="'+k+'" data-on="'+(ad?0:1)+'">'+(ad?'Remove admin':'Make admin')+'</button><button data-rm="'+k+'" class="red">Remove from '+esc(d.name)+'</button></div>':'')}).join("")+'</div>'}
@@ -1587,7 +1592,7 @@ async function cmOpen(id){sheet._gs=null;let d=CM_DOCS[id]||await cmFetch(id);if
  sheet.querySelectorAll("[data-ap]").forEach(b=>b.onclick=()=>act("approve",{who:b.dataset.ap},"Approved"));
  sheet.querySelectorAll("[data-dc]").forEach(b=>b.onclick=()=>act("decline",{who:b.dataset.dc}));
  sheet.querySelectorAll("[data-ad]").forEach(b=>b.onclick=()=>act("admin",{who:b.dataset.ad,on:b.dataset.on=="1"}));
- sheet.querySelectorAll(".mm[data-pk]").forEach(r=>r.onclick=ev=>{if(ev.target.closest("button"))return;const m=d.members[r.dataset.pk];if(!m)return;const city=(m.c||"").replace(/ ·$/,"")+" · "+d.name,dp=isS?DIRP0.find(y=>y.name==m.n):null;
+ sheet.querySelectorAll(".mm[data-pk]").forEach(r=>r.onclick=ev=>{if(ev.target.closest("button"))return;const m=d.members[r.dataset.pk];if(!m)return;const city=baseCity(m.c)+" · "+d.name,dp=isS?DIRP0.find(y=>y.name==m.n):null;
   pOpen(dp?{n:dp.name,city:dp.city,tz:dp.tz,lat:dp.lat,lon:dp.lon,p:m.p||"",country:dp.country}:{n:m.n,city,tz:m.tz,lat:+m.la,lon:+m.lo,p:m.p||"",country:d.name,cm:id},()=>cmOpen(id))});
  sheet.querySelectorAll("[data-mo]").forEach(b=>b.onclick=()=>{const o=sheet.querySelector('[data-mmo="'+b.dataset.mo+'"]');if(o){o.classList.toggle("on");hap(6)}});
  {const st=sheet.querySelector(".cmset");if(st&&cmOpen._set)st.open=true;if(st)st.ontoggle=()=>{cmOpen._set=st.open}}
@@ -1681,7 +1686,7 @@ function cmSaveMembers(id){const d=CM_DOCS[id];if(!d)return 0;const mine=cmFk();
  const add=v=>{saved.push(v);favs.add(fk(v));n++};
  if(id=="shluchim")DIRP0.forEach(x=>{if(!has(x.name,x.city,phoneOf(x.name,x.city)))add({id:Date.now()+Math.random(),name:x.name,city:x.city,country:x.country,lat:x.lat,lon:x.lon,tz:x.tz})});
  Object.entries(d.members||{}).forEach(([k,m])=>{if(k==mine||!m.tz)return;if(id=="shluchim"&&DIRP0.some(x=>x.name==m.n))return;
-  const city=(m.c||"").replace(/ ·$/,"")+" · "+d.name;if(has(m.n,city,m.p))return;add({id:Date.now()+Math.random(),name:m.n,city,country:d.name,lat:+m.la,lon:+m.lo,tz:m.tz,own:1,ph:m.p||"",cm:id})});
+  const city=baseCity(m.c)+" · "+d.name;if(has(m.n,city,m.p))return;add({id:Date.now()+Math.random(),name:m.n,city,country:d.name,lat:+m.la,lon:+m.lo,tz:m.tz,own:1,ph:m.p||"",cm:id})});
  if(n){persist();saveF();render();renderCards()}return n}
 function cmSize(id){const d=CM_DOCS[id];if(!d)return 0;return id=="shluchim"?DIRP0.length+Object.keys(d.members||{}).length:Object.keys(d.members||{}).length}
 function cmDecide(id){const l=cmList(),e=l.find(x=>x.id==id);if(!e||e.st!="member"||e.all)return;
@@ -1698,7 +1703,7 @@ function cmIds(){const ids=cmList().filter(x=>x.st=="member").map(x=>x.id);if(is
 function cmName(id){return id=="shluchim"?"Shluchim":(CM_DOCS[id]||{}).name||"…"}
 function cmPeople(id){const d=CM_DOCS[id]||{members:{}},mine=me&&me.match?cmFk():"",out=[];
  if(id=="shluchim")DIRP0.forEach(x=>out.push({n:x.name,city:x.city,tz:x.tz,lat:x.lat,lon:x.lon,country:x.country,dir:1}));
- Object.entries(d.members||{}).forEach(([k,m])=>{if(k==mine||!m.tz)return;if(id=="shluchim"&&DIRP0.some(x=>x.name==m.n))return;out.push({n:m.n,city:(m.c||"").replace(/ ·$/,"")+" · "+cmName(id),tz:m.tz,lat:+m.la,lon:+m.lo,country:cmName(id),p:m.p||""})});
+ Object.entries(d.members||{}).forEach(([k,m])=>{if(k==mine||!m.tz)return;if(id=="shluchim"&&DIRP0.some(x=>x.name==m.n))return;out.push({n:m.n,city:baseCity(m.c)+" · "+cmName(id),tz:m.tz,lat:+m.la,lon:+m.lo,country:cmName(id),p:m.p||""})});
  return out}
 function cmBar(){const b=$("cmBar");if(!b)return;const ids=me&&me.match?cmIds():[];const on=ids.length>0;document.body.classList.toggle("has-cmbar",on);if(!on){b.innerHTML="";return}
  b.innerHTML='<button data-v=""'+(CM_VIEW?'':' class="on"')+'>Everyone</button>'+ids.map(id=>'<button data-v="'+id+'"'+(CM_VIEW==id?' class="on"':'')+'>'+esc(cmName(id))+'</button>').join("");
