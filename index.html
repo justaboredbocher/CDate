@@ -112,7 +112,7 @@ body.op .bd,body.om .bd{opacity:1;pointer-events:auto}body.op #sh,body.om #ms{tr
 .dr{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:10px 0;border-bottom:1px solid var(--line);color:inherit;text-decoration:none;transition:padding .25s,color .2s}.dr:hover{padding-left:6px;color:var(--ct)}.dr b{font-weight:600}.dr span{color:var(--mut);text-align:right;font-size:14px}.ds small{display:block;margin-top:10px;color:var(--mut)}.ev small .m{margin-right:7px}.panel>small{display:block;margin-top:10px;color:var(--mut)}div.dr:hover{padding-left:0;color:inherit}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.rv{opacity:1!important}}
 
-#intro{position:fixed;inset:0;z-index:99999;background:radial-gradient(130% 85% at 50% 36%,#1a2244 0%,#0b1020 52%,#04050a 100%);display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;overflow:hidden;color-scheme:dark}
+#intro{position:fixed;inset:0;z-index:99999;background:#0a0b10;transition:opacity .38s ease;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;overflow:hidden;color-scheme:dark}
 .sm{cursor:pointer}.sm .mr{color:var(--c);font-weight:600;white-space:nowrap}.sm:hover .mr{text-decoration:underline}
 .dmb{position:fixed;inset:0;z-index:60;background:rgba(10,12,28,.45);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
 .dmb.on{opacity:1;pointer-events:auto}
@@ -934,7 +934,7 @@ function ccIOS(){return (/iPhone|iPad|iPod/.test(navigator.userAgent)||/Macintos
   await new Promise(function(r){try{navigator.geolocation.getCurrentPosition(function(){r()},function(){r()},{timeout:15000,maximumAge:600000})}catch(e){r()}});
   done()})})();</script>
 <div class="account-shade" id="accountGate" role="dialog" aria-modal="true" aria-labelledby="accountTitle"><form class="account-card" id="accountForm"><h1 id="accountTitle">Chabad Calendar</h1><p id="accountBeta" style="color:#8c94ef;font-weight:500;margin-bottom:8px;text-align:center">✓ Beta Program</p><p id="accountSub">Sign in or create an account.</p><label for="accountUser">Username</label><input id="accountUser" autocomplete="username" minlength="3" maxlength="32" required placeholder="Choose a username"><label for="accountPass">Password</label><input id="accountPass" type="password" autocomplete="current-password" minlength="4" required placeholder="At least 4 characters"><label for="accountPass2" id="accountPass2L" hidden>Confirm password</label><input id="accountPass2" type="password" autocomplete="new-password" minlength="4" placeholder="Type the same password again" hidden><div class="account-buttons"><button id="accountSubmit" type="submit">Log in</button><button id="accountMode" class="alt" type="button">Create account</button></div><div class="account-error" id="accountError" role="status"></div><p class="account-note">Your account is saved safely online, so if you sign in on another phone or reinstall the app, all your shiurim, plans and settings come back.</p></form></div>
-<div id="intro"></div><main>
+<div id="intro"></div><style>#intro .inl{width:96px;height:auto;overflow:visible;opacity:.92}#intro .inl path{fill:none;stroke:#d8d3c7;stroke-width:25;stroke-linecap:round;stroke-linejoin:round}#intro.go .inl{animation:inPulse 1.1s cubic-bezier(.45,0,.3,1) both}#intro.out{opacity:0}@keyframes inPulse{0%{transform:scale(1);opacity:.92}45%{transform:scale(1.09);opacity:1;filter:drop-shadow(0 0 18px rgba(216,211,199,.35))}100%{transform:scale(1);opacity:.92}}</style><main>
 <section class="hero" id="hero"><header id="hdr"></header></section>
 <section class="top" id="top"><div class="ghost" id="gh" aria-hidden="true"></div>
 <div class="ab"><div class="about"><div id="p"></div><div id="hy"></div></div></div>
@@ -957,335 +957,22 @@ function ccIOS(){return (/iPhone|iPad|iPod/.test(navigator.userAgent)||/Macintos
 <div class="rw"><button class="btn" id="sv">Save event</button><button class="btn gh" id="dl" hidden>Delete</button></div></div>
 <div id="my"></div></section><section class="shp" data-p="app"><div class="shh"><button class="shb" type="button" data-back aria-label="Back">‹</button><h2>App</h2></div><h2 id="appH" hidden>App</h2><div id="appSec"></div></section><section class="shp" data-p="help"><div class="shh"><button class="shb" type="button" data-back aria-label="Back">‹</button><h2>Help</h2></div><p class="shx">A short walk through the main screen, the shiurim and the assistant.</p><button class="btn gh" id="tourReplay" type="button">Replay the tour</button></section><section class="shp" data-p="adv" id="shpAdv"><div class="shh"><button class="shb" type="button" data-back aria-label="Back">‹</button><h2>Advanced</h2></div><div class="shl shtgs"><label class="qrow shtg"><span class="t"><b>Live sky</b><small>Moving sun and moon, and sky colours that follow the time of day</small></span><input type="checkbox" class="qsw" id="skyOn"></label><label class="qrow shtg"><span class="t"><b>Shiurim follow the English date</b><small>Otherwise the next day’s shiurim start at sunset, with the Hebrew date</small></span><input type="checkbox" class="qsw" id="shEng"></label></div><h3 class="shs">Coordinates</h3><p class="shx">Only if the city search can’t find your place.</p><details class="shd"><summary style="font-size:13px;color:var(--mut);cursor:pointer">Enter coordinates manually</summary><label for="pl">Place</label><input id="pl"><div class="rw" style="margin-top:0"><div style="flex:1"><label for="la">Latitude</label><input id="la" type="number" step="any"></div><div style="flex:1"><label for="lo">Longitude</label><input id="lo" type="number" step="any"></div></div><label for="tz">Time zone</label><input id="tz" placeholder="Asia/Shanghai"><div class="rw"><button class="btn" id="ls" type="button">Save location</button></div></details><h3 class="shs">Built-in dates</h3><p class="shx">Change or hide the calendar’s own dates on the day screen.</p><button class="btn gh" id="em">Turn on editing for built-in dates</button></section></div>
 <script>(function(){
-  var clamp=function(x){return x<0?0:x>1?1:x};
-  var P=function(t,a,b){return clamp((t-a)/(b-a))};
-  var sm=function(x){return x*x*(3-2*x)};
-  if(/[?&]introshot/.test(location.search))window.__INTRO_T=0;
-  var END=9.55,SPEED=1,ov=document.getElementById('intro'),app=document.querySelector('main');
-  /* v74 (owner: "the character in the intro should be an actual 3D character, it looks very cheap"): a real 3D render.
-     One WebGL fragment shader ray-marches him (signed distance fields): a white vinyl head with glossy painted eyes (decals on
-     the sphere, so head turns are real), a felt fedora with a band, an open book with leather covers, a spine and page edges,
-     on a dark stage under a warm key light with soft shadows, ambient occlusion and a cool rim light. The motion still comes
-     from chRender's timeline (same hops, springs, turns, sounds). If WebGL fails or the phone is too slow, the intro is skipped (fades straight into the app). */
-  var G3=(function(){try{
-    if(/[?&]nointro/.test(location.search))return null;
-    var cv=document.createElement('canvas'),gl=cv.getContext('webgl',{antialias:false,alpha:false,depth:false,stencil:false,preserveDrawingBuffer:false,powerPreference:'high-performance'});
-    if(!gl)return null;
-    var VS='attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
-    var FS=[
-'precision highp float;',
-'uniform vec2 uRes;uniform float uZoom,uStage,uYawB,uBookS,uBookY,uBookA,uBlink;uniform vec3 uRoot,uHat;uniform vec2 uSq;uniform vec4 uHead;',
-'const float R=.62,HY=1.50,HZ=-.06,BZ=.42,BH=.47,BL=.98;',
-'mat2 rot(float a){float c=cos(a),s=sin(a);return mat2(c,s,-s,c);}',
-'float sdRB(vec3 p,vec3 b,float r){vec3 q=abs(p)-b+r;return length(max(q,0.))+min(max(q.x,max(q.y,q.z)),0.)-r;}',
-'float smax(float a,float b,float k){float h=clamp(.5-.5*(b-a)/k,0.,1.);return mix(b,a,h)+k*h*(1.-h);}',
-'vec3 toChar(vec3 p){p.x-=uRoot.x;p.y-=uRoot.y;p.xy=rot(uRoot.z)*p.xy;p.y/=uSq.y;p.xz/=uSq.x;p.xz=rot(uYawB)*p.xz;return p;}',
-'vec3 toHead(vec3 c){vec3 h=c-vec3(0.,HY+uHead.x,HZ);h.xz=rot(uHead.y)*h.xz;h.xy=rot(uHead.z)*h.xy;return h;}',
-'vec3 toHat(vec3 h){vec3 q=h-vec3(-.07+uHat.z,.29+uHat.x,-.03);q.xy=rot(-.16+uHat.y)*q.xy;q.yz=rot(-.06)*q.yz;return q;}',
-'vec3 toBook(vec3 c){vec3 b=c-vec3(0.,uBookY,BZ);b/=uBookS;b.yz=rot(.08)*b.yz;return b;}',
-/* materials: 1 head, 3 hat felt, 4 hat band, 5 cover, 6 pages, 7 spine */
-'float cover(vec3 b,vec2 dr,vec2 nr){float u=dot(b.xz,dr),w=dot(b.xz,nr)-.03;vec2 q=abs(vec2(u-BL*.5,w))-vec2(BL*.5,.022)+.014;float dxw=length(max(q,0.))+min(max(q.x,q.y),0.)-.014;float top=2.*BH*(.8+.2*clamp(u/BL,0.,1.));return smax(dxw,max(-b.y,(b.y-top)*.97),.012);}',
-'vec2 mapM(vec3 p){vec3 c=toChar(p);float k=min(uSq.x,uSq.y);',
-' vec3 h=toHead(c);float dh=length(h)-R;dh=max(dh,.80-c.y);vec2 r=vec2(dh*k,1.);',
-' vec3 q=toHat(h);float cu=.13*pow(clamp((abs(q.x)-.42)/.58,0.,1.),2.);vec3 qb=q-vec3(0.,cu,0.);',
-' vec2 bd=vec2(length(qb.xz*vec2(1.,1.18))-.96,abs(qb.y)-.016);float db=length(max(bd,0.))+min(max(bd.x,bd.y),0.)-.016;',
-' float hc=.6,rr=.6-.13*clamp(q.y/hc,0.,1.);float ds=length(q.xz-vec2(.07-uHat.z,0.))-rr;float qx=q.x-.07+uHat.z;float dt=q.y-hc+.06*exp(-qx*qx*14.)*smoothstep(-.55,.1,q.z)+.03*smoothstep(.1,.5,q.z);',
-' float dc=smax(smax(ds,dt,.1),-q.y,.02);float dhat=max(min(db,dc),.80-c.y);',
-' if(dhat*k<r.x)r=vec2(dhat*k,(q.y<.12&&q.y>.02&&ds>-.03&&dc<db)?4.:3.);',
-' if(uBookS>.002){vec3 b=toBook(c);float a=uBookA,s=sin(a),co=cos(a);',
-'  vec2 nL=vec2(-co,s),nR=vec2(co,s),dL=vec2(-s,-co),dR=vec2(s,-co);float y=b.y-BH;',
-'  float dc2=min(cover(b,dL,nL),cover(b,dR,nR))*uBookS*k;if(dc2<r.x)r=vec2(dc2,5.);',
-'  float pr=length(b.xz),pu=clamp(pr/BL,0.,1.),ptop=2.*BH*(.8+.2*pu)-.03+.07*sin(3.1416*pu);',
-'  float pw=max(max(dot(b.xz,nL),dot(b.xz,nR))+.004,max(pr-(BL-.05),max(.02-b.y,b.y-ptop)));pw=max(pw,-b.z-BL);',
-'  float dp=pw*uBookS*k*.9;if(dp<r.x)r=vec2(dp,6.);',
-'  float sp=max(length(b.xz-vec2(0.,.012))-.055,max(-b.y,b.y-2.*BH*.8+.004))*uBookS*k;if(sp<r.x)r=vec2(sp,7.);}',
-' return r;}',
-'float map(vec3 p){return mapM(p).x;}',
-'vec3 nrm(vec3 p,float e){vec2 k=vec2(1.,-1.);return normalize(k.xyy*map(p+k.xyy*e)+k.yyx*map(p+k.yyx*e)+k.yxy*map(p+k.yxy*e)+k.xxx*map(p+k.xxx*e));}',
-'float shadow(vec3 ro,vec3 rd){float res=1.,t=.03;for(int i=0;i<22;i++){float h=map(ro+rd*t);res=min(res,6.*h/t);t+=clamp(h,.025,.3);if(res<.002||t>5.)break;}return clamp(res,0.,1.);}',
-'float ao(vec3 p,vec3 n){float o=0.,w=1.;for(int i=1;i<3;i++){float d=.09*float(i);o+=(d-map(p+n*d))*w;w*=.6;}return clamp(1.-1.6*o,0.,1.);}',
-'vec3 aces(vec3 x){return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.);}',
-'void main(){vec2 uv=(2.*gl_FragCoord.xy-uRes)/uRes.y;',
-' vec3 ta=vec3(0.,1.1,0.),ro=vec3(.0,3.0,7.3/uZoom);vec3 ww=normalize(ta-ro),uu=normalize(cross(ww,vec3(0.,1.,0.))),vv=cross(uu,ww);',
-' vec3 rd=normalize(uv.x*uu+uv.y*vv+1.4*ww);',
-' vec3 L=normalize(vec3(-.42,.95,.95)),KC=vec3(1.,.93,.84)*2.3*uStage,FL=normalize(vec3(.8,.25,.9)),FC=vec3(.75,.8,1.)*.32*uStage,RL=normalize(vec3(.75,.55,-.7)),RC=vec3(.55,.68,1.)*1.1*uStage;',
-' float g=length(uv-vec2(0.,.2));vec3 col=mix(vec3(.035,.042,.085),vec3(.004,.005,.012),smoothstep(0.,1.4,g))*(.35+.65*uStage);',
-' float bx=abs(uv.x+.18*(uv.y-1.2)),bw=.18+.42*clamp(1.2-uv.y,0.,2.4)/2.4;col+=vec3(.75,.8,1.)*.028*uStage*smoothstep(bw,0.,bx)*smoothstep(-1.2,.9,uv.y);',
-' float tf=rd.y<0.?-ro.y/rd.y:1e5;',
-' if(tf<1e4){vec3 fp=ro+rd*tf;vec2 d=fp.xz-vec2(uRoot.x*.25,.25);float pool=exp(-dot(d,d)*.42);',
-'  vec3 fc=vec3(.012,.014,.03)+vec3(.6,.58,.6)*.13*pool*uStage;float sh=1.;vec2 cd=fp.xz-vec2(uRoot.x,0.);',
-'  vec3 c2=vec3(uRoot.x,uRoot.y+1.15,.1);vec2 pr=c2.xz-L.xz*(c2.y/L.y);vec2 q1=(fp.xz-pr)/vec2(.95,.7);vec2 q2=(fp.xz-vec2(uRoot.x,.22))/vec2(.85,.55);',
-'  sh=max(.18,1.-.62*exp(-dot(q1,q1)*1.4)-.55*exp(-dot(q2,q2)*2.6)*exp(-uRoot.y*1.5));',
-'  fc*=sh;fc=mix(fc,col,smoothstep(6.,14.,tf));col=fc;}',
-' vec3 cc=vec3(uRoot.x,uRoot.y+1.3,0.);vec3 oc=ro-cc;float b=dot(oc,rd),cq=dot(oc,oc)-4.84,hh=b*b-cq;',
-' if(hh>0.){float t=max(0.,-b-sqrt(hh)),tm=min(tf,-b+sqrt(hh));vec2 m=vec2(1e3,0.);',
-'  for(int i=0;i<90;i++){vec3 p=ro+rd*t;m=mapM(p);if(m.x<.0012*t||t>tm)break;t+=m.x;}',
-'  if(t<tm&&m.x<.01){vec3 p=ro+rd*t,n=nrm(p,.0015);vec3 c=toChar(p);float id=m.y;',
-'   vec3 alb=vec3(.02);float sp=.5,pw=64.,wrap=0.;',
-'   if(id<1.5){alb=vec3(.93,.935,.95);sp=.28;pw=36.;wrap=.45;',
-'    vec3 h=toHead(c);vec3 hn=normalize(h);for(int e=0;e<2;e++){float sx=e==0?-1.:1.;vec3 ec=normalize(vec3(sx*.40,.0,.917));',
-'     vec3 tx=normalize(cross(vec3(0.,1.,0.),ec)),ty=cross(ec,tx);vec3 dv=hn-ec;float u=dot(dv,tx)/.16,v=dot(dv,ty)/max(.035,.375*uBlink);',
-'     float ed=sqrt(u*u+v*v);float ins=1.-smoothstep(.9,1.05,ed);',
-'     if(ins>0.){alb=mix(alb,vec3(.012,.013,.02),ins);sp=mix(sp,1.6,ins);pw=mix(pw,180.,ins);wrap=mix(wrap,0.,ins);}}}',
-'   else if(id<3.5){alb=vec3(.026,.028,.036);sp=.1;pw=16.;}',
-'   else if(id<4.5){alb=vec3(.10,.10,.12);sp=.9;pw=70.;}',
-'   else if(id<5.5){alb=vec3(.016,.017,.024);sp=.22;pw=30.;}',
-'   else if(id<6.5){vec3 bq=toBook(c);float ph=atan(bq.x,-bq.z);alb=vec3(.86,.85,.82)*(.86+.14*smoothstep(.2,.8,abs(fract(ph*55.)-.5)*2.));sp=.08;pw=12.;wrap=.3;}',
-'   else {alb=vec3(.01,.011,.016);sp=.6;pw=50.;}',
-'   float dif=max(0.,(dot(n,L)+wrap)/(1.+wrap));float s=dif>0.?shadow(p+n*.01,L):0.;float a=ao(p,n);',
-'   vec3 hv=normalize(L-rd);float spc=pow(max(0.,dot(n,hv)),pw)*sp*(pw+8.)/25.;float fr=pow(1.-max(0.,dot(n,-rd)),4.);',
-'   float rim=pow(max(0.,dot(n,RL)),2.)*(.35+fr);',
-'   vec3 amb=mix(vec3(.03,.03,.045),vec3(.09,.105,.17),.5+.5*n.y)*a*(.4+.6*uStage);',
-'   vec3 lc=alb*(KC*dif*mix(.18,1.,s)+FC*max(0.,dot(n,FL))+amb+RC*rim*.35)+KC*spc*s+RC*rim*(.06+.25*sp)+vec3(.35,.4,.6)*fr*a*(id<1.5||id==6.?.1:.035)*uStage;',
-'   col=lc;}}',
-' col=aces(col*.95);col=pow(col,vec3(1./2.2));col+=(fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453)-.5)/255.;',
-' gl_FragColor=vec4(col,1.);}'].join('\n');
-    function sh(t,s){var o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(o));return o}
-    var pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);
-    if(!gl.getProgramParameter(pr,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(pr));
-    gl.useProgram(pr);var bf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,bf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
-    var al=gl.getAttribLocation(pr,'a');gl.enableVertexAttribArray(al);gl.vertexAttribPointer(al,2,gl.FLOAT,false,0,0);
-    var U={};['uRes','uZoom','uStage','uYawB','uBookS','uBookY','uBookA','uBlink','uRoot','uHat','uSq','uHead'].forEach(function(n){U[n]=gl.getUniformLocation(pr,n)});
-    cv.id='in-3d';cv.style.cssText='position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0';
-    var sc=1,W=0,H=0;function size(){var d=Math.min(window.devicePixelRatio||1,2.5),w=innerWidth,h=innerHeight,k=Math.min(d,Math.sqrt(900000/(w*h)))*sc;
-      var nw=Math.max(64,Math.round(w*k)),nh=Math.max(64,Math.round(h*k));if(nw!==W||nh!==H){W=cv.width=nw;H=cv.height=nh;gl.viewport(0,0,W,H)}}
-    size();addEventListener('resize',size);
-    try{gl.uniform2f(gl.getUniformLocation(pr,'uRes'),W,H);gl.drawArrays(gl.TRIANGLES,0,3)}catch(e){}   // compile + upload now, not in the first animation frame
-    var dead=false;cv.addEventListener('webglcontextlost',function(e){dead=true;try{cv.remove()}catch(_){}});
-    /* watchdog (v77): the first second is noisy (the app is still loading behind the intro and frames come late), so it only
-       judges from t = 1 s: two slow windows in a row (avg > 40 ms over 8 frames) → a lower resolution (85% → 70% → 55% → 45%);
-       only if it is still slow at 45% does it give up (the intro then fades into the app). */
-    var fr=[],last=0,slow=0,n0=0,vs=0;
-    return{cv:cv,draw:function(o){if(dead)return false;var n=performance.now();if(!n0)n0=n;
-      /* a really slow GPU (every frame > 90 ms, not just the loading hiccup): step down at once; still crawling after 6 s → skip */
-      if(window.__INTRO_T==null&&last){if(n-n0>6000&&o.t<1){dead=true;cv.remove();return false}
-        if(n-n0>1500&&n-last>90){if(++vs>=6){vs=0;if(sc>.46){sc=sc>.9?.7:sc>.6?.55:.45;size()}else{dead=true;cv.remove();return false}}}else vs=0}
-      if(window.__INTRO_T==null&&last&&o.t>=1&&o.t<=5.8){fr.push(n-last);if(fr.length>=8){var a=0;for(var i=0;i<fr.length;i++)a+=fr[i];a/=fr.length;fr=[];
-        if(a>40){if(++slow>=2){slow=0;if(sc>.46){sc=sc>.9?.85:sc>.8?.7:sc>.6?.55:.45;size()}else{dead=true;cv.remove();return false}}}else slow=0}}
-      last=n;
-      if(!cv.parentNode)ov.insertBefore(cv,ov.firstChild);
-      gl.uniform2f(U.uRes,W,H);gl.uniform1f(U.uZoom,o.zoom);gl.uniform1f(U.uStage,o.stage);gl.uniform1f(U.uYawB,o.yawB);
-      gl.uniform1f(U.uBookS,Math.max(.0015,o.bookS));gl.uniform1f(U.uBookY,o.bookY);gl.uniform1f(U.uBookA,o.bookA);gl.uniform1f(U.uBlink,o.blink);
-      gl.uniform3f(U.uRoot,o.rx,o.ry,o.lean);gl.uniform3f(U.uHat,o.hy,o.hr,o.hx);gl.uniform2f(U.uSq,o.sx,o.sy);gl.uniform4f(U.uHead,o.headY,o.headYaw,o.headRoll,0);
-      gl.drawArrays(gl.TRIANGLES,0,3);return true}}
-  }catch(e){try{console.warn('3D intro off:',e&&e.message)}catch(_){}return null}})();
-  var back=function(x){var c1=1.9,c3=c1+1;return x<=0?0:1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2)};
-  var bell=function(t,a,b){var u=P(t,a,b);return u<=0||u>=1?0:.5-.5*Math.cos(2*Math.PI*u)};       // smooth 0→1→0
-  var soft=function(x){if(x<=0)return 0;if(x>=1)return 1;var c1=.9,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2)}; // gentle overshoot
-  var land=function(t,t0,A){var d=t-t0;return d<0?0:A*Math.exp(-7*d)*Math.sin(19*d)/.62};             // damped squash after a landing
-  /* where his body is: gravity arcs for the hops (y), the jump off to the side (x), and the stretch from his speed */
-  /* v95 (owner: "think about what it would look like if he was actually trying to jump … realistically"): after the turn,
-     two real tries at jumping off and a big leap, built on the classic jump mechanics (Luxo-style):
-     anticipation (sink, weight shifts back, lean back) → a sharp push-off (squash snaps to stretch in ~70 ms, leaning into the
-     direction) → a short low arc with CONSTANT sideways speed (gravity only bends the height) → a heavy landing (instant squash,
-     a damped rebound, momentum tips him forward and slides him a few px) → a beat of disappointment (head turns back toward us,
-     sinks into the book, slow blink) → the 2nd try is deeper and faster but still falls short → a long deep wind-up (weight back,
-     then leaning in, a growing tremble) → explosive release → a high, fast leap off the screen. Returns pose offsets. */
-  function post(t){var o={x:0,y:0,sq:0,lean:0,yaw:0,drop:0,att:0,cl:0,trem:0,wing:0};
-    var hop=function(a,dc,D,ta,h,dx,L){var c1=a+dc,p1=c1+.07,t1=p1+ta;if(t<a)return;
-      var cu=P(t,a,c1),pu=P(t,c1,p1),au=P(t,p1,t1),d=t-t1,cr=sm(cu)*(1-sm(pu));
-      o.sq+=D*cr;o.lean-=3.5*cr;o.x-=5*cr;                                   // anticipation: sink, lean back, weight back
-      if(pu>0&&au<=0){o.sq-=.17*sm(pu);o.lean+=14*sm(pu)}                    // push-off: snap into a stretch, lean in
-      if(au>0&&au<1){o.y+=h*4*au*(1-au);o.sq-=.17*Math.pow(1-au,2);o.lean+=14-9*au;o.att+=Math.sin(Math.PI*au)}
-      o.x+=au*dx+(d>0?6*(1-Math.exp(-d*9)):0);                               // steady sideways speed, then a little slide
-      if(d>0){o.sq+=L*Math.exp(-9*d)*Math.cos(17*d)*Math.min(1,d/.025);o.lean+=5*Math.exp(-7*d)+6*Math.exp(-7*d)*Math.sin(13*d)}};
-    hop(5.0,.22,.17,.26,22,32,.2);hop(6.1,.26,.22,.3,30,40,.24);
-    var sad=function(a,b,y,dr){var k=bell(t,a,b);o.yaw-=y*k;o.drop+=dr*k};sad(5.68,6.05,.55,12);sad(6.86,7.15,.32,8);
-    // the big one: long wind-up, release at 8.45, leap
-    var W=P(t,7.2,8.3),R=P(t,8.45,8.52),u=t-8.52;
-    if(t>=7.2){var hold=sm(W)*(1-sm(R));o.sq+=.4*hold;o.lean+=-5*bell(t,7.2,7.8)+7*sm(P(t,7.55,8.3))*(1-sm(R));o.x-=8*bell(t,7.2,7.8);
-      o.yaw+=.15*sm(P(t,7.3,7.6));o.cl=sm(P(t,7.25,7.9))*(1-sm(P(t,8.5,8.62)));o.trem=sm(P(t,7.85,8.35))*(1-sm(R));
-      if(R>0&&u<=0){o.sq-=.36*sm(R);o.lean+=20*sm(R)}
-      if(u>0){o.x+=1150*u;o.y+=Math.max(0,760*u-950*u*u);o.sq-=.36*Math.exp(-u*3);o.lean+=20-8*Math.min(1,u/.5);o.wing=Math.sin(Math.PI*Math.min(1,u/.6*1.4))}}
-    return o}
-  function bodyY(t){var y=0,x=0,st=0,arc=function(a,b,h){var u=P(t,a,b);if(u<=0||u>=1)return;y-=h*4*u*(1-u);var v=Math.abs(1-2*u);st+=.15*v*Math.min(1,u/.12)*Math.min(1,(1-u)/.12+.35)*h/70};
-    arc(1.2,1.72,72);arc(4.17,4.72,58);var q=post(t);y-=q.y;x+=q.x;
-    return{y:y,x:x,st:st}}
-  var FS={t:-1,h:0,hv:0,k:0,kv:0};
-  /* follow-through: two damped springs (head, hat) pushed by the body's vertical acceleration */
-  function follow(t,sY){if(FS.t<0||t<FS.t){FS.t=t;return{h:0,k:0}}var dt=Math.min(.05,t-FS.t),n=Math.max(1,Math.ceil(dt/.004)),h=dt/n,i,tt;
-    for(i=0;i<n;i++){tt=FS.t+h*(i+1);var e=.004,acc=(bodyY(tt+e).y-2*bodyY(tt).y+bodyY(tt-e).y)/(e*e);acc=Math.max(-9000,Math.min(9000,acc));
-      FS.hv+=(-260*FS.h-17*FS.hv-acc*.012)*h;FS.h+=FS.hv*h;FS.kv+=(-150*FS.k-10*FS.kv-acc*.02)*h;FS.k+=FS.kv*h}
-    FS.t=t;return{h:Math.max(-26,Math.min(26,FS.h)),k:Math.max(-40,Math.min(40,FS.k))}}
-  /* the timeline (seconds) → the 3D character; false = the 3D can't run here */
-  function chRender(t){
-    // 1. the book pops up (springy); 2. hop, the head pops out at the top
-    var bp=back(P(t,.35,.85)),sY=bodyY(t),y=sY.y,jx=sY.x,hp=back(P(t,1.32,1.8));
-    // 3. looks right, left, forward (a real head turn with a soft overshoot), blinks
-    var th=.42*soft(P(t,2.05,2.45))-.84*soft(P(t,2.6,3.05))+.42*soft(P(t,3.15,3.5)),bl=1-.92*bell(t,3.6,3.84);
-    // 4. turns toward the right during the second hop; 5. long wind-up with the book shut; 6. jumps off to the side
-    var tu=.5-.5*Math.cos(Math.PI*P(t,4.18,4.68));th+=1.5708*tu;
-    var q=post(t),cl=q.cl,trem=q.trem;th+=q.yaw;bl-=.85*bell(t,5.8,6.02)+.6*bell(t,6.93,7.08);
-    // squash & stretch: anticipation bells + landing springs + stretch from speed; head/hat follow-through springs
-    var sq=.16*bell(t,.93,1.22)+.12*bell(t,3.96,4.17)+q.sq+.02*trem*Math.sin(t*47)+land(t,1.72,.13)+land(t,4.72,.12),st=sY.st,sx=1+sq*.7-st*.45,sy=1-sq+st,F=follow(t,sY);
-    var lean=2.5*bell(t,4.15,4.72)-q.lean;
-    var s3=.62/83,wing3=q.wing,yb=1.2*tu,hl3=Math.sin(Math.PI*P(t,1.5,2.0));
-    return !!G3&&G3.draw({t:t,zoom:1+.06*sm(P(t,0,8.0)),stage:sm(P(t,0,.45)),yawB:yb,bookS:bp,bookY:-46*(1-Math.min(1,bp))*s3,bookA:Math.max(.07,(1.0-.68*tu)*(1-cl)+.07*cl+.85*wing3+.5*q.att),blink:bl,
-      rx:(jx+2.6*trem*Math.sin(t*61))*s3,ry:-y*s3,lean:-lean*Math.PI/180,sx:1+(sx-1)*.7,sy:1+(sy-1)*.7,headY:-(215*(1-hp)+F.h+q.drop)*s3,headYaw:th-1.5708*tu,headRoll:-(th*5*(1-tu)+2*Math.sin(th)+F.h*.08)*Math.PI/180,
-      hy:-(F.k-14*hl3)*s3,hr:(F.k*.25+6*hl3+3*Math.sin(th))*Math.PI/180,hx:6*Math.sin(th)*s3})}
-  function render(t){
-    if(!chRender(t))return false;
-    ov.style.opacity=(1-sm(P(t,8.85,9.35))).toFixed(3);
-    if(app.style.transformOrigin!=='50% 40vh'){app.style.transformOrigin='50% 40vh';app.style.willChange='transform'}
-    var asc='scale('+(1+.08*(1-sm(P(t,8.75,9.55)))).toFixed(4)+')';if(app.style.transform!==asc)app.style.transform=asc;
-    return true;
-  }
-
-  // vibration feedback that follows how hard the animation is moving
-  var hl=document.createElement('label');
-  hl.setAttribute('aria-hidden','true');
-  hl.style.cssText='position:fixed;left:0;top:0;width:1px;height:1px;opacity:.01;pointer-events:none;overflow:hidden';
-  var hi=document.createElement('input');hi.type='checkbox';hi.setAttribute('switch','');hi.tabIndex=-1;
-  hl.appendChild(hi);document.body.appendChild(hl);
-  var CAN=!!navigator.vibrate;
-  // two vibrations only: a small one near the start, a big one as the M flies past into the app
-  function buzz(big){
-    try{
-      if(CAN){if(navigator.userActivation&&!navigator.userActivation.hasBeenActive)return;navigator.vibrate(big?320:20);return}
-      // iOS Safari: no vibrate API; tick a hidden switch (three quick ticks for the big one)
-      var n=big?3:1,k;
-      for(k=0;k<n;k++)setTimeout(function(){try{hl.click()}catch(e){}},k*45);
-    }catch(e){}
-  }
-  var h1=false,h2=false,h3=false,h4=false,h5=false;
-  function haptics(t){
-    if(!h1&&t>=.4){h1=true;buzz(false)}
-    if(!h2&&t>=1.34){h2=true;buzz(false)}
-    if(!h3&&t>=4.7){h3=true;buzz(false)}
-    if(!h4&&t>=8.45){h4=true;buzz(true)}
-  }
-  function hstop(){try{if(navigator.vibrate)navigator.vibrate(0)}catch(e){}}
-  // soft synthesized piano: a broken C-major chord that builds with the animation
-  var AC=null,mst=null;
-  function audioInit(){
-    try{
-      var C=window.AudioContext||window.webkitAudioContext;if(!C)return;
-      AC=new C();
-      mst=AC.createGain();mst.gain.value=.27;   // v65 (owner: "more subtle"): everything quieter
-      
-      var len=Math.floor(AC.sampleRate*2.4),ir=AC.createBuffer(2,len,AC.sampleRate),ch,d,i;
-      for(ch=0;ch<2;ch++){d=ir.getChannelData(ch);for(i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3.4)}
-      var cv=AC.createConvolver();cv.buffer=ir;
-      var wet=AC.createGain();wet.gain.value=.32;
-      mst.connect(AC.destination);mst.connect(cv);cv.connect(wet);wet.connect(AC.destination);
-      var wake=function(){try{if(AC&&AC.state==='suspended')AC.resume().catch(function(){})}catch(e){}};
-      ['pointerup','touchend','click','keydown'].forEach(function(e){addEventListener(e,wake,true)});
-      wake();
-    }catch(e){AC=null}
-  }
-  // a soft, rounded piano-like note: mostly the fundamental, a whisper of upper overtones, a gentle attack
-  function note(f,vel,dur,delay){
-    var t=AC.currentTime+(delay||0),P2=[[1,1],[2,.22],[3,.07],[4,.02]],k;
-    vel*=.85;
-    var lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=Math.min(6000,f*3+900);
-    lp.connect(mst);
-    for(k=0;k<P2.length;k++){
-      var n=P2[k][0],o=AC.createOscillator(),g=AC.createGain(),pk=vel*P2[k][1]*.5;
-      o.type='sine';o.frequency.value=f*n*(1+.0003*n*n);
-      g.gain.setValueAtTime(0,t);
-      g.gain.linearRampToValueAtTime(pk,t+.012);
-      g.gain.exponentialRampToValueAtTime(.0004,t+dur/(1+.8*(n-1)));
-      o.connect(g);g.connect(lp);o.start(t);o.stop(t+dur+.05);
-    }
-  }
-  /* v62 (owner: "audio more fitting the style"): a short animated-film score made in the browser: a warm swelling pad, a
-     bouncy pop for the book, a higher "boop" when his head pops out, soft wooden taps for landings and glances, whooshes for the
-     hops and the turn, a twinkle for the blink, a rising build during the wind-up, and a sparkle arpeggio + resolving chord as
-     he leaps away. All synthesized, no files. */
-  var NB=null;function noise(){if(NB)return NB;var n=AC.sampleRate*1.2,b=AC.createBuffer(1,n,AC.sampleRate),d=b.getChannelData(0),i;for(i=0;i<n;i++)d[i]=Math.random()*2-1;return NB=b}
-  function env(g,t,a,p,d){g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(p,t+a);g.gain.exponentialRampToValueAtTime(.0003,t+a+d)}
-  function tone(type,f0,f1,t,a,p,d,dest){var o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+a+d*.6);env(g,t,a,p,d);o.connect(g);g.connect(dest||mst);o.start(t);o.stop(t+a+d+.05)}
-  function pad(t,dur){var lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.setValueAtTime(300,t);lp.frequency.linearRampToValueAtTime(1600,t+dur*.8);lp.Q.value=.5;lp.connect(mst);
-    [[130.81,.07],[196,.055],[329.63,.05],[493.88,.035],[587.33,.03]].forEach(function(n,i){[-4,4].forEach(function(dt){var o=AC.createOscillator(),g=AC.createGain();o.type='sawtooth';o.frequency.value=n[0];o.detune.value=dt;
-      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(n[1]*.14,t+1.2+i*.1);g.gain.setValueAtTime(n[1]*.14,t+dur-1.2);g.gain.linearRampToValueAtTime(0,t+dur);o.connect(g);g.connect(lp);o.start(t);o.stop(t+dur+.1)})})}
-  function pop(t,lo,hi,v){tone('sine',lo,hi,t,.006,v||.32,.16);tone('triangle',lo*2,hi*2,t,.004,(v||.32)*.25,.08)}
-  function tap(t,f,v){tone('sine',f,f*.92,t,.002,v||.16,.09);var s2=AC.createBufferSource(),bp=AC.createBiquadFilter(),g=AC.createGain();s2.buffer=noise();bp.type='bandpass';bp.frequency.value=f*2.2;bp.Q.value=6;env(g,t,.001,(v||.16)*.6,.04);s2.connect(bp);bp.connect(g);g.connect(mst);s2.start(t);s2.stop(t+.08)}
-  function whoosh(t,d,f0,f1,v){var s2=AC.createBufferSource(),bp=AC.createBiquadFilter(),g=AC.createGain();s2.buffer=noise();bp.type='bandpass';bp.Q.value=1.4;bp.frequency.setValueAtTime(f0,t);bp.frequency.exponentialRampToValueAtTime(f1,t+d);
-    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v||.22,t+d*.45);g.gain.linearRampToValueAtTime(0,t+d);s2.connect(bp);bp.connect(g);g.connect(mst);s2.start(t);s2.stop(t+d+.05)}
-  function build(t,d){tone('triangle',196,330,t,d*.9,.03,d*.25);whoosh(t,d,250,900,.04)}
-  /* v64 (owner: "no sparkle, do something else"): a soft cartoon "zip" as he springs away: a quick rising slide (like a
-     slide whistle, very quiet) over a short airy whoosh */
-  function finale(t){whoosh(t,.4,500,2000,.08);tone('sine',330,1100,t,.02,.05,.32);tone('triangle',330,1100,t,.02,.012,.3)}
-  /* v96 (owner: "more like animation sounds, not like a movie sound"): cartoon sound effects.
-     creak = a wooden "stick-slip" creak, like a present box's lid before it opens: a train of tiny clicks whose rate wavers,
-     rung through wood resonances; used whenever he bends down (longer and tighter for the big wind-up).
-     boing = a springy cartoon leap (pitch shoots up with a spring wobble); fall=1 = a weak "bwoop" that drops back (a try that
-     didn't make it). thud = a soft cartoon landing. */
-  function creak(t,d,v,r0,r1){var sr=AC.sampleRate,n=Math.floor(sr*d),b=AC.createBuffer(1,n,sr),x=b.getChannelData(0),ph=0,L=Math.floor(sr*.0024),i,k;
-    for(i=0;i<n;i++){var u=i/n,r=r0+(r1-r0)*u+7*Math.sin(u*19)+5*Math.sin(u*53+1);ph+=r/sr;if(ph>=1){ph-=1;var a=(.45+.55*Math.random())*Math.min(1,u*7)*Math.min(1,(1-u)*7);
-      for(k=0;k<L&&i+k<n;k++)x[i+k]+=a*(Math.random()*2-1)*Math.exp(-k/(L*.22))}}
-    var src=AC.createBufferSource(),g=AC.createGain();src.buffer=b;g.gain.value=v*7;
-    [[620,9,1],[1350,8,.7],[2500,6,.35]].forEach(function(f){var bp=AC.createBiquadFilter(),gg=AC.createGain();bp.type='bandpass';bp.frequency.value=f[0];bp.Q.value=f[1];gg.gain.value=f[2];src.connect(bp);bp.connect(gg);gg.connect(g)});
-    g.connect(mst);src.start(t);src.stop(t+d+.05)}
-  function boing(t,f0,f1,d,v,fall){[['triangle',1,1],['sine',.5,.6]].forEach(function(w){var o=AC.createOscillator(),g=AC.createGain(),lf=AC.createOscillator(),lg=AC.createGain();o.type=w[0];
-      o.frequency.setValueAtTime(f0*w[1],t);o.frequency.exponentialRampToValueAtTime(f1*w[1],t+d*.38);o.frequency.exponentialRampToValueAtTime((fall?f0*1.15:f1*.93)*w[1],t+d);
-      lf.frequency.value=fall?18:26;lg.gain.setValueAtTime(f1*w[1]*.11,t);lg.gain.exponentialRampToValueAtTime(1,t+d);lf.connect(lg);lg.connect(o.frequency);
-      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v*w[2],t+.008);g.gain.exponentialRampToValueAtTime(.0005,t+d);o.connect(g);g.connect(mst);o.start(t);lf.start(t);o.stop(t+d+.02);lf.stop(t+d+.02)})}
-  function thud(t,v){tone('sine',170,70,t,.003,v,.18);tap(t,320,v*.45)}
-  function leap(t){boing(t,150,860,.6,.2);tone('sine',420,1500,t+.06,.02,.035,.36)}
-  var SE=[
-    [0,function(t){pad(t,9.8)}],
-    [.4,function(t){pop(t,180,520,.34)}],
-    [.93,function(t){creak(t,.3,.13,38,70)}],
-    [1.2,function(t){boing(t,200,620,.38,.17)}],
-    [1.36,function(t){pop(t,320,900,.26)}],
-    [1.72,function(t){thud(t,.2)}],
-    [3.62,function(t){tone('sine',560,500,t,.025,.05,.22)}],   // v66 (owner): the blink is a soft, rounded 'blip' (no bright bell)
-    [3.95,function(t){creak(t,.22,.12,45,75)}],
-    [4.17,function(t){boing(t,220,560,.42,.15)}],
-    [4.72,function(t){thud(t,.18)}],
-    // the two tries: creak down, a weak 'bwoop' that falls back, a thud, a little 'oh'
-    [5.0,function(t){creak(t,.24,.15,40,72)}],[5.22,function(t){boing(t,230,520,.34,.14,1)}],[5.55,function(t){thud(t,.2)}],[5.72,function(t){tone('sine',440,330,t,.03,.035,.22)}],[5.83,function(t){tone('sine',560,500,t,.025,.04,.22)}],
-    [6.1,function(t){creak(t,.28,.17,36,80)}],[6.36,function(t){boing(t,220,600,.38,.16,1)}],[6.73,function(t){thud(t,.22)}],[6.9,function(t){tone('sine',400,300,t,.03,.03,.2)}],[6.95,function(t){tone('sine',560,500,t,.025,.035,.2)}],
-    // the big wind-up: one long tightening creak, then the leap
-    [7.2,function(t){creak(t,1.25,.27,26,95)}],
-    [8.45,function(t){leap(t)}]
-  ],sn=0;
-  function sound(t){
-    if(!AC||AC.state!=='running')return;
-    while(sn<SE.length&&SE[sn][0]<=t){var ev=SE[sn];sn++;try{ev[1](AC.currentTime+.01)}catch(e){}}
-  }
-  var raf=0,t0=0,lastNow=0,done=false;
-  function finish(){
-    if(done)return;done=true;cancelAnimationFrame(raf);
-    app.style.transform='';app.style.transformOrigin='';app.style.willChange='';
-    hstop();ov.remove();hl.remove();document.documentElement.classList.remove('cc-boot');
-    try{var tc=document.querySelector('meta[name=theme-color]');if(tc)tc.content=getComputedStyle(document.body).backgroundColor}catch(e){}
-    setTimeout(function(){try{AC&&AC.close()}catch(e){}},4500);
-  }
-  // the 3D can't run on this phone (no WebGL, or too slow): fade the dark screen straight into the app, quietly
-  function skip(){if(done)return;cancelAnimationFrame(raf);try{AC&&AC.close()}catch(e){}AC=null;ov.style.transition='opacity .35s';ov.style.opacity='0';setTimeout(finish,360)}
-  function frame(now){
-    // Shabbos / Yom Tov screen came up (first launch, before the times were saved): no intro and no sound
-    if(document.documentElement.classList.contains('cc-shab')){try{AC&&AC.close()}catch(e){}AC=null;finish();return}
-    if(!t0)t0=now;
-    // if the phone was busy (still loading the app) and a frame came late, hold the animation instead of jumping ahead
-    if(lastNow&&now-lastNow>50)t0+=now-lastNow-16.7;lastNow=now;
-    // SPEED plays the whole timeline faster (10.7 s of animation in about 6.5 s)
-    var t=(now-t0)/1000*SPEED;
-    if(window.__INTRO_T!=null){t=window.__INTRO_T;render(t);raf=requestAnimationFrame(frame);return}   // test hook (?introshot only)
-    if(!render(Math.min(t,END))){skip();return}
-    haptics(t);sound(t);
-    if(t<END)raf=requestAnimationFrame(frame);else finish();
-  }
-  function startIntroAfterLogin(){
-    var gate=document.getElementById('accountGate'),logged=false;
-    // Already logged in (same test the login script below makes)? Start on the very first frame, so Android's
-    // launch screen fades straight into the intro instead of briefly showing the calendar.
-    try{var au=localStorage.getItem('cc_local_active_profile_v1'),adb=JSON.parse(localStorage.getItem('cc_local_profiles_v1')||'{}');logged=!!(au&&adb[au])}catch(e){}
-    if(!logged && gate && getComputedStyle(gate).display!=='none'){
-      // Keep the intro and its music completely idle until login/create-account succeeds.
-      ov.style.display='none';
-      hl.style.display='none';
-      setTimeout(startIntroAfterLogin,180);
-      return;
-    }
-    ov.style.display='flex'; hl.style.display='block';
-    if(window.CC_QUIET||matchMedia('(prefers-reduced-motion: reduce)').matches){ov.remove();hl.remove();document.documentElement.classList.remove('cc-boot');return}
-    if(!G3){ov.remove();hl.remove();document.documentElement.classList.remove('cc-boot');return}
-    audioInit(); render(0); raf=requestAnimationFrame(frame);
-  }
-  startIntroAfterLogin();
+  /* v123 (owner: "completely take out that intro animation; only the MNL logo, no animation, it should just pulse once and open the app"):
+     the nun+lamed+M monogram (the same strokes as the loader) on the dark launch colour, one soft pulse, then a fade into the app.
+     The old 3D character intro, its sounds and haptics are gone. */
+  var ov=document.getElementById('intro');if(!ov)return;
+  ov.innerHTML='<svg class="inl" viewBox="95 85 770 675" aria-hidden="true"><path d="M460 110 V385 Q460 415 430 415 H130"/><path d="M556 110 V385 Q556 415 586 415 H836"/><path d="M822 504 H592 Q556 504 556 540 L522 725"/><path d="M512 518 L318 628 L212 550 L120 735"/></svg>';
+  var done=false;function finish(){if(done)return;done=true;ov.remove();document.documentElement.classList.remove('cc-boot');
+   try{var tc=document.querySelector('meta[name=theme-color]');if(tc)tc.content=getComputedStyle(document.body).backgroundColor}catch(e){}}
+  function start(){var gate=document.getElementById('accountGate'),logged=false;
+   try{var au=localStorage.getItem('cc_local_active_profile_v1'),adb=JSON.parse(localStorage.getItem('cc_local_profiles_v1')||'{}');logged=!!(au&&adb[au])}catch(e){}
+   if(!logged&&gate&&getComputedStyle(gate).display!=='none'){ov.style.display='none';setTimeout(start,180);return}
+   ov.style.display='flex';
+   if(window.CC_QUIET||document.documentElement.classList.contains('cc-shab')||matchMedia('(prefers-reduced-motion: reduce)').matches){finish();return}
+   // the pulse plays once the app behind is ready (page loaded; at most 2.5 s wait), so it isn't hidden by the loading
+   var go=false,run=function(){if(go)return;go=true;ov.classList.add('go');setTimeout(function(){ov.classList.add('out');setTimeout(finish,380)},1150)};
+   if(document.readyState==='complete')run();else{addEventListener('load',run);setTimeout(run,2500)}}
+  start();
 })();</script>
 <script>
 (function(){
@@ -3945,8 +3632,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=122;
+const CC_VER=123;
 const CC_LOG=[
+ {v:123,new:['The opening animation is gone: the app opens with the logo, which pulses once.']},
  {v:122,new:['Siddur: the end of the Six Remembrances was cut off; it’s there now.']},
  {v:121,new:['Siddur: the spacing where pages join or lines were left out now matches the siddur’s own spacing.']},
  {v:120,new:['Siddur: where a note or line was left out, the text now continues with a regular line space.']},
