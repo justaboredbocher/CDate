@@ -1060,7 +1060,7 @@ const $=s=>document.querySelector(s),RM=matchMedia('(prefers-reduced-motion:redu
 const H=(()=>{let lab,last=0;const can=!!navigator.vibrate;
  const tick=()=>{try{if(!lab){lab=document.createElement('label');lab.setAttribute('aria-hidden','true');lab.style.cssText='position:fixed;left:0;top:0;width:1px;height:1px;opacity:.01;pointer-events:none;overflow:hidden';const i=document.createElement('input');i.type='checkbox';i.setAttribute('switch','');i.tabIndex=-1;lab.appendChild(i);document.body.appendChild(lab)}lab.click()}catch(e){}};
  const fire=(ms,gap=0)=>{const now=performance.now();if(now-last<Math.max(35,gap))return;last=now;if(navigator.userActivation&&!navigator.userActivation.hasBeenActive)return;try{if(can)navigator.vibrate(ms);else tick()}catch(e){}};
- return{tap:()=>fire(4),sel:()=>fire(5),step:()=>fire(6),ok:()=>fire(5),rev:()=>fire(3,450),scr:()=>{}}})();
+ return{tap:()=>fire(4),sel:()=>fire(5),step:()=>fire(6),ok:()=>fire(5),rev:()=>fire(1,1400),scr:()=>{}}})();
 const T=[[400,'ת'],[300,'ש'],[200,'ר'],[100,'ק'],[90,'צ'],[80,'פ'],[70,'ע'],[60,'ס'],[50,'נ'],[40,'מ'],[30,'ל'],[20,'כ'],[10,'י'],[9,'ט'],[8,'ח'],[7,'ז'],[6,'ו'],[5,'ה'],[4,'ד'],[3,'ג'],[2,'ב'],[1,'א']];
 const G=n=>{let s='',x=n%100==15||n%100==16?n%100:0;n-=x;for(const[v,c]of T)while(n>=v){s+=c;n-=v}s+=x==15?'טו':x==16?'טז':'';return s.length>1?s.slice(0,-1)+'״'+s.slice(-1):s+'׳'};
 const MK={Tishri:'Ti',Heshvan:'Ch',Kislev:'Ki',Tevet:'Te',Shevat:'Sh','Adar I':'AI','Adar II':'A',Adar:'A',Nisan:'N',Iyar:'I',Sivan:'Si',Tamuz:'Ta',Av:'Av',Elul:'E'};
@@ -3648,8 +3648,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=130;
+const CC_VER=131;
 const CC_LOG=[
+  {v:131,new:['Much lighter buzzes while scrolling the main page.']},
   {v:130,new:['A small green BETA badge in the top-left corner, while the app is in beta.']},
   {v:129,adm:1,new:['Admin tools → New user: try the app as a brand-new person with a practice account that is never saved.']},
   {v:128,new:['Daily shiurim reminders now start on “Regularly” for new accounts (smart reminders around the time you usually learn). You can change it in ⋯ → Reminders.']},
