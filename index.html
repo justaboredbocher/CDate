@@ -161,7 +161,8 @@ main{max-width:640px;padding:6px 16px 140px}
 .rds{margin:-2px 0 16px;padding:10px 14px 4px;border-inline-start:3px solid color-mix(in srgb,var(--ct) 45%,transparent);border-radius:4px;background:color-mix(in srgb,var(--ct) 4.5%,transparent);font-size:calc(var(--rdfs) * .8);line-height:1.85;color:color-mix(in srgb,var(--ink) 86%,transparent)}
 .rds p{margin:0 0 8px;text-align:justify}.rds p+p{padding-top:8px;border-top:1px dashed color-mix(in srgb,var(--ink) 12%,transparent)}.rds b{color:var(--ink)}.rdsl{font:700 calc(var(--rdfs) * .62)/1 'Noto Serif Hebrew App',serif;color:var(--ct);margin-bottom:6px;letter-spacing:.04em}
 .rdfs{flex:none;border:1px solid var(--line);background:transparent;color:inherit;border-radius:99px;height:34px;padding:0 11px;font:600 14px Figtree,system-ui;margin-left:auto}.rdfs+.rdpc{margin-left:0}
-.cload{display:flex;align-items:center;justify-content:center;min-height:44vh}.cload .csil{--cw:54px;--ink:#000;--fill:#000;--halo:#000!important;animation:cpulse 1.6s ease-in-out infinite}.cload .csil .c-thk,.cload .csil .c-alr{display:none}@keyframes cpulse{0%,100%{opacity:.32;transform:scale(.9)}50%{opacity:1;transform:scale(1.05)}}@media(prefers-reduced-motion:reduce){.cload svg{animation:none;opacity:.7}}.hyt .cload{min-height:120px}.hyt .cload svg{width:40px}
+.cload{display:flex;align-items:center;justify-content:center;min-height:44vh}.cload .csil{--cw:54px;--ink:#000;--fill:#000;--halo:#000!important;animation:cpulse 1.6s ease-in-out infinite}.cload .csil .c-thk,.cload .csil .c-alr{display:none}
+:root:not([data-theme="light"]) .cload .csil{--ink:#9cc2ff;--fill:#9cc2ff;--halo:#9cc2ff!important}   /* v136 (owner): light blue at night, black by day */@keyframes cpulse{0%,100%{opacity:.32;transform:scale(.9)}50%{opacity:1;transform:scale(1.05)}}@media(prefers-reduced-motion:reduce){.cload svg{animation:none;opacity:.7}}.hyt .cload{min-height:120px}.hyt .cload svg{width:40px}
 .rdl{font:15px/1.5 Figtree,system-ui;color:var(--mut);text-align:center;margin-top:30px}
 /* v76: language toggle (Hebrew | Hebrew / English | English) and the English text */
 .rdlg{display:flex;justify-content:center;gap:2px;margin:10px auto 2px;padding:3px;border-radius:99px;width:max-content;max-width:calc(100% - 28px);background:color-mix(in srgb,var(--ink) 6%,transparent);border:1px solid var(--line)}
@@ -3649,8 +3650,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=135;
+const CC_VER=136;
 const CC_LOG=[
+  {v:136,new:['The loading figure is light blue at night, so it shows up on the dark screen.']},
   {v:135,mid:1,new:['Reminders are now on by default: candle lighting, the Omer, fast days, your own plans, and smart shiurim reminders. You can turn any of them off in ⋯ → Reminders.']},
   {v:134,new:['The little character on the home screen is livelier: he moves about twice as often and only dozes off after 3 minutes. (A bug had stopped his little moves altogether.)']},
   {v:133,new:['Even fewer buzzes while scrolling the main page.']},
