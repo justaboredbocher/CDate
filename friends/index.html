@@ -1228,7 +1228,7 @@ sync()})();
 // neither = SMALL (looks, tweaks, fixes) → only a little round "i" in the corner, version X.Y.Z.
 // adm:1 = admin-only change → counts as a small update in the version number, but NO notification at all (owner). The shown version is worked out from these sizes.
 // apk:N = this needs app version N (a new download); the app then also shows "Update the app".
-const KIT_VER=54,KIT_APK=3;
+const KIT_VER=55,KIT_APK=3;
 const KIT_LOG=[
  {v:1,big:1,t:"Home-screen widgets",d:"See who’s awake without opening the app, with Call and WhatsApp buttons, filters and sorting.",go:"widgets"},
  {v:2,mid:1,t:"Add widgets from inside the app",d:"Menu → Home-screen widgets → Add. No more digging through your phone’s widget list.",go:"widgets",apk:1},
@@ -1274,7 +1274,8 @@ const KIT_LOG=[
  {v:49,mid:1,t:"Your communities are saved to your account",d:"Sign in on any phone, or after reinstalling, and all your communities come back by themselves."},
  {v:50,t:"Signing in brings back every community your account is in, by itself"},
  {v:52,mid:1,t:"Your saved people and favourites are saved to your account too",d:"Sign in on any phone and your whole list comes back, with your favourites."},
- {v:54,t:"If someone added you to a community, signing up with that phone number puts you straight in it"}
+ {v:54,t:"If someone added you to a community, signing up with that phone number puts you straight in it"},
+ {v:55,t:"Only a community’s admins can add people to it"}
 ];
 function kitVerStr(b){let M=0,m=0,p=0;const by={};KIT_LOG.forEach(x=>{const l=x.big?3:x.mid?2:1;by[x.v]=Math.max(by[x.v]||0,l)});
  Object.keys(by).map(Number).sort((a,c)=>a-c).forEach(v=>{if(v>b)return;if(by[v]==3){M++;m=0;p=0}else if(by[v]==2){m++;p=0}else p++});return M+"."+m+"."+p}
@@ -1604,7 +1605,7 @@ async function cmOpen(id){sheet._gs=null;let d=CM_DOCS[id]||await cmFetch(id);if
  const inC=!!(e&&e.st=="member"),pend=amAdmin?Object.entries(d.pending||{}):[],defH=lsGet("kit_cm_def")==id;
  // owner: "the windows are very ugly now and the UX is quite confusing" → one clear header, two main actions, the members, and everything else folded under Settings
  let h='<div class="cm"><div class="cmhd"><div><h3>'+esc(d.name)+(amAdmin?'<span class="cmb">Admin</span>':'')+'</h3><p>'+total+' member'+(total==1?'':'s')+(e&&e.st=="pending"?' · waiting for approval':'')+'</p></div><button class="cmx" id="cmX" aria-label="Close">✕</button></div>';
- h+='<div class="cmact">'+(inC?'<button class="btn p" id="cmAdd">＋ Add people</button>':'')+'<button class="btn" id="cmSh">Invite with a link</button></div>';
+ h+='<div class="cmact">'+(inC&&amAdmin?'<button class="btn p" id="cmAdd">＋ Add people</button>':'')+'<button class="btn" id="cmSh">Invite with a link</button></div>';
  if(isS&&!amAdmin&&typeof isAdmin=="function"&&isAdmin())h+='<button class="btn cmw" id="cmClaim">Manage Shluchim (admin code)</button>';
  if(pend.length)h+='<div class="sh">Waiting to join · '+pend.length+'</div><div class="cml">'+pend.map(([k,m])=>'<div class="mm"><i class="av">'+esc((m.n[0]||"?").toUpperCase())+'</i><span><b>'+esc(m.n)+'</b><small>'+esc(baseCity(m.c))+'</small></span><button class="ok" data-ap="'+k+'">Approve</button><button data-dc="'+k+'">Decline</button></div>').join("")+'</div>';
  if(mem.length){h+='<div class="sh">'+(isS?'Joined with the link':'Members')+'</div><div class="cml">'+mem.map(([k,m])=>{const ad=(d.admins||[]).includes(k),own=k==d.owner,me1=k==mine;

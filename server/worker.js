@@ -208,7 +208,8 @@ async function handle(req, env) {
       // owner: a member adds someone (an existing contact or a new one) to the community. In a community that needs
       // approval, a non-admin's addition waits for an admin. Added people have no account; if they join later, that replaces it.
       if (op === 'add') {
-        if (!isMe) return j({ error: 'not a member' }, 403);
+        // owner: only the community's admins may add people
+        if (!isMe || !d.admins.includes(fk)) return j({ error: 'not an admin' }, 403);
         const m = info(b.m); if (!m) return j({ error: 'bad data' }, 400);
         const pd = (m.p || '').replace(/\D/g, ''), same = (o) => o && ((pd.length >= 6 && (o.p || '').replace(/\D/g, '') === pd) || (o.n.toLowerCase() === m.n.toLowerCase() && o.c === m.c));
         if (Object.values(d.members).some(same)) return j({ ok: true, status: 'already' });
@@ -216,7 +217,6 @@ async function handle(req, env) {
         if (Object.keys(d.members).length >= 1000) return j({ error: 'full' }, 507);
         const k = 'a_' + [...crypto.getRandomValues(new Uint8Array(10))].map((x) => 'abcdefghjkmnpqrstuvwxyz23456789'[x % 31]).join('');
         const rec = { ...m, ad: 1, by: fk };
-        if (d.mode === 'approve' && !d.admins.includes(fk)) { d.pending[k] = rec; await save(); return j({ ok: true, status: 'pending' }); }
         d.members[k] = rec; await save(); return j({ ok: true, status: 'member' });
       }
       // whoever added someone may take them out again
