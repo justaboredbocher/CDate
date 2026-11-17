@@ -1228,7 +1228,7 @@ sync()})();
 // neither = SMALL (looks, tweaks, fixes) → only a little round "i" in the corner, version X.Y.Z.
 // adm:1 = admin-only change → counts as a small update in the version number, but NO notification at all (owner). The shown version is worked out from these sizes.
 // apk:N = this needs app version N (a new download); the app then also shows "Update the app".
-const KIT_VER=52,KIT_APK=3;
+const KIT_VER=53,KIT_APK=3;
 const KIT_LOG=[
  {v:1,big:1,t:"Home-screen widgets",d:"See who’s awake without opening the app, with Call and WhatsApp buttons, filters and sorting.",go:"widgets"},
  {v:2,mid:1,t:"Add widgets from inside the app",d:"Menu → Home-screen widgets → Add. No more digging through your phone’s widget list.",go:"widgets",apk:1},
@@ -1841,7 +1841,7 @@ function cmPeople(id){const d=CM_DOCS[id]||{members:{}},mine=me&&me.match?cmFk()
  if(id=="shluchim")DIRP0.forEach(x=>out.push({n:x.name,city:x.city,tz:x.tz,lat:x.lat,lon:x.lon,country:x.country,dir:1}));
  Object.entries(d.members||{}).forEach(([k,m])=>{if(k==mine||!m.tz)return;if(id=="shluchim"&&DIRP0.some(x=>x.name==m.n))return;out.push({n:m.n,city:baseCity(m.c)+" · "+cmName(id),tz:m.tz,lat:+m.la,lon:+m.lo,country:cmName(id),p:m.p||""})});
  return out}
-function cmBar(){const b=$("cmBar");if(!b)return;const ids=me&&me.match?cmIds():[];const on=ids.length>0;document.body.classList.toggle("has-cmbar",on);if(!on){b.innerHTML="";return}
+function cmBar(){try{const g=$("gb");if(g&&!su)g.style.display=hasList()?"grid":"none"}catch(e){}const b=$("cmBar");if(!b)return;const ids=me&&me.match?cmIds():[];const on=ids.length>0;document.body.classList.toggle("has-cmbar",on);if(!on){b.innerHTML="";return}
  b.innerHTML='<button data-v=""'+(CM_VIEW?'':' class="on"')+'>Everyone</button>'+ids.map(id=>'<button data-v="'+id+'"'+(CM_VIEW==id?' class="on"':'')+'>'+esc(cmName(id))+'</button>').join("");
  b.querySelectorAll("[data-v]").forEach(x=>x.onclick=()=>{CM_VIEW=x.dataset.v;if(CM_VIEW)CM_OPEN.add(CM_VIEW);hap(8);cmRebuild();try{if(view!="cards"){auto=true;zoomT=1}}catch(e){}})}
 function cmPersonRow(x,id){const i=savedIdx(x.n,x.city),sv=i>=0,v=sv?saved[i]:null,st=status(x.tz),ph=sv?vPhone(v):(x.p||phoneOf(x.n,x.city)),dg=digits(ph),fav=v&&favs.has(fk(v));
