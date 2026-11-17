@@ -1227,7 +1227,7 @@ sync()})();
 // neither = SMALL (looks, tweaks, fixes) → only a little round "i" in the corner, version X.Y.Z.
 // adm:1 = admin-only change → counts as a small update in the version number, but NO notification at all (owner). The shown version is worked out from these sizes.
 // apk:N = this needs app version N (a new download); the app then also shows "Update the app".
-const KIT_VER=46,KIT_APK=3;
+const KIT_VER=47,KIT_APK=3;
 const KIT_LOG=[
  {v:1,big:1,t:"Home-screen widgets",d:"See who’s awake without opening the app, with Call and WhatsApp buttons, filters and sorting.",go:"widgets"},
  {v:2,mid:1,t:"Add widgets from inside the app",d:"Menu → Home-screen widgets → Add. No more digging through your phone’s widget list.",go:"widgets",apk:1},
@@ -1268,7 +1268,8 @@ const KIT_LOG=[
  {v:43,t:"New accounts start with an empty globe until they join a community or add friends"},
  {v:44,t:"Each account on a phone keeps its own people and communities: logging out and in with another account no longer mixes them"},
  {v:45,t:"Shooting stars only fly between places that are on your globe"},
- {v:46,apk:3,t:"Signing up without a yeshiva now finds your location by itself (it asks for permission first)"}
+ {v:46,apk:3,t:"Signing up without a yeshiva now finds your location by itself (it asks for permission first)"},
+ {v:47,t:"Fixed communities going missing after switching accounts on one phone (they come back by themselves)"}
 ];
 function kitVerStr(b){let M=0,m=0,p=0;const by={};KIT_LOG.forEach(x=>{const l=x.big?3:x.mid?2:1;by[x.v]=Math.max(by[x.v]||0,l)});
  Object.keys(by).map(Number).sort((a,c)=>a-c).forEach(v=>{if(v>b)return;if(by[v]==3){M++;m=0;p=0}else if(by[v]==2){m++;p=0}else p++});return M+"."+m+"."+p}
@@ -1707,13 +1708,33 @@ async function acctClaimLegacy(){const lg=lsGet("kit_vault_legacy");if(!lg||!me|
  if(await acctOwns(o)!==true)return;const cur=acctTake();acctPut(o);try{const c=JSON.parse(cur.sc_saved||"[]");if(c.length){const s2=JSON.parse(o.sc_saved||"[]");c.forEach(v=>{if(!s2.some(x=>x.name==v.name&&x.city==v.city))s2.push(v)});lsSet("sc_saved",JSON.stringify(s2))}}catch(e){}
  try{localStorage.removeItem("kit_vault_legacy")}catch(e){}acctMem();cmRebuild();cmMenu();renderCards();cmRefresh()}
 function acctLoad(){const k=acctSlug(me),v=lsGet("kit_vault_"+k);acctTake();if(v){try{acctPut(JSON.parse(v))}catch(e){}try{localStorage.removeItem("kit_vault_"+k)}catch(e){}}acctMem();
- try{cmRebuild();cmMenu()}catch(e){}if(!v)setTimeout(acctClaimLegacy,300)}
+ try{cmRebuild();cmMenu()}catch(e){}setTimeout(acctRecover,600)}
 (async function acctMigrate(){if(lsGet("kit_vault1")=="1"){if(me&&me.match)setTimeout(acctClaimLegacy,2500);return}
  const has=ACCT_KEYS.some(x=>x!="sc_tour"&&lsGet(x)!=null);if(!has){lsSet("kit_vault1","1");return}
  if(!me||!me.match){lsSet("kit_vault_legacy",JSON.stringify(acctTake()));lsSet("kit_vault1","1");acctMem();return}
  const o={};ACCT_KEYS.forEach(x=>{const v=lsGet(x);if(v!=null)o[x]=v});const own=await acctOwns(o);if(own===null)return; // offline: try next time
  if(own===false){lsSet("kit_vault_legacy",JSON.stringify(acctTake()));acctMem();cmRebuild();cmMenu();renderCards()}
  lsSet("kit_vault1","1")})();
+
+// owner: "I just re-logged in and all my communities are gone" — the switch could file this account's things under another
+// account's vault (or the legacy one). On every sign-in / opening: look through every vault on the phone, ask the server which
+// of their communities really belong to the signed-in account (comm/status with its secret) and bring those back. If ALL of a
+// vault's communities are this account's, that vault was really this account's data: its saved people/favourites come back too.
+async function acctRecover(){if(!me||!me.match||acctRecover.busy)return;acctRecover.busy=1;let got=0;
+ try{const mine=acctSlug(me),fkm=cmFk();
+  for(const k of Object.keys(localStorage)){if(!k.startsWith("kit_vault_")||k=="kit_vault_"+mine)continue;let o;try{o=JSON.parse(lsGet(k))}catch(e){continue}
+   let L=[];try{L=JSON.parse(o.kit_comms||"[]")}catch(e){}const cand=L.filter(e=>e&&e.s&&!e.sj);if(!cand.length)continue;
+   const own=[];for(const e of cand){try{const r=await cmPost("status",{id:e.id,fk:fkm,s:e.s});if(r.status=="member"||r.status=="pending")own.push(e)}catch(x){acctRecover.busy=0;return}}
+   if(!own.length)continue;const cur=cmList();own.forEach(e=>{if(!cur.some(x=>x.id==e.id)){cur.push(e);got++}else{const x=cur.find(y=>y.id==e.id);if(x.sj||x.st!="member"){Object.assign(x,e);delete x.sj;got++}}});cmSave(cur);
+   if(own.length==cand.length){
+    try{const a=JSON.parse(lsGet("sc_saved")||"[]"),b=JSON.parse(o.sc_saved||"[]");b.forEach(v=>{if(!a.some(x=>x.name==v.name&&x.city==v.city))a.push(v)});lsSet("sc_saved",JSON.stringify(a))}catch(e){}
+    try{const a=new Set(JSON.parse(lsGet("sc_favs")||"[]"));JSON.parse(o.sc_favs||"[]").forEach(x=>a.add(x));lsSet("sc_favs",JSON.stringify([...a]))}catch(e){}
+    try{const a=JSON.parse(lsGet("sc_rem")||"{}");Object.assign(a,JSON.parse(o.sc_rem||"{}"),a);lsSet("sc_rem",JSON.stringify(a))}catch(e){}
+    if(o.kit_cm_def&&!lsGet("kit_cm_def"))lsSet("kit_cm_def",o.kit_cm_def);if(o.sc_tour)lsSet("sc_tour",o.sc_tour);
+    try{localStorage.removeItem(k)}catch(e){}}
+   else{o.kit_comms=JSON.stringify(L.filter(e=>!own.includes(e)));lsSet(k,JSON.stringify(o))}}
+  if(got){acctMem();cmRebuild();cmMenu();renderCards();cmRefresh();toast("Your communities are back")}}catch(e){}acctRecover.busy=0}
+setTimeout(acctRecover,3000);
 function cmNew(){open(false);sheet._gs=null;sheet.innerHTML='<div class="cm"><h3>Create a community</h3><p>For your family, friends, a class or a group. Everyone in it sees each other on the globe, without saving anyone. You’ll be its admin.</p><input class="ain" id="cmN" maxlength="60" placeholder="Name, e.g. Cohen family" autocapitalize="words"><div class="note">🔒 Members see each other’s name, city and number.</div><div class="btns"><button class="btn" id="cmX">Cancel</button><button class="btn p" id="cmGo" disabled>Create</button></div></div>';sheet.style.display="block";
  const N=$("cmN"),G=$("cmGo");setTimeout(()=>N.focus(),80);N.oninput=()=>G.disabled=!N.value.trim();$("cmX").onclick=()=>sheet.style.display="none";
  G.onclick=async()=>{const info=meInfo();if(!info){toast("Couldn’t find your location.");return}G.disabled=true;const s2=cmSecret();
