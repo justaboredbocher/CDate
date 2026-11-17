@@ -1,0 +1,33 @@
+# Sends server/worker.js to the Cloudflare Worker "cdate-push" (owner: no more pasting from the phone).
+# Needs one repository secret: CF_API_TOKEN = a Cloudflare API token made from the "Edit Cloudflare Workers" template.
+# Keeps the worker's existing KV binding, variables and cron (keep_bindings); only the code changes.
+name: Deploy push server
+on:
+  push:
+    branches: [main]
+    paths: ['server/worker.js']
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Upload worker.js to Cloudflare
+        env:
+          TOKEN: ${{ secrets.CF_API_TOKEN }}
+        run: |
+          set -e
+          if [ -z "$TOKEN" ]; then echo "::error::The CF_API_TOKEN secret is missing (Settings → Secrets and variables → Actions)."; exit 1; fi
+          ACC=$(curl -s -H "Authorization: Bearer $TOKEN" https://api.cloudflare.com/client/v4/accounts | python3 -c "import json,sys;d=json.load(sys.stdin);print(d['result'][0]['id'] if d.get('success') and d['result'] else '')")
+          if [ -z "$ACC" ]; then echo "::error::The token can't see a Cloudflare account. Make it from the 'Edit Cloudflare Workers' template."; exit 1; fi
+          echo '{"main_module":"worker.js","compatibility_date":"2024-09-01","keep_bindings":["kv_namespace","plain_text","secret_text","json"]}' > meta.json
+          R=$(curl -s -X PUT -H "Authorization: Bearer $TOKEN" \
+            -F "metadata=@meta.json;type=application/json" \
+            -F "worker.js=@server/worker.js;type=application/javascript+module" \
+            "https://api.cloudflare.com/client/v4/accounts/$ACC/workers/scripts/cdate-push")
+          echo "$R" | python3 -c "import json,sys;d=json.load(sys.stdin);print('success' if d.get('success') else d.get('errors'));sys.exit(0 if d.get('success') else 1)"
+      - name: Check the live server answers with the new code
+        run: |
+          sleep 8
+          curl -s -H "Origin: https://mosheliberman03-maker.github.io" "https://cdate-push.mosheliberman03.workers.dev/kit/vault3/get?id=$(printf 'a%.0s' $(seq 64))"
+          echo
