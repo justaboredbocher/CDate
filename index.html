@@ -861,7 +861,7 @@ html.cc-boot,html.cc-boot body{background:#0a0b10!important}html.cc-boot #accoun
 .dock #mn{padding:0 12px;flex:none}
 @media(max-width:370px){.dock #mo,.dock #sd{padding:0 7px;gap:5px}.dock #td{padding:0 13px}.dock #mn{padding:0 8px}.dock #td,.dock #mo,.dock #sd{font-size:14.5px}}
 :root.tt-off-siddur .dock #sd{display:none}
-#sdr{position:fixed;inset:0;z-index:70;display:flex;flex-direction:column;color:var(--ink);background:#0b1330;transform:translateY(100%);visibility:hidden;transition:transform .34s cubic-bezier(.2,.8,.2,1),visibility 0s .34s;contain:strict}
+#gdb{z-index:80}#sdr .sd-top .sd-how{width:auto;height:36px;margin-right:8px;padding:0 14px;border-radius:999px;font:600 14px/1 Figtree,system-ui,sans-serif;white-space:nowrap}#sdr .sd-top .sd-how[hidden]{display:none}#sdr{position:fixed;inset:0;z-index:70;display:flex;flex-direction:column;color:var(--ink);background:#0b1330;transform:translateY(100%);visibility:hidden;transition:transform .34s cubic-bezier(.2,.8,.2,1),visibility 0s .34s;contain:strict}
 #sdr.on{transform:none;visibility:visible;transition:transform .34s cubic-bezier(.2,.8,.2,1)}
 :root[data-theme="light"] #sdr{background:#eef2fc}
 #sdr .sd-top{display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px 6px;flex:none}
@@ -911,7 +911,7 @@ html.cc-boot,html.cc-boot body{background:#0a0b10!important}html.cc-boot #accoun
 #sdr .sd-row input{width:96px;box-sizing:border-box;padding:9px 11px;border-radius:12px;border:1px solid var(--gx-inb,var(--line));background:var(--gx-in,transparent);color:var(--ink);font:500 15px Figtree,system-ui}
 #sdr .sd-row button{padding:9px 14px;border-radius:12px;border:1px solid var(--gx-bd,var(--line));background:var(--gx-in,transparent);color:var(--ink);font:600 14px Figtree,system-ui;cursor:pointer}
 body.sdo{overflow:hidden}
-body.sd-hide>:not(#sdr):not(#ccBeta):not(script):not(style){visibility:hidden!important}
+body.sd-hide>:not(#sdr):not(#ccBeta):not(#gdb):not(script):not(style){visibility:hidden!important}
 @media(prefers-reduced-motion:reduce){#sdr,#sdr .sd-cue,#sdr .sd-sheet,#sdr .sd-tc{transition:none}}
 </style>
 <style>/* Small green BETA badge, top-left on every screen (owner, v130). Above everything, never catches a tap. */
@@ -1512,6 +1512,7 @@ function gdOpen(i,k){let b=$('#gdb');if(!b){b=document.createElement('div');b.id
  b.classList.add('on')}
 document.addEventListener('click',e=>{const g=e.target.closest('.gi');if(!g)return;e.stopImmediatePropagation();e.preventDefault();H.tap();gdOpen(+g.dataset.g,g.dataset.k)},true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')gdClose()});
+document.addEventListener('click',e=>{if(e.target.closest('#sdHow')){H.tap();const i=guideFor('Light the menorah');if(i>=0)gdOpen(i,'ys')}});
 const zt=n=>{const r=ZR.find(x=>x[0].startsWith(n));return r?tf(r[1]):''};
 
 /* ===== Detailed tasks (replaces and extends the originals) ===== */
@@ -1947,7 +1948,11 @@ function sdRain(c){const d=c.day,Y=d.getFullYear(),lp=y=>(y%4===0&&y%100!==0)||y
 const sdAvm=c=>!c.noT&&(c.fast||(c.h.k==='Ti'&&c.h.d>=3&&c.h.d<=9));
 function sdPieces0(fk){const f=sdFlows()[fk];if(!f.wk){let L=f.seg.flatMap(s=>sdR(s[0],null,s[1],null));
   // Shabbos & Yom Tov: "Hashem Hashem… Ribono shel olam" when the Ark is opened only on a Yom Tov that falls on a weekday (owner)
-  if(fk==='sh'&&f.seg.some(s=>s[0]===181)){const c=sdCx(fk);if(!(c.yt&&c.wd!==6))L=sdCut(L,222,47.65,223,14.3)}return L}const c=sdCx(fk);let L,I=[],M=[],AD=[],XC=[];const cut=(...a)=>{L=sdCut(L,...a)},ins=(...a)=>I.push(a);
+  if(fk==='sh'&&f.seg.some(s=>s[0]===181)){const c=sdCx(fk);if(!(c.yt&&c.wd!==6))L=sdCut(L,222,47.65,223,14.3)}return L}const c=sdCx(fk);let L,I=[],M=[],AD=[],XC=[],TL=[];
+ /* v144 (owner: "add menorah lighting in the siddur in its proper place on the proper day"): the siddur's own Chanukah page (389 from the
+    Chabad note, the blessings — Shehecheyanu only on night 1 — and Haneiros Halalu on 390) closes Maariv on Chanukah nights, and Friday's Mincha
+    (Chabad: Mincha, then the menorah, then Shabbos candles) */
+ const MEN=n=>lab(n===1?sdR(389,[59.9],390,[33.5]):[...sdR(389,[59.9],389,[86.2]),...sdR(390,null,390,[33.5])],'Chanukah lights');const cut=(...a)=>{L=sdCut(L,...a)},ins=(...a)=>I.push(a);
  // v112 (owner): a special-day addition kept today is marked (ad) → a darkened box with a ring drawn around it once (sdCol/sdDraw)
  const opt=(on,...r)=>{if(on)AD.push(r);else cut(...r)},adf=A=>A.map(q=>({...q,ad:1}));
  const TD=a=>{for(const r of a)opt(c.td,...r)};
@@ -1989,6 +1994,7 @@ function sdPieces0(fk){const f=sdFlows()[fk];if(!f.wk){let L=f.seg.flatMap(s=>sd
   if(c.h.k==='N'&&c.h.d<=13){const n=SD_NASI[c.h.d-1];L.push(...lab(adf(sdRd(n)),'The Nasi').map(q=>({...q,x:1})))}
   M=[[66,14.3,'Ashrei · Uva Letziyon']]}
  if(fk==='mi'){L=[...(f.fri?lab(sdR(148,[11.6],151,[92.4]),'Hodu · Pasach Eliyahu'):[]),...sdR(99,null,117,null)];
+  if(f.fri){const d1=ad(c.day,1),n1=chIdx({h:hd(d1),dt:d1});if(n1)TL=MEN(n1)}
   TD([[103,47.1,103,58.6],[104,13,104,22],[104,69.1,104,74.2],[106,50,106,54.9],[110,52.1,110,62.7],[111,27.1,111,43.2],[112,9.3,112,12.6],[115,24.3,115,27.45]]);
   opt(c.fast,105,53.6,105,80.7);opt(c.fast,108,19.3,108,39.4);opt(c.fast,110,77,110,94.7);opt(c.tb,107,38.5,107,40.35);opt(c.tb,107,45.25,107,80.15);
   opt(c.rc||c.chm,108,62,108,96.3);opt(c.ch||c.pur,109,73.4,110,43.5);
@@ -2002,8 +2008,9 @@ function sdPieces0(fk){const f=sdFlows()[fk];if(!f.wk){let L=f.seg.flatMap(s=>sd
   /* v116: no Vihi Noam when a Yom Tov falls in the coming week (p.131) */const vn=c.ms&&![0,1,2,3,4,5].some(j=>strictYT(hd(ad(c.day,j))));cut(131,29.8,vn?131:133,vn?31.85:40.4);if(vn)AD.push([131,31.85,133,40.4]);opt(c.pur,134,19.9,134,24.45);cut(134,24.45,134,26.5);
   {const w=!sdSum(c.h),r=sdRain(c);cut(124,[32.563],124,[44.385]);XC.push([124,826,925,662,w?'l':'r']);cut(126,[4.729],126,[11.123]);XC.push([126,360,462,544,r?'l':'r'])}
   if(c.ch||c.pur)XC.push([129,250,1290,410,c.pur?'l':'r']);
-  if(c.om)ins(134,26.5,lab(adf([...sdR(136,44.05,136,52.2),...sdOmer(c.om),...sdR(139,79.5,140,92.75)]),'Sefiras HaOmer'));}
- for(const r of AD)L=sdFlag(L,...r);for(const r of XC)L=sdXc(L,...r);for(const a of I)L=sdIns(L,...a);for(const m of M)L=sdMk(L,m[0],m[1],m[2],m[3]);return L}
+  if(c.om)ins(134,26.5,lab(adf([...sdR(136,44.05,136,52.2),...sdOmer(c.om),...sdR(139,79.5,140,92.75)]),'Sefiras HaOmer'));
+  if(c.ch)TL=MEN(c.ch);}
+ for(const r of AD)L=sdFlag(L,...r);for(const r of XC)L=sdXc(L,...r);for(const a of I)L=sdIns(L,...a);for(const m of M)L=sdMk(L,m[0],m[1],m[2],m[3]);if(TL.length)L=L.concat(TL);return L}
 // lay the pieces out on screens (split only on blank lines)
 const sdBlank=q=>{const g=SD.G[q.i][2];for(let j=0;j<g.length;j+=2)if(g[j]<=q.a+2&&g[j]+Math.abs(g[j+1])>=q.b-2)return true;return q.b>=SD.G[q.i][1]&&q.a>=SD.G[q.i][1]-30};
 const SD_TH=150,SD_TG=90;   // a section title (image rows) and the space above it
@@ -2116,6 +2123,7 @@ function sdHead(){const C=SD.C;if(!C)return;const top=(SD.pos+SD.H*.12)/SD.s,bot
  for(const x of C.I){if(x.y>bot)break;if(!x.t){if(x.y<=top)it=x;if(x.y+x.h>=SD.pos/SD.s)P.add(SD.n[x.i])}}
  if(!it)it=C.I.find(x=>!x.t);const p=it?SD.n[it.i]:0,s=sdSec(p),f=SD.m==='flow'&&sdFlows()[SD.fk];
  if(f)for(const x of C.sec){if(x.y>top)break;sl=x.t}
+ {const hw=$('#sdHow');if(hw){const on=!!f&&sl==='Chanukah lights';if(hw.hidden===on)hw.hidden=!on}}   // v144: “How to” at the top while in the Chanukah section
  const ttl=f?f.t:s[1];$('#sdT').textContent=ttl;$('#sdS').textContent=(f&&sl?sl+' · ':'')+'Page '+p;
  $('#sdBar').style.width=(Math.max(0,Math.min(1,SD.pos/Math.max(1,sdMax())))*100).toFixed(1)+'%';
  $('#sdTabs').querySelectorAll('[data-f]').forEach(b=>b.setAttribute('aria-pressed',String(SD.m==='flow'&&b.dataset.f===SD.fk)));
@@ -2135,11 +2143,12 @@ function sdCues(P){if(!SD.fk)return null;const c=sdCx(SD.fk),{h,s,rc,ch,chm,pur,
    if(yt||chm)add(233,234,{t:'<b>'+(yt?'Yom Tov':'Chol Hamoed')+'</b> · Musaf for Yom Tov.',b:'Musaf',go:339,end:350,ret:245});
   }}
  if(SD.fk==='ma'){if(c.om&&!sdFlows().ma.wk)add(161,175,{t:'<b>Count the Omer</b> · tonight is day '+c.om+'.',b:'Omer',go:136,end:140,ret:null});if(pur)add(133,134,{t:'<b>Purim</b> · the Megillah after the Amidah.',b:'Megillah',go:390,end:390,ret:null});
-  if(s.day.getDay()===6&&s.night)add(133,135,{t:'<b>Motzei Shabbos</b> · Havdalah.',b:'Havdalah',go:296,end:299,ret:null})}
+  if(s.day.getDay()===6&&s.night)add(133,135,{t:'<b>Motzei Shabbos</b> · Havdalah'+(c.ch?', then the menorah.':'.'),b:'Havdalah',go:296,end:299,ret:null})}
+ if((SD.fk==='ma'||SD.fk==='mi')&&SD.m==='flow'){const n=SD.fk==='ma'?c.ch:chIdx({h:hd(ad(c.day,1)),dt:ad(c.day,1)});if(n&&(SD.fk==='ma'||c.wd===5))add(389,390,{t:'<b>Chanukah · night '+n+'</b>'+(SD.fk==='mi'?' · light before the Shabbos candles.':''),b:'How to',guide:'Light the menorah'})}
  if(SD.fk==='be'){if(rc||chm)add(88,95,{t:'<b>'+(rc?'Rosh Chodesh':'Chol Hamoed')+'</b> · add Yaaleh V’yavo.'});if(ch||pur)add(88,95,{t:'<b>'+(ch?'Chanukah':'Purim')+'</b> · add Al HaNissim.'})}
  return C.find(x=>!SD.cueOff[x.t])||null}
 function sdBuild(){let b=$('#sdr');if(b)return b;b=document.createElement('div');b.id='sdr';b.setAttribute('role','dialog');b.setAttribute('aria-label','Siddur');
- b.innerHTML='<div class="sd-top"><button type="button" class="sd-x" aria-label="Back">‹</button><div class="sd-tt"><b id="sdT">Siddur</b><small id="sdS"></small></div><button type="button" class="sd-m" aria-label="Contents">☰</button></div>'+
+ b.innerHTML='<div class="sd-top"><button type="button" class="sd-x" aria-label="Back">‹</button><div class="sd-tt"><b id="sdT">Siddur</b><small id="sdS"></small></div><button type="button" class="sd-how" id="sdHow" hidden>How to</button><button type="button" class="sd-m" aria-label="Contents">☰</button></div>'+
   '<div class="sd-bar"><i id="sdBar"></i></div><div class="sd-tabs" id="sdTabs"></div><div class="sd-st" id="sdSt"><div class="sd-col" id="sdC"></div>'+
   '<div class="sd-cue" id="sdCue"></div></div><div class="sd-sheet" id="sdSh"><div class="sd-tc"></div></div>';
  document.body.appendChild(b);
@@ -2158,7 +2167,7 @@ function sdCueShow(P){const el=$('#sdCue'),c=SD.ins&&SD.m==='book'?{t:'<b>'+SD.i
  if(!c){el.classList.remove('on');return}
  el.innerHTML='<span>'+c.t+'</span>'+(c.b?'<button type="button" class="go">'+c.b+'</button>':'')+'<button type="button" class="x" aria-label="Hide">×</button>';
  el.querySelector('.x').onclick=()=>{H.tap();if(!c.back)SD.cueOff[c.t]=1;else SD.ins=null;SD.lastCue='';el.classList.remove('on');setTimeout(()=>sdHead(),300)};
- const g=el.querySelector('.go');if(g)g.onclick=()=>{H.sel();if(c.back){const r=SD.ins.ret;SD.ins=null;sdSet(sdColOf(r.fk),'flow',r.fk,r.pos);return}
+ const g=el.querySelector('.go');if(g)g.onclick=()=>{H.sel();if(c.guide){const i=guideFor(c.guide);if(i>=0)gdOpen(i,'ys');return}if(c.back){const r=SD.ins.ret;SD.ins=null;sdSet(sdColOf(r.fk),'flow',r.fk,r.pos);return}
   const ret={fk:SD.fk,pos:SD.pos};if(c.ret!=null&&SD.m==='flow'){const y=sdAtIn(SD.C,c.ret);if(y!=null)ret.pos=y*SD.s}
   if(c.end&&SD.m==='flow')SD.ins={ret,lbl:sdSec(c.go)[1]};sdShowBook(c.go)};
  requestAnimationFrame(()=>{el.classList.add('on');try{H.sel()}catch(e){}})}
@@ -2167,8 +2176,8 @@ function sdTabs(){const f=sdFlows();$('#sdTabs').innerHTML=['sh','mi','ma','be',
 // v111 (owner: "the index should be simplified … Brachos, Korbanot, Hodu, Rabbeinu Tam, Korbanot for Mincha, Maariv"): a short list of
 // the places people start from, only those said today (Hallel instead of Tachanun …); the whole book by section is one tap further.
 const SD_MAIN={sh:[['Upon arising','Brachos'],['Morning prayer','Korbanos'],['Hodu','Hodu'],['Shemoneh Esrei','Shemoneh Esrei'],['Tachanun','Tachanun'],['Avinu Malkeinu','Avinu Malkeinu'],['Lulav','Lulav'],['Hallel','Hallel'],['Hoshanos','Hoshanos'],['Reading of the Torah','Torah reading'],['Musaf','Musaf'],['Song of the Day','Song of the Day'],['Rabbeinu Tam’s tefillin','Rabbeinu Tam']],
- mi:[['Hodu · Pasach Eliyahu','Hodu · Pasach Eliyahu'],['Mincha','Korbanos for Mincha'],['Ashrei','Ashrei'],['Shemoneh Esrei','Shemoneh Esrei'],['Tachanun','Tachanun'],['Avinu Malkeinu','Avinu Malkeinu']],
- ma:[['Maariv','Maariv'],['Shema','Shema'],['Shemoneh Esrei','Shemoneh Esrei'],['Sefiras HaOmer','Sefiras HaOmer']]};
+ mi:[['Hodu · Pasach Eliyahu','Hodu · Pasach Eliyahu'],['Mincha','Korbanos for Mincha'],['Ashrei','Ashrei'],['Shemoneh Esrei','Shemoneh Esrei'],['Tachanun','Tachanun'],['Avinu Malkeinu','Avinu Malkeinu'],['Chanukah lights','Chanukah lights']],
+ ma:[['Maariv','Maariv'],['Shema','Shema'],['Shemoneh Esrei','Shemoneh Esrei'],['Sefiras HaOmer','Sefiras HaOmer'],['Chanukah lights','Chanukah lights']]};
 function sdMain(k){const f=sdFlows()[k];if(!f.wk)return f.opt.map(o=>({t:o[0]==='Morning blessings'?'Brachos':o[0],f:k,p:o[1]}));
  const C=sdColOf(k);return SD_MAIN[k].map(([l,t])=>{const x=C.sec.find(z=>z.t===l);return x?{t,f:k,y:x.y,p:x.p}:null}).filter(Boolean).sort((a,b)=>a.y-b.y)}
 const sdBtn=o=>`<button type="button" data-f="${o.f}"${o.y!=null?` data-y="${o.y}"`:` data-p="${o.p}"`}>${o.t}<span>${o.p?'p. '+o.p:''}</span></button>`;
@@ -3667,8 +3676,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=143;
+const CC_VER=144;
 const CC_LOG=[
+  {v:144,mid:1,new:['On Chanukah the siddur adds the menorah lighting (blessings and Haneiros Halalu) at the end of Maariv, and on Friday at the end of Mincha, with a “How to” button for the steps.']},
   {v:143,new:['Chanukah menorah steps now follow Chabad custom: in the doorway opposite the mezuzah, and Haneiros Halalu without Maoz Tzur.']},
   {v:142,new:['14 Kislev, the Rebbe and Rebbetzin’s wedding anniversary, is now a Chabad Yom Tov, with its to-do list.','The Chabad days now include what the Rebbe and the Rebbeim said about them (Yud Tes Kislev, Yud Shvat, Yud Beis Tammuz, Chai Elul, Hei Teves, 11 Nissan, Pesach Sheni and more).']},
   {v:141,mid:1,new:['“To do today” is now a simple list: the customs for each day are bullet points instead of things to check off, and candle lighting shows as a reminder (bell), not a task.']},
