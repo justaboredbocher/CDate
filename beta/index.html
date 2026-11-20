@@ -3684,8 +3684,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=153;
+const CC_VER=154;
 const CC_LOG=[
+  {v:154,adm:1,new:['Admin: Check for an update now.']},
   {v:153,new:['Smoother waves behind the date.']},
   {v:152,new:['The day sky waves are back: flat and matte instead of shiny.']},
   {v:151,new:['The new day sky now uses less graphics memory.']},
@@ -5224,6 +5225,7 @@ aiEl('aiMemoryBtn').addEventListener('click',()=>{const p=aiPrefs(),names=Object
  <div class="qseg" id="ttWhen" style="margin-top:10px"><button type="button" data-w="am">Morning</button><button type="button" data-w="pm">Afternoon</button><button type="button" data-w="night">Night</button></div>
  <button class="btn" type="button" id="ttSdGo" style="width:100%;margin-top:10px">Go there and open the siddur</button><p class="mut" id="ttSdMsg" role="status" style="margin:8px 0 0;font-size:13px"></p>
  <h3 class="admh">Chabad.org English</h3><p class="mut" style="margin:0 0 6px">Downloads today's page on this phone and checks it lines up with the Hebrew.</p><div class="rw" style="flex-wrap:wrap;gap:8px"><button class="btn gh" type="button" id="ttChC">Test Chumash</button><button class="btn gh" type="button" id="ttChX" hidden>Copy page outline</button></div><p class="mut" id="ttChM" role="status" style="margin:8px 0 0;font-size:13px;white-space:pre-wrap"></p>
+ <h3 class="admh">Updates</h3><div id="ttUpdM" class="mut" style="margin:0 0 8px">Look for a newer version right now.</div><button class="btn gh" type="button" id="ttUpd">Check for an update now</button>
  <h3 class="admh">Test version</h3><div id="ttBeta" class="mut" style="margin:0 0 8px">Checking…</div><button class="btn gh" type="button" id="ttBetaGo">${window.CC_BETA?'Back to the main app':'Open the test version'}</button>
  <h3 class="admh">Usage</h3><div id="admUse" class="mut" style="margin:0 0 8px">Loading…</div><button class="btn gh" type="button" id="ttUse">Refresh</button>
  <h3 class="admh">Accounts</h3><p class="mut" style="margin:0 0 8px">Every account saved on the server. Deleting removes it from the server only (a phone that still has it keeps its own copy but stops saving).</p><div class="rw" style="gap:8px"><input id="ttAc" type="password" placeholder="Admin code" autocomplete="off" style="flex:1;min-width:0"><button class="btn gh" type="button" id="ttAcGo">Show</button></div><div id="ttAcL" style="margin-top:8px"></div>
@@ -5284,7 +5286,16 @@ aiEl('aiMemoryBtn').addEventListener('click',()=>{const p=aiPrefs(),names=Object
  box.querySelector('#ttFlags').innerHTML=FLAGS.map(([id,t])=>`<label style="display:flex;align-items:center;gap:10px;margin:0;font-weight:500"><input type="checkbox" data-f="${id}" style="width:20px;height:20px;accent-color:#8c94ef"> ${t}</label>`).join('');
  box.querySelectorAll('[data-f]').forEach(c=>{const opt=(FLAGS.find(x=>x[0]===c.dataset.f)||[])[2];c.checked=opt?fl()[c.dataset.f]===true:fl()[c.dataset.f]!==false;c.onchange=()=>{const f=fl();f[c.dataset.f]=c.checked;localStorage.setItem('cc_test_flags',JSON.stringify(f));flApply();H.sel();if(c.dataset.f==='side'){SKY.last=null;skyTick();render(0)}if(c.dataset.f==='swave'&&GLS.kick)GLS.kick();if(c.dataset.f==='aim'&&SKY.last)skyDomeAim(SKY.last)}});flApply();
  {const el=box.querySelector('#ttBeta'),esc=t=>String(t).replace(/[<>&]/g,m=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[m]));   // v149: the test version (beta/) and what it has that the main app doesn't yet
-  box.querySelector('#ttBetaGo').onclick=()=>{location.href=new URL(window.CC_BETA?'./':'beta/',document.baseURI).href};
+  {const b=box.querySelector('#ttUpd'),m=box.querySelector('#ttUpdM');   // v154: force an update check (admin)
+  b.onclick=async()=>{try{H.tap()}catch(e){}b.disabled=true;m.textContent='Checking…';
+   try{const beta=!!window.CC_BETA,u=beta?location.pathname:((await navigator.serviceWorker?.getRegistration())?.scope||new URL('./',document.baseURI).href);
+    if(!beta&&window.caches){try{const c=await caches.open('cdate-app-v1');await c.delete(u)}catch(e){}}
+    try{(await navigator.serviceWorker?.getRegistration())?.update()}catch(e){}
+    const t=await fetch(u,{cache:'reload'}).then(r=>r.ok?r.text():Promise.reject());const nv=+((t.match(/const CC_VER=(\d+);/)||[])[1]||0);
+    if(nv>CC_VER){m.textContent='Update found. Opening it…';setTimeout(()=>{try{sessionStorage.setItem('cc_quiet','1')}catch(e){}location.reload()},700)}
+    else{m.textContent='You already have the newest version ('+(typeof ccVerStr==='function'?'Version '+ccVerStr():'build '+CC_VER)+').';b.disabled=false}
+   }catch(e){m.textContent='Could not check (no internet?). Try again.';b.disabled=false}}}
+ box.querySelector('#ttBetaGo').onclick=()=>{location.href=new URL(window.CC_BETA?'./':'beta/',document.baseURI).href};
   fetch(new URL(window.CC_BETA?'index.html':'beta/index.html',document.baseURI).href+'?v='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():Promise.reject()).then(t=>{const ov=+((t.match(/const CC_VER=(\d+);/)||[])[1]||0),mine=CC_VER;
    const bv=window.CC_BETA?mine:ov,mv=window.CC_BETA?ov:mine;
    if(bv<=mv){el.textContent=window.CC_BETA?'You’re in the test version. It has nothing new yet: the main app is the same.':'The test version is the same as the main app right now. New features will appear there first.';return}
