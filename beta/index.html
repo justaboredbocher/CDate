@@ -586,6 +586,12 @@ html.cc-boot,html.cc-boot body{background:#0a0b10!important}html.cc-boot #accoun
  radial-gradient(130% 50% at 50% 112%,rgba(40,50,118,.55) 0%,transparent 70%),
  linear-gradient(180deg,#070D22 0%,#091127 24%,#0e1736 46%,#131d48 66%,#1a2458 86%,#1e2860 100%)}
 #skyWaves{position:absolute;inset:0;overflow:hidden;opacity:var(--waveo);transition:opacity 1.6s}
+/* v150 (owner: "the sky a more flat colour … the waves behind a matte light blue screen … the sun a yellow circle behind this matte screen that shines through a little"): by day (light theme) */
+:root[data-theme="light"]:not(.tt-off-matte) #skyGrad{background:#a9c6ea!important}
+:root[data-theme="light"]:not(.tt-off-matte) #sky::after{content:'';position:absolute;inset:0;background:rgba(214,229,247,.6);pointer-events:none}
+:root[data-theme="light"]:not(.tt-off-matte) .sky-body.sun-b .skyimg{opacity:0}
+:root[data-theme="light"]:not(.tt-off-matte) .sky-body.sun-b::before{content:'';position:absolute;left:50%;top:50%;width:200%;height:200%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(255,240,170,.5) 0%,rgba(255,240,170,.22) 22%,rgba(255,240,170,.07) 40%,transparent 60%)}
+:root[data-theme="light"]:not(.tt-off-matte) .sky-body.sun-b::after{content:'';position:absolute;left:50%;top:50%;width:46%;height:46%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;background:linear-gradient(rgba(214,229,247,.32),rgba(214,229,247,.32)),radial-gradient(circle,#ffe25a 0%,#ffdc4a 62%,#ffe78a 78%,rgba(255,236,150,0) 100%);box-shadow:0 0 34px 10px rgba(255,238,160,.55)}
 .wv{position:absolute;left:-8%;top:-15%;width:116%;height:130%;overflow:visible;will-change:transform}
 /* layout of the first screen */
 .hero{align-items:flex-start;padding:max(6.4vh,44px) 16px 0;margin:0 -16px;overflow:hidden}
@@ -3540,16 +3546,15 @@ function cchLive(el,base){if(!el)return{set(){},setBase(){},anim(){},nod(){},dar
  const now=()=>performance.now();
  const kick=()=>{if(!L.raf)L.raf=requestAnimationFrame(frame)};
  const mix=(a,b,e)=>({x:a.x+(b.x-a.x)*e,y:a.y+(b.y-a.y)*e,r:a.r+(b.r-a.r)*e,sx:a.sx+(b.sx-a.sx)*e,sy:a.sy+(b.sy-a.sy)*e,o:a.o+(b.o-a.o)*Math.min(1,Math.max(0,e))});
- const curOf=(p,t)=>{if(!p.dur||t>=p.t0+p.dur)return p.to;const u=(t-p.t0)/p.dur;return mix(p.from,p.to,cchBack(u))};
+ const curOf=(p,t)=>{if(p.fl&&t<p.t0+p.dur){const u=Math.max(0,(t-p.t0)/p.dur),F=p.fl;if(u<.5){const e=u*2;return{x:F.s0<0?21.2:0,y:0,r:14*F.s0*e*e*(3-2*e),sx:F.s0,sy:1,o:1}}const e=(u-.5)*2;return{x:F.s1<0?21.2:0,y:0,r:14*F.s1*(1-e*e*(3-2*e)),sx:F.s1,sy:1,o:1}}
+  if(!p.dur||t>=p.t0+p.dur)return p.to;const u=(t-p.t0)/p.dur;return mix(p.from,p.to,cchBack(u))};
  const tween=(k,to,dur)=>{const p=P[k];if(!p)return;const t=now();p.from=curOf(p,t);p.to=to;p.t0=t;p.dur=RM?0:dur;kick()};
  const mood=(m,d)=>{m=CCP[m]||m;el.dataset.m=m;for(const k in P)if(k!=='look'&&k!=='sway'&&k!=='hatb'&&k!=='root'&&k!=='page'&&k!=='zz')tween(k,mir(cchS(L.side<0?(SW[k]||k):k,m)),d||440);
   if(P.hatb&&P.hatb.to.sx!==L.side)hatFlip(d)};
  /* v139/v140 (owner: "the hat should tilt with the head … it shouldn't spin, just tilt"): the hat's drawing has its own ~14° tilt, so when he turns
     to the other side the hat first rotates level, swaps to its mirror image while level (looks the same there), then rotates on to the new tilt */
- const HS=s=>({x:s<0?21.2:0,y:0,r:0,sx:s,sy:1,o:1}),hatFlip=d=>{const s1=L.side,s0=-s1,hd=(d||440)/2;clearTimeout(L.hft);
-  if(L.init){tween('hatb',HS(s1),0);return}
-  tween('hatb',Object.assign(HS(s0),{r:14*s0}),hd);
-  L.hft=setTimeout(()=>{tween('hatb',Object.assign(HS(s1),{r:14*s1}),0);tween('hatb',HS(s1),hd)},hd)};
+ const HS=s=>({x:s<0?21.2:0,y:0,r:0,sx:s,sy:1,o:1}),hatFlip=d=>{const s1=L.side,s0=-s1,p=P.hatb;if(!p)return;   // v150 (owner: "his hat glitches and doesn't turn right away"): one smooth move in step with the head
+  if(L.init||RM){p.fl=null;tween('hatb',HS(s1),0);return}const t=now();p.from=HS(s1);p.to=HS(s1);p.fl={s0,s1};p.t0=t;p.dur=Math.round((d||440)*.85);kick()};
  /* one-shot moves: keyframes [{t,...state deltas}] added on top (x,y,r add; sx,sy multiply; o overrides) */
  const fx=(k,kf,dur)=>{if(L.side<0){k=SW[k]||k;kf=kf.map(f=>{const g=Object.assign({},f);if(g.x!=null)g.x=-g.x;if(g.r!=null)g.r=-g.r;return g})}if(RM||!P[k])return;L.fx.push({k,kf,t0:now(),dur});kick()};
  const fxAt=(f,t)=>{const u=Math.min(1,(t-f.t0)/f.dur),kf=f.kf;let i=0;while(i<kf.length-2&&u>kf[i+1].t)i++;const a=kf[i],b=kf[i+1],w=b.t>a.t?(u-a.t)/(b.t-a.t):1,e=w<.5?2*w*w:1-Math.pow(-2*w+2,2)/2,g=(q,d)=>(a[q]??d)+((b[q]??d)-(a[q]??d))*e;
@@ -3678,8 +3683,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=149;
+const CC_VER=150;
 const CC_LOG=[
+  {v:150,new:['A calmer day sky: a flat, soft blue with the waves behind it, and a yellow sun glowing through.','The little character’s hat now turns smoothly together with his head.']},
   {v:149,adm:1,new:['Admin tools: a test version of the app for trying new features before they are released.']},
   {v:148,adm:1,new:['Admin tools: list and delete accounts.']},
   {v:147,new:['Some admin updates.']},
@@ -5269,7 +5275,7 @@ aiEl('aiMemoryBtn').addEventListener('click',()=>{const p=aiPrefs(),names=Object
   let tg;if(k==='sr')tg=T.sr+10*6e4;else if(k==='ss')tg=T.ss-10*6e4;else if(k==='noon')tg=(T.sr+T.ss)/2;else{const p=ad(t0,-1),x=new RD(p.getFullYear(),p.getMonth(),p.getDate(),21,30);tg=+x}
   if(tg){setClock(tg);applyClock(false)}});
  /* New features get a switch here (owner's standing request). Each one maps to a class on <html>: tt-off-<id> turns it off. */
- const FLAGS=[['glassui','Matching glass cards, sheets and buttons'],['occ','Birthday & yahrzeit touches (confetti, candle, customs)'],['aim','Semicircle faces the sun/moon'],['capdate','Rise/set label under the big date'],['swave','Softer, quieter night waves'],['duskglass','Liquid-glass evening and day sky'],['waterdate','Date letters made of water (tilt the phone)'],['reallight','Real light (sunrise/sunset colours on everything)'],['side','Big date when the middle of the sky is empty'],['dome','Semicircle swivels on scroll'],['siddur','Siddur button in the dock'],['charlife','The assistant’s extra life (reacting to taps, wind, sleep, stretches…)'],['shabbos','Shabbos & Yom Tov screen (the app rests; no reminders)']];
+ const FLAGS=[['glassui','Matching glass cards, sheets and buttons'],['occ','Birthday & yahrzeit touches (confetti, candle, customs)'],['aim','Semicircle faces the sun/moon'],['capdate','Rise/set label under the big date'],['swave','Softer, quieter night waves'],['duskglass','Liquid-glass evening and day sky'],['waterdate','Date letters made of water (tilt the phone)'],['reallight','Real light (sunrise/sunset colours on everything)'],['side','Big date when the middle of the sky is empty'],['dome','Semicircle swivels on scroll'],['siddur','Siddur button in the dock'],['charlife','The assistant’s extra life (reacting to taps, wind, sleep, stretches…)'],['shabbos','Shabbos & Yom Tov screen (the app rests; no reminders)'],['matte','Flat matte-blue day sky with a yellow sun']];
  const fl=()=>{try{return JSON.parse(localStorage.getItem('cc_test_flags')||'{}')}catch(e){return{}}},flApply=()=>{const f=fl();for(const[id,,opt]of FLAGS){if(opt)document.documentElement.classList.toggle('tt-on-'+id,f[id]===true);else document.documentElement.classList.toggle('tt-off-'+id,f[id]===false)}};
  box.querySelector('#ttFlags').innerHTML=FLAGS.map(([id,t])=>`<label style="display:flex;align-items:center;gap:10px;margin:0;font-weight:500"><input type="checkbox" data-f="${id}" style="width:20px;height:20px;accent-color:#8c94ef"> ${t}</label>`).join('');
  box.querySelectorAll('[data-f]').forEach(c=>{const opt=(FLAGS.find(x=>x[0]===c.dataset.f)||[])[2];c.checked=opt?fl()[c.dataset.f]===true:fl()[c.dataset.f]!==false;c.onchange=()=>{const f=fl();f[c.dataset.f]=c.checked;localStorage.setItem('cc_test_flags',JSON.stringify(f));flApply();H.sel();if(c.dataset.f==='side'){SKY.last=null;skyTick();render(0)}if(c.dataset.f==='swave'&&GLS.kick)GLS.kick();if(c.dataset.f==='aim'&&SKY.last)skyDomeAim(SKY.last)}});flApply();
