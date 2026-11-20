@@ -587,8 +587,8 @@ html.cc-boot,html.cc-boot body{background:#0a0b10!important}html.cc-boot #accoun
  linear-gradient(180deg,#070D22 0%,#091127 24%,#0e1736 46%,#131d48 66%,#1a2458 86%,#1e2860 100%)}
 #skyWaves{position:absolute;inset:0;overflow:hidden;opacity:var(--waveo);transition:opacity 1.6s}
 /* v150 (owner: "the sky a more flat colour … the waves behind a matte light blue screen … the sun a yellow circle behind this matte screen that shines through a little"): by day (light theme) */
-:root[data-theme="light"]:not(.tt-off-matte) #skyGrad{background:#a9c6ea!important}
-:root[data-theme="light"]:not(.tt-off-matte) #sky::after{content:'';position:absolute;inset:0;background:rgba(214,229,247,.6);pointer-events:none}
+:root[data-theme="light"]:not(.tt-off-matte) #skyGrad{background:#c4d9f2!important}
+:root[data-theme="light"]:not(.tt-off-matte) #skyWaves{opacity:.4}   /* v151: the matte look without an extra full-screen layer (a flat colour + fainter waves look the same as a veil over them) */
 :root[data-theme="light"]:not(.tt-off-matte) .sky-body.sun-b .skyimg{opacity:0}
 :root[data-theme="light"]:not(.tt-off-matte) .sky-body.sun-b::before{content:'';position:absolute;left:50%;top:50%;width:200%;height:200%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(255,240,170,.5) 0%,rgba(255,240,170,.22) 22%,rgba(255,240,170,.07) 40%,transparent 60%)}
 :root[data-theme="light"]:not(.tt-off-matte) .sky-body.sun-b::after{content:'';position:absolute;left:50%;top:50%;width:46%;height:46%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;background:linear-gradient(rgba(214,229,247,.32),rgba(214,229,247,.32)),radial-gradient(circle,#ffe25a 0%,#ffdc4a 62%,#ffe78a 78%,rgba(255,236,150,0) 100%);box-shadow:0 0 34px 10px rgba(255,238,160,.55)}
@@ -3683,8 +3683,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=150;
+const CC_VER=151;
 const CC_LOG=[
+  {v:151,new:['The new day sky now uses less graphics memory.']},
   {v:150,new:['A calmer day sky: a flat, soft blue with the waves behind it, and a yellow sun glowing through.','The little character’s hat now turns smoothly together with his head.']},
   {v:149,adm:1,new:['Admin tools: a test version of the app for trying new features before they are released.']},
   {v:148,adm:1,new:['Admin tools: list and delete accounts.']},
