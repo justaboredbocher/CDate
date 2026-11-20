@@ -588,7 +588,6 @@ html.cc-boot,html.cc-boot body{background:#0a0b10!important}html.cc-boot #accoun
 #skyWaves{position:absolute;inset:0;overflow:hidden;opacity:var(--waveo);transition:opacity 1.6s}
 /* v150 (owner: "the sky a more flat colour … the waves behind a matte light blue screen … the sun a yellow circle behind this matte screen that shines through a little"): by day (light theme) */
 :root[data-theme="light"]:not(.tt-off-matte) #skyGrad{background:#c4d9f2!important}
-:root[data-theme="light"]:not(.tt-off-matte) #skyWaves{opacity:.4}   /* v151: the matte look without an extra full-screen layer (a flat colour + fainter waves look the same as a veil over them) */
 :root[data-theme="light"]:not(.tt-off-matte) .sky-body.sun-b .skyimg{opacity:0}
 :root[data-theme="light"]:not(.tt-off-matte) .sky-body.sun-b::before{content:'';position:absolute;left:50%;top:50%;width:200%;height:200%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(255,240,170,.5) 0%,rgba(255,240,170,.22) 22%,rgba(255,240,170,.07) 40%,transparent 60%)}
 :root[data-theme="light"]:not(.tt-off-matte) .sky-body.sun-b::after{content:'';position:absolute;left:50%;top:50%;width:46%;height:46%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;background:linear-gradient(rgba(214,229,247,.32),rgba(214,229,247,.32)),radial-gradient(circle,#ffe25a 0%,#ffdc4a 62%,#ffe78a 78%,rgba(255,236,150,0) 100%);box-shadow:0 0 34px 10px rgba(255,238,160,.55)}
@@ -2799,7 +2798,7 @@ function glassShine(){const H=innerHeight,W=innerWidth,rl=typeof SKL!=='undefine
  const fb=()=>{skyRibbonsSvg(host);GLS.still=true;const f=()=>{GLS.sc=scrollY||0;requestAnimationFrame(glassShine)};addEventListener('scroll',f,{passive:true});addEventListener('resize',f);f()};
  if(!gl){fb();return}
  const VS='attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
- const SILK=`uniform float uT,uS;uniform vec3 uF,uE,uL;uniform float uO,uK;uniform vec4 uA[11],uB[11],uC[11];
+ const SILK=`uniform float uT,uS;uniform vec3 uF,uE,uL;uniform float uO,uK,uMt;uniform vec4 uA[11],uB[11],uC[11];
 vec4 silk(vec2 p,float px){
  vec3 acc=vec3(0.);float aa=0.;vec3 Hv=normalize(uL+vec3(0.,0.,1.));
  for(int i=0;i<11;i++){vec4 A=uA[i],B=uB[i],C=uC[i];if(i>8){C.z*=2.4*(1.-uK);if(C.z<.01)continue;}if(A.x>.5&&A.x<1.15)C.z*=1.+(1.-uK);float x=p.x,t=uT*C.w;
@@ -2821,6 +2820,7 @@ vec4 silk(vec2 p,float px){
   float halo=(1.-ins)*exp(epx/(w/px*.45+10.))*.07*top;
   float al=(body+edge+halo)*C.z*fade*(1.-.3*uK);
   vec3 irid=mix(uF,uE,.5+.5*sin(u*2.4+x*3.1+A.w+t*.3)),col=mix(irid,mix(uE,vec3(1.),.35),clamp(sp2*.7+edge*.5,0.,1.))+vec3(sp*.28*(1.-uK));
+  if(uMt>.5){al=ins*.44*C.z*(.8+.2*fade);col=mix(uF,uE,.3+.3*sin(u*1.2+x*1.7+A.w));}
   acc+=col*al;aa+=al;}
  aa=clamp(aa,0.,1.);return vec4(min(acc,vec3(1.))*uO,min(aa*uO,1.));}`;
  GLS.SILK=SILK;
@@ -2831,7 +2831,7 @@ vec4 silk(vec2 p,float px){
  host.appendChild(cv);GLS.ok=true;gl.useProgram(pr);
  const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
  const al=gl.getAttribLocation(pr,'a');gl.enableVertexAttribArray(al);gl.vertexAttribPointer(al,2,gl.FLOAT,false,0,0);
- const U={};for(const k of['uR','uT','uS','uF','uE','uL','uO','uK','uA','uB','uC'])U[k]=gl.getUniformLocation(pr,k);
+ const U={};for(const k of['uR','uT','uS','uF','uE','uL','uO','uK','uMt','uA','uB','uC'])U[k]=gl.getUniformLocation(pr,k);
  /* per ribbon: A=(height, sway, sway freq, phase)  B=(2nd sway, 2nd freq, half width, twist freq)  C=(twist phase, parallax, strength, drift speed) */
  const R=[[.62,.42,2.5,1.25, .06,5.2,.085,3.1, .4,.32,.95,.05],
   [.18,.10,3.3,2.6, .04,6.,.05,4.2, 2.1,.22,.68,.04],
@@ -2857,7 +2857,8 @@ vec4 silk(vec2 p,float px){
  const size=()=>{if(!window.ResizeObserver){HW=host.clientWidth;HHt=host.clientHeight}const d=Math.min(devicePixelRatio||1,2)*Q,w=Math.round(HW*d),h=Math.round(HHt*d);if(w&&h&&(w!==W||h!==Hh)){W=cv.width=w;Hh=cv.height=h;gl.viewport(0,0,w,h);dirty=true}};
  const colors=()=>{const cs=getComputedStyle(document.documentElement);GLS.F=hex(cs.getPropertyValue('--rbf'));GLS.E=hex(cs.getPropertyValue('--rbe'));gl.uniform3fv(U.uF,GLS.F);gl.uniform3fv(U.uE,GLS.E);const nightW=document.documentElement.dataset.night==='1';GLS.O=parseFloat(cs.getPropertyValue('--wo'))||1;GLS.WO=parseFloat(cs.getPropertyValue('--waveo'))||1;gl.uniform1f(U.uO,GLS.O);
   /* night waves are kept soft and quiet so they stay in the background (owner); Test tools switch "swave" turns that off */
-  const rc=document.documentElement.classList;GLS.K=nightW?(rc.contains('tt-off-swave')?0:1):(parseFloat(cs.getPropertyValue('--wk'))||0);gl.uniform1f(U.uK,GLS.K)};
+  const rc=document.documentElement.classList;GLS.K=nightW?(rc.contains('tt-off-swave')?0:1):(parseFloat(cs.getPropertyValue('--wk'))||0);gl.uniform1f(U.uK,GLS.K);
+  /* matte day sky (v152): flat 2D silk bands, no shine */GLS.M=document.documentElement.dataset.theme==='light'&&!rc.contains('tt-off-matte')?1:0;gl.uniform1f(U.uMt,GLS.M)};
  const draw=()=>{size();if(!W)return false;if(colT<0){colT=1;colors()}
   const y=scrollY||document.documentElement.scrollTop||0;if(y===sc&&!dirty)return true;sc=y;dirty=false;GLS.sc=y;GLS.t=0;
   GLS.ang=-2.25+y/innerHeight*.5;const ca=Math.cos(GLS.ang),sa=Math.sin(GLS.ang);GLS.L=[ca*.76,sa*.76,.65];
@@ -3683,8 +3684,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=151;
+const CC_VER=152;
 const CC_LOG=[
+  {v:152,new:['The day sky waves are back: flat and matte instead of shiny.']},
   {v:151,new:['The new day sky now uses less graphics memory.']},
   {v:150,new:['A calmer day sky: a flat, soft blue with the waves behind it, and a yellow sun glowing through.','The little character’s hat now turns smoothly together with his head.']},
   {v:149,adm:1,new:['Admin tools: a test version of the app for trying new features before they are released.']},
