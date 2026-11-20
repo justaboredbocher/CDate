@@ -590,7 +590,7 @@ html.cc-boot,html.cc-boot body{background:#0a0b10!important}html.cc-boot #accoun
 :root[data-theme="light"]:not(.tt-off-matte) #skyGrad{background:#c4d9f2!important}
 :root[data-theme="light"]:not(.tt-off-matte) .sky-body.sun-b .skyimg{opacity:0}
 :root[data-theme="light"]:not(.tt-off-matte) .sky-body.sun-b::before{content:'';position:absolute;left:50%;top:50%;width:200%;height:200%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(255,240,170,.5) 0%,rgba(255,240,170,.22) 22%,rgba(255,240,170,.07) 40%,transparent 60%)}
-:root[data-theme="light"]:not(.tt-off-matte) .sky-body.sun-b::after{content:'';position:absolute;left:50%;top:50%;width:46%;height:46%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;background:linear-gradient(rgba(214,229,247,.32),rgba(214,229,247,.32)),radial-gradient(circle,#ffe25a 0%,#ffdc4a 62%,#ffe78a 78%,rgba(255,236,150,0) 100%);box-shadow:0 0 34px 10px rgba(255,238,160,.55)}
+:root[data-theme="light"]:not(.tt-off-matte) .sky-body.sun-b::after{content:'';position:absolute;left:50%;top:50%;width:58%;height:58%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;background:radial-gradient(circle closest-side,#f7e070 0%,#f7df72 52%,rgba(247,224,120,.85) 62%,rgba(248,230,140,.45) 74%,rgba(250,236,160,.15) 86%,rgba(250,236,160,0) 100%)}   /* v156 (owner): a softer, slightly blurred edge */
 .wv{position:absolute;left:-8%;top:-15%;width:116%;height:130%;overflow:visible;will-change:transform}
 /* layout of the first screen */
 .hero{align-items:flex-start;padding:max(6.4vh,44px) 16px 0;margin:0 -16px;overflow:hidden}
@@ -2877,7 +2877,16 @@ vec4 silk(vec2 p,float px){
    Drawn only when the background redraws, the layout changes, or the phone is tilted. Test tools switch "waterdate". */
 (function(){if(!GLS.ok||!GLS.SILK)return;
  const R=document.documentElement,cv=document.createElement('canvas');cv.id='dlCv';cv.className='dl-cv';cv.setAttribute('aria-hidden','true');
- const gl=cv.getContext('webgl',{premultipliedAlpha:true,alpha:true,antialias:false,depth:false,stencil:false});if(!gl)return;
+ const gl=cv.getContext('webgl',{premultipliedAlpha:true,alpha:true,antialias:false,depth:false,stencil:false,preserveDrawingBuffer:true});if(!gl)return;
+ /* v156 (owner: "make this part of the animation lighter", the header fading into the cards): a live WebGL canvas inside the fading header
+    made the compositor's work per scrolling frame ~5× bigger even when it wasn't redrawn (measured: Commit 1.5 s → 0.25 s per test scroll
+    with a plain picture instead). So a still picture of the letters (`dlIm`) is taken once they settle, and while scrolling it stands in
+    for the canvas; the canvas comes back the moment it draws again. */
+ const dlIm=document.createElement('img');dlIm.className='dl-cv';dlIm.alt='';dlIm.setAttribute('aria-hidden','true');dlIm.style.display='none';
+ let dlSnOK=false,dlSnT=0,dlSnU='',dlSw=false;
+ const dlUnswap=()=>{if(!dlSw)return;dlSw=false;cv.style.display='block';dlIm.style.display='none'};
+ const dlSnap=()=>{if(!cv.isConnected||!cv.width)return;try{cv.toBlob(b=>{if(!b)return;const u=URL.createObjectURL(b);const old=dlSnU;dlSnU=u;dlIm.onload=()=>{if(old)URL.revokeObjectURL(old)};dlIm.src=u;dlIm.style.cssText=cv.style.cssText+';display:none';if(dlIm.parentNode!==cv.parentNode||dlIm.previousSibling!==cv)cv.after(dlIm);dlSnOK=true;if(dlSw)dlIm.style.display=''})}catch(e){}};
+ addEventListener('scroll',()=>{if(!dlSw&&dlSnOK&&scrollY>2&&cv.isConnected){dlSw=true;dlIm.style.display='block';cv.style.display='none'}},{passive:true});
  const NP=8,NG=14;   /* particles per bubble, letters with a bubble */
  const VS='attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
  /* texture: R = letter shape, G = softened depth (the water's curved surface), B = which letter, A = shape with a very small blur (for the thin outline) */
@@ -2991,7 +3000,7 @@ void main(){vec2 cuv=vec2(gl_FragCoord.x/uCR.x,1.-gl_FragCoord.y/uCR.y);vec4 m=t
   gl.uniform3fv(U.uTop,hx(night?'#0a1230':pal&&pal.top));gl.uniform3fv(U.uBot,hx(night?'#18225a':pal&&pal.bot));gl.uniform3fv(U.uRim,dk?[.96,.97,1]:[.1,.15,.38]);gl.uniform3fv(U.uSun,lc);
   gl.uniform1f(U.uRef,dlFs*.55);gl.uniform1f(U.uPx,W/(r.width||1));gl.uniform1f(U.uDk,dk?1:0);gl.uniform1f(U.uWo,GLS.M?0:(GLS.WO||1));gl.uniform1f(U.uSl,Math.min(1,Math.hypot(tv[0],tv[1])*.6));gl.uniform1f(U.uTm,performance.now()/1000%1000);
   gl.uniform1f(U.uT,GLS.T||7);gl.uniform3fv(U.uF,GLS.F||[1,1,1]);gl.uniform3fv(U.uE,GLS.E||[1,1,1]);gl.uniform3fv(U.uL,GLS.L||[0,0,1]);gl.uniform1f(U.uO,GLS.O||1);gl.uniform1f(U.uK,GLS.K||0);
-  gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.drawArrays(gl.TRIANGLES,0,3)}
+  dlUnswap();dlSnOK=false;gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.drawArrays(gl.TRIANGLES,0,3);clearTimeout(dlSnT);dlSnT=setTimeout(dlSnap,450)}
  /* tilt: a soft spring for the light; the bubble runs its own physics each frame until everything settles */
  let tlast=0;const step=now=>{traf=0;const dt=Math.min(.033,(now-(tlast||now))/1000)||.016;tlast=now;let moving=false;
   for(let i=0;i<2;i++){const f=(tg[i]-tl[i])*26-tv[i]*4.2;tv[i]+=f*dt;tl[i]+=tv[i]*dt;if(Math.abs(tg[i]-tl[i])>.002||Math.abs(tv[i])>.002)moving=true}
@@ -3683,8 +3692,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=155;
+const CC_VER=156;
 const CC_LOG=[
+  {v:156,new:['Smoother scrolling where the top part fades into your day.','The sun’s edge is softer.']},
   {v:155,new:['The day sky waves are back to the old moving waves, with softer shine and less depth.']},
   {v:154,adm:1,new:['Admin: Check for an update now.']},
   {v:153,new:['Smoother waves behind the date.']},
