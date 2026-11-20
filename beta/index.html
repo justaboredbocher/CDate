@@ -1816,7 +1816,7 @@ function rdScrollUI(b){const m=b.querySelector('.rdm'),sb=b.querySelector('.rdsb
 function rdClose(){const st=RDS,b=$('#rdr');RDS=null;if(b)b.classList.remove('on');document.body.classList.remove('rdo');
  // leaving checks it off only when the text loaded and was read to the end; otherwise the reading place is kept
  if(st&&st.ok){clearTimeout(st.svT);const fin=(st.maxF||0)>=.995;if(!fin){rdPosSet(st.dk,st.k,{p:st.posF||0,m:st.maxF||0});return}rdPosSet(st.dk,st.k,null);const D=(DN[st.dk]??={});if(!D[st.k]){if(st.k==='rambam3'||st.k==='rambam1')delete D[st.k==='rambam3'?'rambam1':'rambam3'];D[st.k]=1;SVD();upd();H.ok();if(st.dk===ds(shDay(t0))&&typeof ltRecord=='function'){ltRecord(st.dk,dayLeft(st.dk)<=0);if(window.ccCharShiur)ccCharShiur()}if(typeof nCfg=='function'){const q=nCfg();if(q.on&&q.learn)notifSyncSoon(2500)}}}}
-addEventListener('popstate',()=>{if(RDS)rdClose()});
+addEventListener('popstate',e=>{if(window.WMpop&&WMpop(e))return;if(RDS)rdClose()});
 /* ===== Siddur (owner, v36; v37 = paged): Siddur Tehillat Hashem (Kehot) Hebrew davening pages from the owner's PDF
    (owner has permission; no credit line on screen, owner's choice). siddur/p/<i>.webp = alpha stencils painted in var(--ink);
    siddur/pages.json {n:[book page per image]}. ONE page at a time (owner: no floating between pages): swipe up/left = next,
@@ -2207,7 +2207,7 @@ function sdOpen(){const b=sdBuild();SD.open=true;SD.ins=null;SD.adP=new Set();SD
   if(sv&&sv.fk===fk&&sv.m==='flow'&&Date.now()-sv.at<2*36e5){const z=sdFind(C,sv.i,sv.a);if(z!=null)y=z}sdSet(C,'flow',fk,y*SD.s)})
  .catch(()=>{$('#sdSt').insertAdjacentHTML('beforeend','<p style="position:absolute;inset:40% 20px auto;text-align:center;color:var(--mut)">The siddur could not be loaded. Check the internet connection and try again.</p>')})}
 function sdClose(){const b=$('#sdr');if(!b||!SD.open)return;SD.open=false;clearTimeout(SD.hT);document.body.classList.remove('sd-hide');document.documentElement.classList.remove('cc-away');b.classList.remove('on');document.body.classList.remove('sdo');sdSheet(false);try{sc()}catch(e){}}
-addEventListener('popstate',()=>{if(SD.open)sdClose()});
+addEventListener('popstate',e=>{if(window.WMpop&&WMpop(e))return;if(SD.open)sdClose()});
 // a few seconds after the app opens: load the siddur's page list and the first pages of the tefillah for now, so opening it is instant
 addEventListener('load',()=>setTimeout(()=>{const go=()=>{if(SD.open)return;sdLoad().then(()=>{if(SD.open)return;const L=sdPieces(sdAuto());[...new Set(L.slice(0,8).map(q=>q.i))].forEach(i=>sdFetch(i))}).catch(()=>{})};
  'requestIdleCallback' in window?requestIdleCallback(go,{timeout:4000}):go()},6000));
@@ -3692,8 +3692,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=156;
+const CC_VER=157;
 const CC_LOG=[
+  {v:157,mid:1,new:['Easier to move around: swipe a window down to close it, swipe right to go back in the reader, siddur and settings, the phone’s Back button closes whatever is open, and Settings and the month have an × button.']},
   {v:156,new:['Smoother scrolling where the top part fades into your day.','The sun’s edge is softer.']},
   {v:155,new:['The day sky waves are back to the old moving waves, with softer shine and less depth.']},
   {v:154,adm:1,new:['Admin: Check for an update now.']},
@@ -5354,6 +5355,88 @@ aiEl('aiMemoryBtn').addEventListener('click',()=>{const p=aiPrefs(),names=Object
   try{localStorage.removeItem(sdK())}catch(e){}op(false);setTimeout(()=>{try{sdOpen()}catch(e){}},420)};
  if(TEST){augment(getDemo());if(!localStorage.getItem(AK('cc_test_seeded')))seed();else{render(0);panel(0)}}else if(window.__TOFF){render(0);panel(0)}
  fill_();document.getElementById('mn').addEventListener('click',()=>setTimeout(fill_,50));
+})();
+</script>
+<style id="cc-wm">
+/* v157 (owner: "swipe back or swipe something down or X something away … not only one button to go back"): window switching */
+.wm-drag{transition:none!important}
+.wm-x{position:sticky;top:0;z-index:3;width:34px;height:34px;margin:-8px -6px 6px auto;border-radius:50%;border:1px solid var(--gx-bd,var(--line));background:var(--gx-bg,var(--card));color:var(--ink);font:400 22px/1 Figtree,system-ui,sans-serif;display:grid;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#ms .mh .wm-x{position:static;float:none;margin:0 0 0 6px;flex:none}
+.wm-x:active{transform:scale(.92)}
+</style>
+<script>
+/* Window switching (v157). Every window can be closed several ways:
+   - the phone's Back button / back gesture closes the top window (one history entry "guards" all open sheets; the reader and the siddur keep their own);
+   - swipe a sheet or card DOWN (from its top, when it isn't scrolled) to send it away; it follows the finger;
+   - swipe RIGHT in the reader, the siddur or a settings page to go back;
+   - Settings and the month view get an × button (the others already have one). */
+(()=>{const $=s=>document.querySelector(s),B=document.body;
+ const W=[ // top first
+  {o:()=>$('#gdb.on'),c:()=>gdClose(),p:()=>$('#gdb .dmc')},
+  {o:()=>$('#apkBox.on'),c:()=>{const l=$('#apkLater');l?l.click():$('#apkBox').classList.remove('on')},p:()=>$('#apkBox .apk-card')},
+  {o:()=>$('#newsBox.on'),c:()=>$('#newsBox').classList.remove('on'),p:()=>$('#newsBox .dmc')},
+  {o:()=>$('#dmb.on'),c:()=>dmClose(),p:()=>$('#dmb .dmc')},
+  {o:()=>$('#rmb.on'),c:()=>$('#rmb').classList.remove('on'),p:()=>$('#rmb .dmc')},
+  {o:()=>$('#sdSh.on'),c:()=>sdSheet(false),p:()=>$('#sdSh .sd-tc')},
+  {o:()=>$('#sts.on'),c:()=>$('#sts').classList.remove('on'),p:()=>$('#sts .stsp')},
+  {o:()=>$('#aiBackdrop.on'),c:()=>aiClose(),p:()=>$('.ai-card')},
+  {o:()=>B.classList.contains('op'),c:()=>op(false),p:()=>$('#sh'),
+   sub:()=>{const c=$('#sh .shp.on');if(c&&c.dataset.p!=='home'){shGo('home',1);return true}return false}},
+  {o:()=>B.classList.contains('om'),c:()=>$('#bd').click(),p:()=>$('#ms')}];
+ const tour=()=>!!$('#tg');
+ const top=()=>{for(const w of W){try{if(w.o())return w}catch(e){}}return null};
+ /* phone Back */
+ let G=0,SKIP=0,lastE=null,lastR=false;
+ const sync=()=>{if(tour())return;const t=top();
+  if(t&&!G){try{history.pushState({wm:1},'');G=1}catch(e){}}
+  else if(!t&&G){G=0;SKIP=1;try{history.back()}catch(e){SKIP=0}}};
+ const soon=()=>{clearTimeout(soon.t);soon.t=setTimeout(sync,120)};
+ window.WMsync=soon;
+ window.WMpop=e=>{if(e&&e===lastE)return lastR;lastE=e;
+  if(SKIP){SKIP=0;return lastR=true}
+  if(tour()){G=0;return lastR=false}
+  const wasG=G;G=0;const t=top();
+  if(t&&wasG){try{t.sub&&t.sub()||t.c()}catch(x){}try{H.tap()}catch(x){}soon();return lastR=true}
+  return lastR=false};
+ addEventListener('popstate',e=>WMpop(e));
+ ['click','keydown'].forEach(ev=>document.addEventListener(ev,soon,true));
+ new MutationObserver(soon).observe(B,{attributes:true,attributeFilter:['class']});
+ /* × buttons for Settings and the month */
+ const addX=(host,fn,lbl,before)=>{if(!host||host.querySelector(':scope>.wm-x'))return;const x=document.createElement('button');x.type='button';x.className='wm-x';x.setAttribute('aria-label',lbl);x.textContent='×';x.onclick=e=>{e.stopPropagation();try{H.tap()}catch(z){}fn()};before?host.insertBefore(x,host.firstChild):host.appendChild(x)};
+ addX($('#sh'),()=>op(false),'Close settings',1);
+ addX($('#ms .mh'),()=>$('#bd').click(),'Close month');
+ /* swipes */
+ const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ let D=null;
+ const scrolledUp=(t,stop)=>{for(let e=t;e&&e!==stop.parentNode;e=e.parentElement){if(e.scrollTop>0&&e.scrollHeight>e.clientHeight+1)return true}return false};
+ const hScroll=(t,stop)=>{for(let e=t;e&&e!==stop;e=e.parentElement){if(e.scrollWidth>e.clientWidth+2){const ox=getComputedStyle(e).overflowX;if(ox==='auto'||ox==='scroll')return true}}return false};
+ const skipT=t=>t.closest('input,textarea,select,[contenteditable],.dfb,.rdlg');
+ const end=(ok,el,ax,fn)=>{const set=v=>el.style.translate=ax==='y'?'0 '+v:v+' 0';
+  el.classList.remove('wm-drag');el.style.transition='translate .22s cubic-bezier(.3,.7,.3,1)';
+  if(ok){set(ax==='y'?'110vh':'105vw');setTimeout(()=>{try{fn()}catch(e){}soon();setTimeout(()=>{el.style.transition='none';el.style.translate='';requestAnimationFrame(()=>el.style.transition='')},480)},200)}
+  else{set('0px');setTimeout(()=>{el.style.transition='';el.style.translate=''},240)}};
+ const tm=e=>{if(!D)return;const t=e.touches[0],dx=t.clientX-D.x,dy=t.clientY-D.y;
+  if(!D.on){if(Math.abs(dx)<10&&Math.abs(dy)<10)return;
+   if(D.ax==='y'&&dy>0&&dy>Math.abs(dx)*1.2&&!D.sc){D.on=1}
+   else if(D.h&&dx>0&&dx>Math.abs(dy)*1.5){D.on=1;D.ax='x';D.el=D.h.el;D.fn=D.h.fn}
+   else{stop();return}
+   D.el.classList.add('wm-drag')}
+  e.preventDefault();e.stopPropagation();
+  const v=D.ax==='y'?Math.max(0,dy):Math.max(0,dx);D.el.style.translate=D.ax==='y'?'0 '+v+'px':v+'px 0';
+  const n=performance.now();D.v=(v-D.lv)/Math.max(1,n-D.lt);D.lv=v;D.lt=n};
+ const te=()=>{if(!D)return;const d=D;stop();if(!d.on)return;
+  const lim=d.ax==='y'?Math.min(140,d.el.offsetHeight*.28):innerWidth*.3;end(d.lv>lim||d.v>.55,d.el,d.ax,d.fn)};
+ const stop=()=>{document.removeEventListener('touchmove',tm,{capture:true});document.removeEventListener('touchend',te,true);document.removeEventListener('touchcancel',te,true);D=null};
+ document.addEventListener('touchstart',e=>{if(D||e.touches.length!==1||RM||tour())return;const t=e.target;if(!t.closest||skipT(t))return;
+  const p=e.touches[0];let d=null;
+  /* sheets/cards: swipe down */
+  const w=top();if(w){const el=w.p();if(el&&el.contains(t)){d={el,ax:'y',fn:w.c,sc:scrolledUp(t,el)};
+    if(w.sub){const c=$('#sh .shp.on');if(c&&c.dataset.p!=='home'&&!hScroll(t,el))d.h={el:c,fn:()=>shGo('home',1)}}}}
+  /* reader / siddur: swipe right = back */
+  if(!d&&!w){const r=$('#rdr.on'),s=$('#sdr.on'),el=s&&s.contains(t)&&!$('#sdSh.on')?s:r&&r.contains(t)?r:null;
+   if(el&&!hScroll(t,el))d={el,ax:'x',h:{el,fn:()=>history.back()},sc:1}}
+  if(!d)return;D=Object.assign(d,{x:p.clientX,y:p.clientY,on:0,v:0,lv:0,lt:performance.now()});
+  document.addEventListener('touchmove',tm,{capture:true,passive:false});document.addEventListener('touchend',te,true);document.addEventListener('touchcancel',te,true)},{capture:true,passive:true});
 })();
 </script>
 </body></html>
