@@ -2811,16 +2811,15 @@ vec4 silk(vec2 p,float px){
   vec3 T=normalize(vec3(1.,dc,0.)),N2=normalize(vec3(-dc,1.,0.)),Bv=ct*N2+st*vec3(0.,0.,1.);
   vec3 n=normalize(cross(T,Bv));if(n.z<0.)n=-n;float uc=clamp(u,-1.,1.);n=normalize(n-Bv*uc*.7);
   float nh=max(dot(n,Hv),0.),sp=pow(nh,24.),sp2=pow(nh,5.),dif=.3+.7*max(dot(n,uL),0.),fr=pow(1.-abs(n.z),1.6);
-  float ins=smoothstep(-.5,2.4+5.*uK,epx),rim=exp(-abs(epx)/(2.4+4.5*uK));sp*=1.-.8*uK;sp2*=1.-.55*uK;
+  float ins=smoothstep(-.5,2.4+5.*uK,epx),rim=exp(-abs(epx)/(2.4+4.5*uK));sp*=1.-.8*uK;sp2*=1.-.55*uK;sp*=1.-.6*uMt;sp2*=1.-.25*uMt;fr*=1.-.2*uMt;
   float top=u<0.?1.:.42,fade=.55+.45*sin(x*2.1+A.w*1.3+t*.5);
   float wp=w/px,fib=.55*pow(.5+.5*sin(u*41.+x*2.3),7.)*smoothstep(70.,190.,wp)+.45*pow(.5+.5*sin(u*15.-x*1.6+A.w),4.)*smoothstep(24.,70.,wp)+.12;
   float lit=mix(1.,.3,clamp((u+1.)*.5,0.,1.));
-  float body=ins*(.05+.03*fib+.2*fr+.16*sp2*lit+.42*sp)*(.6+.4*dif);
-  float edge=rim*top*(.28+.7*sp2+.3*sp)*(1.-.55*uK);
+  float body=ins*(.05+.1*uMt+.03*fib*(1.-uMt)+.2*fr+.16*sp2*lit+.42*sp)*(.6+.4*dif);
+  float edge=rim*top*(.28+.7*sp2+.3*sp)*(1.-.55*uK)*(1.-.35*uMt);
   float halo=(1.-ins)*exp(epx/(w/px*.45+10.))*.07*top;
   float al=(body+edge+halo)*C.z*fade*(1.-.3*uK);
   vec3 irid=mix(uF,uE,.5+.5*sin(u*2.4+x*3.1+A.w+t*.3)),col=mix(irid,mix(uE,vec3(1.),.35),clamp(sp2*.7+edge*.5,0.,1.))+vec3(sp*.28*(1.-uK));
-  if(uMt>.5){al=smoothstep(-1.,9.,epx)*.44*C.z*(.8+.2*fade);col=mix(uF,uE,.3+.3*sin(u*1.2+x*1.7+A.w));}
   acc+=col*al;aa+=al;}
  aa=clamp(aa,0.,1.);return vec4(min(acc,vec3(1.))*uO,min(aa*uO,1.));}`;
  GLS.SILK=SILK;
@@ -3684,8 +3683,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=154;
+const CC_VER=155;
 const CC_LOG=[
+  {v:155,new:['The day sky waves are back to the old moving waves, with softer shine and less depth.']},
   {v:154,adm:1,new:['Admin: Check for an update now.']},
   {v:153,new:['Smoother waves behind the date.']},
   {v:152,new:['The day sky waves are back: flat and matte instead of shiny.']},
