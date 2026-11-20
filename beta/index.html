@@ -2820,7 +2820,7 @@ vec4 silk(vec2 p,float px){
   float halo=(1.-ins)*exp(epx/(w/px*.45+10.))*.07*top;
   float al=(body+edge+halo)*C.z*fade*(1.-.3*uK);
   vec3 irid=mix(uF,uE,.5+.5*sin(u*2.4+x*3.1+A.w+t*.3)),col=mix(irid,mix(uE,vec3(1.),.35),clamp(sp2*.7+edge*.5,0.,1.))+vec3(sp*.28*(1.-uK));
-  if(uMt>.5){al=ins*.44*C.z*(.8+.2*fade);col=mix(uF,uE,.3+.3*sin(u*1.2+x*1.7+A.w));}
+  if(uMt>.5){al=smoothstep(-1.,9.,epx)*.44*C.z*(.8+.2*fade);col=mix(uF,uE,.3+.3*sin(u*1.2+x*1.7+A.w));}
   acc+=col*al;aa+=al;}
  aa=clamp(aa,0.,1.);return vec4(min(acc,vec3(1.))*uO,min(aa*uO,1.));}`;
  GLS.SILK=SILK;
@@ -2990,7 +2990,7 @@ void main(){vec2 cuv=vec2(gl_FragCoord.x/uCR.x,1.-gl_FragCoord.y/uCR.y);vec4 m=t
   if(L){gl.uniform1f(U.uGa,L.side&&!night?L.g:0);gl.uniform1f(U.uGr,Math.max(innerWidth,innerHeight)*.6);gl.uniform2f(U.uGp,lp[0],lp[1]);gl.uniform2f(U.uBp,innerWidth-lp[0],lp[1]+60);gl.uniform3fv(U.uGc,L.gc);gl.uniform3fv(U.uBc,L.bc)}else gl.uniform1f(U.uGa,0);
   gl.uniform2f(U.uCR,W,H);gl.uniform2f(U.uCO,r.left,r.top);gl.uniform2f(U.uCS,r.width,r.height);gl.uniform2f(U.uV,innerWidth,innerHeight);gl.uniform2f(U.uLd,ld[0],ld[1]);
   gl.uniform3fv(U.uTop,hx(night?'#0a1230':pal&&pal.top));gl.uniform3fv(U.uBot,hx(night?'#18225a':pal&&pal.bot));gl.uniform3fv(U.uRim,dk?[.96,.97,1]:[.1,.15,.38]);gl.uniform3fv(U.uSun,lc);
-  gl.uniform1f(U.uRef,dlFs*.55);gl.uniform1f(U.uPx,W/(r.width||1));gl.uniform1f(U.uDk,dk?1:0);gl.uniform1f(U.uWo,GLS.WO||1);gl.uniform1f(U.uSl,Math.min(1,Math.hypot(tv[0],tv[1])*.6));gl.uniform1f(U.uTm,performance.now()/1000%1000);
+  gl.uniform1f(U.uRef,dlFs*.55);gl.uniform1f(U.uPx,W/(r.width||1));gl.uniform1f(U.uDk,dk?1:0);gl.uniform1f(U.uWo,GLS.M?0:(GLS.WO||1));gl.uniform1f(U.uSl,Math.min(1,Math.hypot(tv[0],tv[1])*.6));gl.uniform1f(U.uTm,performance.now()/1000%1000);
   gl.uniform1f(U.uT,GLS.T||7);gl.uniform3fv(U.uF,GLS.F||[1,1,1]);gl.uniform3fv(U.uE,GLS.E||[1,1,1]);gl.uniform3fv(U.uL,GLS.L||[0,0,1]);gl.uniform1f(U.uO,GLS.O||1);gl.uniform1f(U.uK,GLS.K||0);
   gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.drawArrays(gl.TRIANGLES,0,3)}
  /* tilt: a soft spring for the light; the bubble runs its own physics each frame until everything settles */
@@ -3684,8 +3684,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=152;
+const CC_VER=153;
 const CC_LOG=[
+  {v:153,new:['Smoother waves behind the date.']},
   {v:152,new:['The day sky waves are back: flat and matte instead of shiny.']},
   {v:151,new:['The new day sky now uses less graphics memory.']},
   {v:150,new:['A calmer day sky: a flat, soft blue with the waves behind it, and a yellow sun glowing through.','The little character’s hat now turns smoothly together with his head.']},
