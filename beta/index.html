@@ -588,9 +588,14 @@ html.cc-boot,html.cc-boot body{background:#0a0b10!important}html.cc-boot #accoun
 #skyWaves{position:absolute;inset:0;overflow:hidden;opacity:var(--waveo);transition:opacity 1.6s}
 /* v150 (owner: "the sky a more flat colour … the waves behind a matte light blue screen … the sun a yellow circle behind this matte screen that shines through a little"): by day (light theme) */
 :root[data-theme="light"]:not(.tt-off-matte) #skyGrad{background:#c4d9f2!important}
-:root[data-theme="light"]:not(.tt-off-matte) .sky-body.sun-b .skyimg{opacity:0}
-:root[data-theme="light"]:not(.tt-off-matte) .sky-body.sun-b::before{content:'';position:absolute;left:50%;top:50%;width:200%;height:200%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(255,240,170,.5) 0%,rgba(255,240,170,.22) 22%,rgba(255,240,170,.07) 40%,transparent 60%)}
-:root[data-theme="light"]:not(.tt-off-matte) .sky-body.sun-b::after{content:'';position:absolute;left:50%;top:50%;width:58%;height:58%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;background:radial-gradient(circle closest-side,#f7e070 0%,#f7df72 52%,rgba(247,224,120,.85) 62%,rgba(248,230,140,.45) 74%,rgba(250,236,160,.15) 86%,rgba(250,236,160,0) 100%)}   /* v156 (owner): a softer, slightly blurred edge */
+/* v158 (owner): the soft sun in every sky, its colour following its height (--sunc/--sunh from skyApply: deep orange at sunrise/sunset → golden → yellow);
+   the moon gets the same soft flat look but keeps its real phase every day (the photo, greyed, flattened and slightly blurred) */
+:root:not(.tt-off-matte) .sky-body.sun-b .skyimg{opacity:0}
+:root:not(.tt-off-matte) .sky-body.sun-b::before{content:'';position:absolute;left:50%;top:50%;width:200%;height:200%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgb(var(--sunh,255 240 170)/.5) 0%,rgb(var(--sunh,255 240 170)/.22) 22%,rgb(var(--sunh,255 240 170)/.07) 40%,transparent 60%)}
+:root:not(.tt-off-matte) .sky-body.sun-b::after{content:'';position:absolute;left:50%;top:50%;width:58%;height:58%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;background:radial-gradient(circle closest-side,rgb(var(--sunc,247 224 112)) 0%,rgb(var(--sunc,247 224 112)) 52%,rgb(var(--sunc,247 224 112)/.85) 62%,rgb(var(--sunc,247 224 112)/.45) 74%,rgb(var(--sunc,247 224 112)/.15) 86%,rgb(var(--sunc,247 224 112)/0) 100%)}
+:root:not(.tt-off-matte) .sky-body.moon-b .skyimg{filter:grayscale(.9) contrast(.42) brightness(1.5) blur(1.6px)}
+:root[data-theme="light"]:not(.tt-off-matte) .sky-body.moon-b .skyimg{filter:grayscale(.9) contrast(.4) brightness(1.5) blur(1.6px);opacity:.9}
+:root:not(.tt-off-matte) .sky-body.moon-b.below .skyimg{filter:grayscale(.9) contrast(.42) brightness(.75) blur(1.6px)}
 .wv{position:absolute;left:-8%;top:-15%;width:116%;height:130%;overflow:visible;will-change:transform}
 /* layout of the first screen */
 .hero{align-items:flex-start;padding:max(6.4vh,44px) 16px 0;margin:0 -16px;overflow:hidden}
@@ -2701,6 +2706,8 @@ function skyApply(st){
   if(p.dark===SKYA.runDark)return;SKYA.runDark=p.dark}SKYA.lastDark=p.dark;const nt=skyNightAmt(p),sv=(k,v)=>{if(r.style.getPropertyValue(k)!==v)r.style.setProperty(k,v)},sd=(k,v)=>{if(r.dataset[k]!==v)r.dataset[k]=v};
  {const th=p.dark?'dark':'light';if(r.dataset.theme!==th){r.dataset.theme=th;if(MOON_PX)document.querySelectorAll('img.mimg').forEach(i=>{i.src=artMoonUrl(+i.dataset.f)})}}sv('--bg',nt>.5?'#0b1330':p.mid);sv('--card',nt>.5?'#121a3d':`color-mix(in srgb,${p.dark?'#161a30':'#ffffff'} 90%,${p.mid})`);sd('night',nt>.5?'1':'0');sd('sky',nt>.5?'night':st.alt<9?'dusk':'day');
  skyLightCalc(st);
+ /* v158: the soft sun's colour by its height (owner: "fit the sunrise and set times") */
+ if(st.kind==='sun'){const a=st.alt||0,K=[[-2,[255,112,58],[255,150,100]],[2,[255,128,60],[255,170,110]],[5,[255,165,64],[255,200,130]],[11,[255,200,80],[255,225,150]],[22,[250,218,100],[255,236,165]],[90,[247,224,112],[255,240,170]]];let j=0;while(j<K.length-2&&a>K[j+1][0])j++;const A=K[j],B=K[j+1],t=Math.max(0,Math.min(1,(a-A[0])/(B[0]-A[0]))),m=(u,v)=>u.map((x,k)=>Math.round(x+(v[k]-x)*t)).join(' ');sv('--sunc',m(A[1],B[1]));sv('--sunh',m(A[2],B[2]))}
  /* the silk picks up the warm light around sunrise and sunset */
  {const g=SKL.g;if(g>.05&&nt<.5){const m=Math.min(.55,g*.9),base=p.dark?[1,.89,.85]:[.84,.89,1],c=base.map((v,i)=>v+(SKL.gc[i]-v)*m),hx='#'+c.map(v=>Math.round(v*255).toString(16).padStart(2,'0')).join('');if(r.style.getPropertyValue('--rbe')!==hx){r.style.setProperty('--rbe',hx);if(GLS.kick)GLS.kick()}}else if(r.style.getPropertyValue('--rbe')){r.style.removeProperty('--rbe');if(GLS.kick)GLS.kick()}}
  skyLightUI(nt);
@@ -3692,8 +3699,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=157;
+const CC_VER=158;
 const CC_LOG=[
+  {v:158,new:['The sun’s colour now follows the time of day: orange at sunrise and sunset, yellow at midday. The moon has the same soft look and still shows its phase.']},
   {v:157,mid:1,new:['Easier to move around: swipe a window down to close it, swipe right to go back in the reader, siddur and settings, the phone’s Back button closes whatever is open, and Settings and the month have an × button.']},
   {v:156,new:['Smoother scrolling where the top part fades into your day.','The sun’s edge is softer.']},
   {v:155,new:['The day sky waves are back to the old moving waves, with softer shine and less depth.']},
