@@ -3785,8 +3785,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=178;
+const CC_VER=179;
 const CC_LOG=[
+  {v:179,new:['The new shapes now cover every screen: buttons, switches, text boxes, the month view and more.']},
   {v:178,new:['More small parts got the new shapes: the siddur tabs, progress rings, streak days, check boxes, the Coming up cards and the badge.']},
   {v:177,mid:1,new:['Buttons, the day picker, shiur circles and other small parts have new rounded shapes, springy motion and calmer colours.']},
   {v:175,new:['Only the Coming up cards you can see pop out of the drop (even half-showing ones).']},
@@ -5505,7 +5506,7 @@ aiEl('aiMemoryBtn').addEventListener('click',()=>{const p=aiPrefs(),names=Object
 :root:not(.tt-off-m3) .seg button,:root:not(.tt-off-m3) .qseg button,:root:not(.tt-off-m3) .rdlg button,:root:not(.tt-off-m3) .stt button{border-radius:10px;transition:border-radius .38s var(--m3sp),transform .38s var(--m3sp),background .2s var(--m3ef),color .2s}
 :root:not(.tt-off-m3) .seg button[aria-pressed="true"],:root:not(.tt-off-m3) .seg button.on,:root:not(.tt-off-m3) .qseg button[aria-pressed="true"],:root:not(.tt-off-m3) .rdlg button[aria-pressed="true"],:root:not(.tt-off-m3) .rdlg button.on,:root:not(.tt-off-m3) .stt button[aria-selected="true"]{border-radius:999px;background:var(--m3pc)!important;color:var(--m3opc)!important;box-shadow:none!important}
 :root:not(.tt-off-m3) .seg button:active,:root:not(.tt-off-m3) .qseg button:active,:root:not(.tt-off-m3) .rdlg button:active,:root:not(.tt-off-m3) .stt button:active{transform:scale(.94)}
-:root:not(.tt-off-m3) .seg,:root:not(.tt-off-m3) .qseg{background:var(--m3sc)!important;border-radius:999px!important;border-color:transparent!important}
+:root:not(.tt-off-m3) .seg,:root:not(.tt-off-m3) .qseg,:root:not(.tt-off-m3) .rdlg{background:var(--m3sc)!important;border-radius:999px!important;border-color:transparent!important}
 :root .ring .rfw{display:none}
 /* v178 (owner: "a lot of shapes missing"): the rest of the small parts */
 :root:not(.tt-off-m3) .ring .rf{display:none}
@@ -5522,6 +5523,35 @@ aiEl('aiMemoryBtn').addEventListener('click',()=>{const p=aiPrefs(),names=Object
 :root:not(.tt-off-m3) .qdot.now:not(.f):not(.p) i{border-color:var(--m3p);border-width:2px}
 :root:not(.tt-off-m3) .hint b{background:var(--m3p)!important;color:var(--m3op)!important;border-radius:0;min-width:24px;height:24px;line-height:24px;top:-9px;right:-9px;-webkit-mask:var(--m3burst) center/100% 100% no-repeat;mask:var(--m3burst) center/100% 100% no-repeat}
 :root:not(.tt-off-m3):not(.tt-off-drop) #rail .rt.mc{border-radius:0!important;-webkit-mask:var(--m3c4) center/100% 100% no-repeat;mask:var(--m3c4) center/100% 100% no-repeat}
+/* v179 (owner: "not thorough enough — many pages, screens and shapes haven't changed"): a sweep over every kind of small control */
+/* springy press on every small button */
+:root:not(.tt-off-m3) :is(.x,.nv,.glink,.gi,.ed,.tg-skip,.tg-next,.sg-loc,.sd-x,.sd-more,.sd-mo,.sd-m,.sd-how,.sd-all,.rdx,.rdr2,.rdfs,.qtest,.qrx,.qrh,.nb-x,.nb-h,.go,.gbtn,.chip,.alt,.ai-yes,.ai-undo,.ai-primary,.ai-mic,.ai-close,.shb,.task-check){transition:transform .38s var(--m3sp),border-radius .38s var(--m3sp),background .2s var(--m3ef),color .2s var(--m3ef)!important}
+:root:not(.tt-off-m3) :is(.x,.nv,.glink,.gi,.ed,.tg-skip,.tg-next,.sg-loc,.sd-x,.sd-more,.sd-mo,.sd-m,.sd-how,.sd-all,.rdx,.rdr2,.rdfs,.qtest,.qrx,.qrh,.nb-x,.nb-h,.go,.gbtn,.chip,.alt,.ai-yes,.ai-undo,.ai-primary,.ai-mic,.ai-close,.shb):active{transform:scale(.94)}
+/* icon buttons: tonal circles that squash to rounded squares when pressed */
+:root:not(.tt-off-m3) :is(.x,.nv,.sd-x,.sd-m,.rdx,.qrx,.nb-x,.ai-close,.ai-mic,.wm-x){border-radius:999px!important;background:var(--m3sc)!important;color:var(--m3osc)!important;border-color:transparent!important;box-shadow:none!important}
+:root:not(.tt-off-m3) :is(.x,.nv,.sd-x,.sd-m,.rdx,.qrx,.nb-x,.ai-close,.ai-mic,.wm-x):active{border-radius:32%!important}
+:root:not(.tt-off-m3) .ai-mic[aria-pressed="true"]{background:var(--m3p)!important;color:var(--m3op)!important;border-radius:32%!important}
+/* filled and tonal text buttons: pills that squash on press */
+:root:not(.tt-off-m3) :is(.ai-primary,.tg-next,.gbtn,.go,.ai-yes){border-radius:999px!important;background:var(--m3p)!important;color:var(--m3op)!important;border-color:transparent!important;box-shadow:none!important}
+:root:not(.tt-off-m3) :is(.sd-how,.sd-all,.sd-more,.sd-mo,.chip,.shb,.qtest,.qrh,.ai-undo,.nb-h,.sg-loc,.rdr2,.rdfs,.ed,.gi,.tg-skip){border-radius:999px!important;background:var(--m3sc)!important;color:var(--m3osc)!important;border-color:transparent!important;box-shadow:none!important}
+:root:not(.tt-off-m3) :is(.ai-primary,.tg-next,.gbtn,.go,.ai-yes,.sd-how,.sd-all,.sd-more,.sd-mo,.chip,.shb,.qtest,.qrh,.ai-undo,.nb-h,.sg-loc,.rdr2,.rdfs,.ed,.gi,.tg-skip):active{border-radius:14px!important}
+:root:not(.tt-off-m3) .chip{border-radius:10px!important;background:transparent!important;box-shadow:inset 0 0 0 1px var(--m3ol)!important;color:var(--m3osc)!important}
+:root:not(.tt-off-m3) .chip[aria-pressed="true"]{border-radius:999px!important;background:var(--m3pc)!important;box-shadow:none!important;color:var(--m3opc)!important}
+/* text fields: M3 filled fields */
+:root:not(.tt-off-m3) :is(input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea){border-radius:16px!important;background:var(--m3sc)!important;color:var(--m3osc)!important;border:1px solid transparent!important;box-shadow:none!important;transition:border-color .2s var(--m3ef),border-radius .38s var(--m3sp)!important}
+:root:not(.tt-off-m3) :is(input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea):focus{border-color:var(--m3p)!important;outline:none!important;box-shadow:inset 0 0 0 1px var(--m3p)!important}
+:root:not(.tt-off-m3) :is(input[type=checkbox]:not(.qsw),input[type=radio],input[type=range]){accent-color:var(--m3p)}
+/* switches: Material 3 (outlined track + small thumb off; filled track + big thumb on) */
+:root:not(.tt-off-m3) .qsw,:root:not(.tt-off-m3) #sh .qsw{width:52px!important;height:32px!important;border-radius:999px!important;background:var(--m3sc)!important;box-shadow:inset 0 0 0 2px var(--m3ol)!important;transition:background .25s var(--m3ef),box-shadow .25s!important}
+:root:not(.tt-off-m3) .qsw::after{left:8px;top:8px;width:16px;height:16px;background:var(--m3ol);box-shadow:none;transition:transform .38s var(--m3sp),width .38s var(--m3sp),height .38s var(--m3sp),left .38s var(--m3sp),top .38s var(--m3sp),background .2s}
+:root:not(.tt-off-m3) .qsw:checked,:root:not(.tt-off-m3) #sh .qsw:checked{background:var(--m3p)!important;box-shadow:none!important}
+:root:not(.tt-off-m3) .qsw:checked::after{left:4px;top:4px;width:24px;height:24px;background:var(--m3op);transform:translateX(20px)}
+:root:not(.tt-off-m3) .qsw:active::after{width:28px;height:28px;left:2px;top:2px}
+/* month view: softer cells, the selected day a tonal pill-ish cell, today's number in a cookie */
+:root:not(.tt-off-m3) #g .day{border-radius:16px!important;transition:border-radius .38s var(--m3sp),transform .38s var(--m3sp)}
+:root:not(.tt-off-m3) #g .day:active{transform:scale(.95);border-radius:22px!important}
+:root:not(.tt-off-m3) #g .day.sel{border-radius:22px!important;box-shadow:inset 0 0 0 2px var(--m3p)!important;border-color:transparent!important}
+:root:not(.tt-off-m3) #g .day.today .g{display:inline-grid;place-items:center;min-width:26px;height:26px;padding:0;border-radius:0;background:var(--m3p);color:var(--m3op);-webkit-mask:var(--m3cookie) center/100% 100% no-repeat;mask:var(--m3cookie) center/100% 100% no-repeat}
 /* settings row icons sit on a soft 8-point "sunny" shape */
 :root:not(.tt-off-m3) .shi{background:var(--m3pc)!important;color:var(--m3opc)!important;border-radius:0!important;-webkit-mask:var(--m3sunny) center/100% 100% no-repeat;mask:var(--m3sunny) center/100% 100% no-repeat}
 :root:not(.tt-off-m3) .shr:active .shi{animation:m3pop .45s var(--m3sp)}
