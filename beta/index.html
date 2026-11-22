@@ -743,11 +743,11 @@ html.cc-boot,html.cc-boot body{background:#0a0b10!important}html.cc-boot #accoun
 :root.tt-off-dome #hdr .sky-scene::after{animation-name:flXY,flP,none!important}
 :root.tt-off-dome #hdr .sky-scene::before{animation-name:flXY,domeBreath,none!important}
 .sky-cap2{display:none}
-:root:not(.tt-off-capdate) #hdr.sky-side .sky-cap{display:none}
+:root:not(.tt-off-capdate) #hdr .sky-cap{display:none}   /* v163 (owner: the pill belongs under the Hebrew date, above the year): the scene pill is never shown; #skyCap2 under the date is, in every state */
 :root.tt-off-capdate .sky-cap2{display:none!important}
-#hdr.sky-side .sky-cap2:not([hidden]){display:flex;align-items:center;gap:10px;width:max-content;max-width:88vw;margin:clamp(10px,1.8vh,16px) auto 0;padding:9px 20px 9px 16px;border-radius:999px;position:relative;
+#hdr .sky-cap2:not([hidden]){display:flex;align-items:center;gap:10px;width:max-content;max-width:88vw;margin:clamp(10px,1.8vh,16px) auto 0;padding:9px 20px 9px 16px;border-radius:999px;position:relative;
  font:500 15px/1.2 Figtree,system-ui,sans-serif;color:var(--gl-tx);white-space:nowrap;background:color-mix(in srgb,var(--card) 58%,transparent);border:1px solid color-mix(in srgb,var(--rbe) 26%,transparent);box-shadow:0 8px 24px rgba(4,6,26,.22)}
-:root[data-night="1"] #hdr.sky-side .sky-cap2{background:rgba(13,19,50,.56);border-color:rgba(182,172,255,.26)}
+:root[data-night="1"] #hdr .sky-cap2{background:rgba(13,19,50,.56);border-color:rgba(182,172,255,.26)}
 /* ===== One look for every card, sheet and button, matched to the sky (dark sky = night glass, light sky = day glass) =====
    Cards that scroll with the page use translucent fills without blur (smooth scrolling); overlays may blur what is behind them. */
 :root[data-theme="dark"]{--gx-bg:linear-gradient(180deg,rgba(46,56,128,.44),rgba(22,30,80,.40));--gx-bd:rgba(172,182,255,.16);--gx-sh:0 14px 40px rgba(3,6,26,.26);
@@ -3705,8 +3705,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=162;
+const CC_VER=163;
 const CC_LOG=[
+  {v:163,new:['The sunrise/sunset pill now sits right under the Hebrew date.']},
   {v:162,new:['The sun’s edge is a little crisper.']},
   {v:161,new:['A soft white veil over the moon, and a slightly deeper day sky.']},
   {v:160,new:['The sunrise/sunset pill now stays still.','Fixed: the Hebrew date could disappear after scrolling.']},
