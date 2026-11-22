@@ -350,17 +350,17 @@ body.om .foot,body.om .hint{opacity:0!important}
 .gz{position:absolute;left:0;top:0;box-sizing:border-box;overflow:hidden;border:1px solid var(--line);display:none;contain:layout paint}
 :root:not(.tt-off-drop) .hint.hdw{background:none!important;border-color:transparent!important;box-shadow:none!important;overflow:visible!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 :root:not(.tt-off-drop) .hint.hdw::before,:root:not(.tt-off-drop) .hint.hdw::after{display:none!important}
-#hint svg.hdrop{position:absolute;left:50%;top:50%;width:320px!important;height:320px!important;max-width:none;margin:-160px 0 0 -160px;pointer-events:none;overflow:visible;z-index:-1;opacity:.92;fill:var(--dropc)!important;stroke:none!important;transform:none!important}
+#hint svg.hdrop{position:absolute;left:50%;top:50%;width:320px!important;height:320px!important;max-width:none;margin:-160px 0 0 -160px;pointer-events:none;overflow:visible;z-index:-1;opacity:.72;fill:var(--dropc)!important;stroke:none!important;transform:none!important}
 #hint svg.hdrop circle{fill:var(--dropc)!important;stroke:none!important}
-:root{--dropc:#c3d2fb}:root[data-night="1"]{--dropc:#7f95e0}
+:root{--dropc:#eef1f7}:root[data-night="1"]{--dropc:#b9c2dc}
 :root.tt-off-drop #hint svg.hdrop{display:none}
 /* v169 (owner: "post animation, the cards should still have a bubble look … same shape, a more bubble-like colour and texture"): Coming-up tiles and the
    flying drop share one soap-bubble look: clear watery base, a bright highlight top-left, a soft second glint, a faint rainbow sheen at the rim, a light rim */
-:root{--bub:radial-gradient(120% 90% at 26% 14%,rgba(255,255,255,.85) 0 7%,rgba(255,255,255,.28) 16%,rgba(255,255,255,0) 34%),radial-gradient(60% 40% at 78% 86%,rgba(255,255,255,.42),rgba(255,255,255,0) 70%),conic-gradient(from 210deg at 50% 50%,rgba(255,170,220,.16),rgba(150,220,255,.18),rgba(190,255,220,.14),rgba(255,230,170,.14),rgba(255,170,220,.16)),color-mix(in srgb,var(--dropc) 55%,rgba(255,255,255,.35));--bubr:inset 0 0 0 1px rgba(255,255,255,.55),inset -5px -7px 14px rgba(110,130,240,.16),inset 4px 5px 10px rgba(255,255,255,.4)}
-:root[data-night="1"]{--bub:radial-gradient(120% 90% at 26% 14%,rgba(255,255,255,.55) 0 7%,rgba(255,255,255,.16) 16%,rgba(255,255,255,0) 34%),radial-gradient(60% 40% at 78% 86%,rgba(255,255,255,.22),rgba(255,255,255,0) 70%),conic-gradient(from 210deg at 50% 50%,rgba(255,170,220,.14),rgba(150,220,255,.16),rgba(190,255,220,.12),rgba(255,230,170,.12),rgba(255,170,220,.14)),color-mix(in srgb,var(--dropc) 45%,rgba(20,30,80,.35))}
-:root:not(.tt-off-drop) #rail .rt.mc{background:var(--bub)!important;border:1px solid rgba(255,255,255,.6)!important;box-shadow:var(--bubr),0 6px 18px rgba(60,80,180,.12)!important}
+:root{--bub:radial-gradient(120% 90% at 26% 14%,rgba(255,255,255,.8) 0 6%,rgba(255,255,255,.22) 15%,rgba(255,255,255,0) 32%),radial-gradient(60% 40% at 78% 86%,rgba(255,255,255,.3),rgba(255,255,255,0) 70%),conic-gradient(from 210deg at 50% 50%,rgba(255,190,225,.07),rgba(170,225,255,.08),rgba(200,255,225,.06),rgba(255,235,190,.06),rgba(255,190,225,.07)),rgba(255,255,255,.16);--bubr:inset 0 0 0 1px rgba(255,255,255,.62),inset -4px -6px 12px rgba(120,130,160,.10),inset 4px 5px 10px rgba(255,255,255,.32)}
+:root[data-night="1"]{--bub:radial-gradient(120% 90% at 26% 14%,rgba(255,255,255,.45) 0 6%,rgba(255,255,255,.12) 15%,rgba(255,255,255,0) 32%),radial-gradient(60% 40% at 78% 86%,rgba(255,255,255,.16),rgba(255,255,255,0) 70%),conic-gradient(from 210deg at 50% 50%,rgba(255,190,225,.06),rgba(170,225,255,.07),rgba(200,255,225,.05),rgba(255,235,190,.05),rgba(255,190,225,.06)),rgba(255,255,255,.06);--bubr:inset 0 0 0 1px rgba(255,255,255,.3),inset -4px -6px 12px rgba(0,0,0,.12),inset 4px 5px 10px rgba(255,255,255,.12)}   /* v170 (owner: "a more clear and more neutral look") */
+:root:not(.tt-off-drop) #rail .rt.mc{background:var(--bub)!important;border:1px solid rgba(255,255,255,.55)!important;box-shadow:var(--bubr),0 6px 18px rgba(30,40,70,.08)!important}
 .gz.bub{background:var(--bub)!important;border-color:rgba(255,255,255,.6)!important;box-shadow:var(--bubr)}
-.gz.bead{border-color:transparent!important;background:radial-gradient(circle at 36% 30%,rgba(255,255,255,.95) 0 10%,rgba(255,255,255,0) 30%),radial-gradient(circle at 60% 72%,rgba(255,255,255,.35) 0,rgba(255,255,255,0) 45%),var(--dropc)!important;opacity:.92}
+.gz.bead{border-color:transparent!important;background:radial-gradient(circle at 36% 30%,rgba(255,255,255,.95) 0 10%,rgba(255,255,255,0) 30%),radial-gradient(circle at 60% 72%,rgba(255,255,255,.35) 0,rgba(255,255,255,0) 45%),var(--dropc)!important;opacity:.72}
 .gzn{position:absolute;left:0;top:0;display:none;border-radius:999px;transform-origin:0 50%;pointer-events:none;background:color-mix(in srgb,var(--acc,#6b7cff) 22%,var(--card))}
 .gz .ga,.gz .gb{position:absolute;left:0;top:0;margin:0}
 .gz .ga.c .c2{border:0;background:none;font-size:14px;padding:7px 13px;max-width:none;margin:0}
@@ -3747,8 +3747,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=169;
+const CC_VER=170;
 const CC_LOG=[
+  {v:170,new:['The bubbles and the drop are clearer, with no blue tint.']},
   {v:169,new:['The Coming up cards now look like bubbles.']},
   {v:168,new:['The arrow is now a drop of water, and each card splits off it like one drop becoming two.']},
   {v:167,new:['Each card now drips out of the arrow like a drop of water, right when its place scrolls past.']},
