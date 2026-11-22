@@ -354,6 +354,12 @@ body.om .foot,body.om .hint{opacity:0!important}
 #hint svg.hdrop circle{fill:var(--dropc)!important;stroke:none!important}
 :root{--dropc:#c3d2fb}:root[data-night="1"]{--dropc:#7f95e0}
 :root.tt-off-drop #hint svg.hdrop{display:none}
+/* v169 (owner: "post animation, the cards should still have a bubble look … same shape, a more bubble-like colour and texture"): Coming-up tiles and the
+   flying drop share one soap-bubble look: clear watery base, a bright highlight top-left, a soft second glint, a faint rainbow sheen at the rim, a light rim */
+:root{--bub:radial-gradient(120% 90% at 26% 14%,rgba(255,255,255,.85) 0 7%,rgba(255,255,255,.28) 16%,rgba(255,255,255,0) 34%),radial-gradient(60% 40% at 78% 86%,rgba(255,255,255,.42),rgba(255,255,255,0) 70%),conic-gradient(from 210deg at 50% 50%,rgba(255,170,220,.16),rgba(150,220,255,.18),rgba(190,255,220,.14),rgba(255,230,170,.14),rgba(255,170,220,.16)),color-mix(in srgb,var(--dropc) 55%,rgba(255,255,255,.35));--bubr:inset 0 0 0 1px rgba(255,255,255,.55),inset -5px -7px 14px rgba(110,130,240,.16),inset 4px 5px 10px rgba(255,255,255,.4)}
+:root[data-night="1"]{--bub:radial-gradient(120% 90% at 26% 14%,rgba(255,255,255,.55) 0 7%,rgba(255,255,255,.16) 16%,rgba(255,255,255,0) 34%),radial-gradient(60% 40% at 78% 86%,rgba(255,255,255,.22),rgba(255,255,255,0) 70%),conic-gradient(from 210deg at 50% 50%,rgba(255,170,220,.14),rgba(150,220,255,.16),rgba(190,255,220,.12),rgba(255,230,170,.12),rgba(255,170,220,.14)),color-mix(in srgb,var(--dropc) 45%,rgba(20,30,80,.35))}
+:root:not(.tt-off-drop) #rail .rt.mc{background:var(--bub)!important;border:1px solid rgba(255,255,255,.6)!important;box-shadow:var(--bubr),0 6px 18px rgba(60,80,180,.12)!important}
+.gz.bub{background:var(--bub)!important;border-color:rgba(255,255,255,.6)!important;box-shadow:var(--bubr)}
 .gz.bead{border-color:transparent!important;background:radial-gradient(circle at 36% 30%,rgba(255,255,255,.95) 0 10%,rgba(255,255,255,0) 30%),radial-gradient(circle at 60% 72%,rgba(255,255,255,.35) 0,rgba(255,255,255,0) 45%),var(--dropc)!important;opacity:.92}
 .gzn{position:absolute;left:0;top:0;display:none;border-radius:999px;transform-origin:0 50%;pointer-events:none;background:color-mix(in srgb,var(--acc,#6b7cff) 22%,var(--card))}
 .gz .ga,.gz .gb{position:absolute;left:0;top:0;margin:0}
@@ -2374,7 +2380,7 @@ function mz(y,vh){if(!MZ.length)return;
    sx=s.left+s.width/2,sy=s.top+s.height/2,tx=r.left+r.width/2,ty=r.top+r.height/2,p=mzCl((sy-ty)/D),g=m.g.style,ns=m.nk.style;
   if(m.t=='t'&&p<1)pend=1;
   if(m.t=='c'){const hv=p>B?'hidden':'';if(m.src.style.visibility!==hv)m.src.style.visibility=hv}
-  if(p<=0||p>=1){const cz=m.t=='t'&&DROP.on?DROP.c[k%3]:null;if(cz&&m.st===2&&cz.getAttribute('r')!=='0')cz.setAttribute('r','0');if(m.g.classList.contains('bead'))m.g.classList.remove('bead')}
+  if(p<=0||p>=1){const cz=m.t=='t'&&DROP.on?DROP.c[k%3]:null;if(cz&&m.st===2&&cz.getAttribute('r')!=='0')cz.setAttribute('r','0');if(m.g.classList.contains('bead'))m.g.classList.remove('bead');if(m.g.classList.contains('bub'))m.g.classList.remove('bub')}
   if(p<=0){if(m.st!==0){m.st=0;g.display='none';ns.display='none';m.real.classList.remove('show')}return}
   if(p>=1){if(m.st!==1){m.st=1;g.display='none';ns.display='none';m.real.classList.add('show','in');H.rev()}return}
   if(m.st!==2){m.st=2;m.real.classList.remove('show');m.a.style.opacity='0'}
@@ -2392,7 +2398,7 @@ function mz(y,vh){if(!MZ.length)return;
    cx=mzLp(sx+ux*R0*.92,tx,e);cy=mzLp(sy+uy*R0*.92,ty,e);w=mzLp(dia*.86,r.width,e)*(1+wob);h=mzLp(dia*1.16,r.height,e)*(1-wob);rad=mzLp(dia/2,16,mzSm(q)).toFixed(1)+'px';
    if(q<.45)ab=Math.max(ab,-Math.sin(q/.45*Math.PI*2)*(1-q/.45)*.06);
    if(m.ph!==2){m.ph=2;g.background='color-mix(in srgb,var(--c) 8%,var(--card))';g.borderColor='color-mix(in srgb,var(--c) 26%,var(--line))'}
-   const bd=goo&&q<.32;if(m.g.classList.contains('bead')!==bd)m.g.classList.toggle('bead',bd)}
+   const bd=goo&&q<.32,bb=goo&&!bd;if(m.g.classList.contains('bead')!==bd)m.g.classList.toggle('bead',bd);if(m.g.classList.contains('bub')!==bb)m.g.classList.toggle('bub',bb)}
   if(g.display!=='block'){g.display='block';g.left='0px';g.top='0px'}
   g.transform=`translate(${(cx-w/2).toFixed(1)}px,${(cy-h/2).toFixed(1)}px)`;g.width=w.toFixed(1)+'px';g.height=h.toFixed(1)+'px';g.borderRadius=rad;
   if(nk>.03){const L2=Math.hypot(cx-sx,cy-sy),th=R0*.46*nk;ns.display='block';ns.width=L2.toFixed(1)+'px';ns.height=th.toFixed(1)+'px';ns.transform=`translate(${sx.toFixed(1)}px,${(sy-th/2).toFixed(1)}px) rotate(${Math.atan2(cy-sy,cx-sx).toFixed(3)}rad)`}
@@ -3741,8 +3747,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=168;
+const CC_VER=169;
 const CC_LOG=[
+  {v:169,new:['The Coming up cards now look like bubbles.']},
   {v:168,new:['The arrow is now a drop of water, and each card splits off it like one drop becoming two.']},
   {v:167,new:['Each card now drips out of the arrow like a drop of water, right when its place scrolls past.']},
   {v:166,new:['The cards now pop out of the arrow one after another as you scroll.']},
