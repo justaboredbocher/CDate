@@ -2362,10 +2362,9 @@ function mz(y,vh){if(!MZ.length)return;
   const e=mzEase(p),q=mzSm(p),sh=Math.sin(p*Math.PI),tw=r.width,th=r.height,w=mzLp(s.width,tw,e),h=mzLp(s.height,th,e);
   if(g.display!=='block'){g.display='block';g.left='0px';g.top='0px';g.willChange='transform'}g.transform=`translate3d(${mzLp(s.left,r.left,e).toFixed(1)}px,${mzLp(s.top,r.top+y-b0,e).toFixed(1)}px,0)`;g.width=w.toFixed(1)+'px';g.height=h.toFixed(1)+'px';
   g.borderRadius=mzLp(Math.min(s.width,s.height)/2,m.t=='c'?18:16,e)+'px';
-  if(!g.boxShadow)g.boxShadow='0 10px 26px rgba(0,0,0,.12)';
-  if(m.t=='c'){g.background=`color-mix(in srgb,var(--card) ${(q*100)|0}%,color-mix(in srgb,var(--c) 13%,transparent))`;g.borderColor=`color-mix(in srgb,var(--c) ${(42*(1-q))|0}%,var(--line))`}
-  else{g.background='color-mix(in srgb,var(--c) 14%,var(--card))';g.borderColor='color-mix(in srgb,var(--c) 40%,var(--line))'}
-  m.a.style.opacity=1-mzSm(mzCl(p/.4));m.b.style.opacity=mzSm(mzCl((p-.3)/.55));m.b.style.width=(tw-2)+'px';if(m.t=='t')m.b.style.height=(th-2)+'px'})}
+  /* v164 (owner: "don't change the animation, only the cards"): the flying cards are lighter — no shadow, a pale fixed tint set once (not a new colour every frame), the inner card sized once */
+  if(!m.lt){m.lt=1;g.background='color-mix(in srgb,var(--c) 8%,var(--card))';g.borderColor='color-mix(in srgb,var(--c) 26%,var(--line))';m.b.style.width=(tw-2)+'px';if(m.t=='t')m.b.style.height=(th-2)+'px'}
+  m.a.style.opacity=1-mzSm(mzCl(p/.4));m.b.style.opacity=mzSm(mzCl((p-.3)/.55))})}
 
 function sc(){tk=0;const y=scrollY,vh=innerHeight||700,cl=v=>Math.min(1,Math.max(0,v));
  cbar.classList.toggle('on',y>120);if(cbar.getAttribute('aria-hidden')!==String(y<=120))cbar.setAttribute('aria-hidden',y<=120);document.documentElement.classList.toggle('cc-away',y>vh*.9);
@@ -2713,7 +2712,7 @@ function skyApply(st){
  {const th=p.dark?'dark':'light';if(r.dataset.theme!==th){r.dataset.theme=th;if(MOON_PX)document.querySelectorAll('img.mimg').forEach(i=>{i.src=artMoonUrl(+i.dataset.f)})}}sv('--bg',nt>.5?'#0b1330':p.mid);sv('--card',nt>.5?'#121a3d':`color-mix(in srgb,${p.dark?'#161a30':'#ffffff'} 90%,${p.mid})`);sd('night',nt>.5?'1':'0');sd('sky',nt>.5?'night':st.alt<9?'dusk':'day');
  skyLightCalc(st);
  /* v158: the soft sun's colour by its height (owner: "fit the sunrise and set times") */
- if(st.kind==='sun'){const a=st.alt||0,K=[[-2,[255,112,58],[255,150,100]],[2,[255,128,60],[255,170,110]],[5,[255,165,64],[255,200,130]],[11,[255,200,80],[255,225,150]],[22,[250,218,100],[255,236,165]],[90,[247,224,112],[255,240,170]]];let j=0;while(j<K.length-2&&a>K[j+1][0])j++;const A=K[j],B=K[j+1],t=Math.max(0,Math.min(1,(a-A[0])/(B[0]-A[0]))),m=(u,v)=>u.map((x,k)=>Math.round(x+(v[k]-x)*t)).join(' ');sv('--sunc',m(A[1],B[1]));sv('--sunh',m(A[2],B[2]))}
+ if(st.kind==='sun'){const a=st.alt||0,w=1-artSm(-.5,34,a),m=(u,v)=>u.map((x,k)=>Math.round(x+(v[k]-x)*w)).join(' ');sv('--sunc',m([247,224,112],[255,134,44]));sv('--sunh',m([255,240,170],[255,150,80]))}   /* v164 (owner: "change colours for morning and evening, just like the old one did"): the old sun picture's curve (warm until 24° high, artSunKey), ending in the midday yellow */
  /* the silk picks up the warm light around sunrise and sunset */
  {const g=SKL.g;if(g>.05&&nt<.5){const m=Math.min(.55,g*.9),base=p.dark?[1,.89,.85]:[.84,.89,1],c=base.map((v,i)=>v+(SKL.gc[i]-v)*m),hx='#'+c.map(v=>Math.round(v*255).toString(16).padStart(2,'0')).join('');if(r.style.getPropertyValue('--rbe')!==hx){r.style.setProperty('--rbe',hx);if(GLS.kick)GLS.kick()}}else if(r.style.getPropertyValue('--rbe')){r.style.removeProperty('--rbe');if(GLS.kick)GLS.kick()}}
  skyLightUI(nt);
@@ -3705,8 +3704,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=163;
+const CC_VER=164;
 const CC_LOG=[
+  {v:164,new:['The cards that fly out of the arrow are lighter and smoother.','The sun is warm orange in the morning and evening again, like before, and yellow at midday.']},
   {v:163,new:['The sunrise/sunset pill now sits right under the Hebrew date.']},
   {v:162,new:['The sun’s edge is a little crisper.']},
   {v:161,new:['A soft white veil over the moon, and a slightly deeper day sky.']},
