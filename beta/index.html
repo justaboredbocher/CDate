@@ -592,7 +592,7 @@ html.cc-boot,html.cc-boot body{background:#0a0b10!important}html.cc-boot #accoun
    the moon gets the same soft flat look but keeps its real phase every day (the photo, greyed, flattened and slightly blurred) */
 :root:not(.tt-off-matte) .sky-body.sun-b .skyimg{opacity:0}
 :root:not(.tt-off-matte) .sky-body.sun-b::before{content:'';position:absolute;left:50%;top:50%;width:200%;height:200%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgb(var(--sunh,255 240 170)/.5) 0%,rgb(var(--sunh,255 240 170)/.22) 22%,rgb(var(--sunh,255 240 170)/.07) 40%,transparent 60%)}
-:root:not(.tt-off-matte) .sky-body.sun-b::after{content:'';position:absolute;left:50%;top:50%;width:58%;height:58%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;background:radial-gradient(circle closest-side,rgb(var(--sunc,247 224 112)) 0%,rgb(var(--sunc,247 224 112)) 52%,rgb(var(--sunc,247 224 112)/.85) 62%,rgb(var(--sunc,247 224 112)/.45) 74%,rgb(var(--sunc,247 224 112)/.15) 86%,rgb(var(--sunc,247 224 112)/0) 100%)}
+:root:not(.tt-off-matte) .sky-body.sun-b::after{content:'';position:absolute;left:50%;top:50%;width:54%;height:54%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;background:radial-gradient(circle closest-side,rgb(var(--sunc,247 224 112)) 0%,rgb(var(--sunc,247 224 112)) 70%,rgb(var(--sunc,247 224 112)/.8) 79%,rgb(var(--sunc,247 224 112)/.4) 88%,rgb(var(--sunc,247 224 112)/.12) 95%,rgb(var(--sunc,247 224 112)/0) 100%)}   /* v162 (owner): a little less blurry */
 :root:not(.tt-off-matte) .sky-body.moon-b .skyimg{filter:grayscale(.9) contrast(.42) brightness(1.5) blur(1.6px)}
 :root[data-theme="light"]:not(.tt-off-matte) .sky-body.moon-b .skyimg{filter:grayscale(.9) contrast(.4) brightness(1.5) blur(1.6px);opacity:.9}
 :root:not(.tt-off-matte) .sky-body.moon-b.below .skyimg{filter:grayscale(.9) contrast(.42) brightness(.75) blur(1.6px)}
@@ -3705,8 +3705,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=161;
+const CC_VER=162;
 const CC_LOG=[
+  {v:162,new:['The sun’s edge is a little crisper.']},
   {v:161,new:['A soft white veil over the moon, and a slightly deeper day sky.']},
   {v:160,new:['The sunrise/sunset pill now stays still.','Fixed: the Hebrew date could disappear after scrolling.']},
   {v:159,new:['The arch across the sky and the moon’s trail are softer.']},
