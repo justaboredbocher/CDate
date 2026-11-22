@@ -1266,7 +1266,7 @@ $('.dow').innerHTML=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<span>${
 function lg(){$('#lg').innerHTML=Object.entries(KN).filter(([k])=>k!='my'||my.length).map(([k,n])=>`<button class="chip" aria-pressed="${!!on[k]}" data-k="${k}"><i class="m k-${k}"></i>${n}</button>`).join('');
  $('#my').innerHTML=my.length?'<p class="shx">Tap a plan to change or delete it.</p><div class="shl">'+my.map(c=>`<button class="row" data-m="${c.id}"><span>${c.t}<small>${c.dt}${({'greg':' · every year (Gregorian)','heb':' · every year (Hebrew date)','weekly':' · weekly','every2':' · every other day','hmonth':' · monthly (Hebrew date)','yomadpagra':' · on Yoma D’Pagra dates','custom':' · recurring'})[c.r]||''}</small></span><i class="sha">›</i></button>`).join('')+'</div>':'<p class="shem">Nothing here yet. Ask the assistant (the + button) to add a plan, a chavrusa or a yearly date.</p>'}
 $('#lg').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;const k=b.dataset.k;on[k]=!on[k];b.setAttribute('aria-pressed',!!on[k]);render(0);rail()};
-document.addEventListener('click',e=>{const task=e.target.closest('[data-task]');if(task){const key=task.dataset.task+'@'+task.dataset.date;setTaskDone(task.dataset.task,task.dataset.date,!taskDone()[key]);panel();return}const b=e.target.closest('[data-t]');if(b){if(document.body.classList.contains('om')&&b.classList.contains('day')&&b.closest('#g')&&!document.documentElement.classList.contains('tt-off-msum')&&+b.dataset.t!==+sel){const dt=new Date(+b.dataset.t),nm=dt<V||dt>ad(V,hlen(V)-1);pick(dt);if(!nm)render(0);g.querySelector('.msum')?.animate([{opacity:0,transform:'translateY(-6px) scaleY(.92)'},{opacity:1,transform:'none'}],{duration:RM?1:320,easing:'cubic-bezier(.2,.8,.2,1)'});return}op(false);mo(false);pick(new Date(+b.dataset.t))}});
+document.addEventListener('click',e=>{const task=e.target.closest('[data-task]');if(task){const key=task.dataset.task+'@'+task.dataset.date;setTaskDone(task.dataset.task,task.dataset.date,!taskDone()[key]);panel();return}const b=e.target.closest('[data-t]');if(b){if(document.body.classList.contains('om')&&b.classList.contains('day')&&b.closest('#g')&&!document.documentElement.classList.contains('tt-off-msum')&&+b.dataset.t!==+sel){const dt=new Date(+b.dataset.t),nm=dt<V||dt>ad(V,hlen(V)-1);const dir=dt>sel?1:dt<sel?-1:0;sel=dt;if(nm)V=hm1(dt);render(nm?dir:0);window.__pStale=1;g.querySelector('.msum')?.animate([{opacity:0,transform:'translateY(-6px) scaleY(.92)'},{opacity:1,transform:'none'}],{duration:RM?1:320,easing:'cubic-bezier(.2,.8,.2,1)'});return}window.__pStale=0;op(false);mo(false);pick(new Date(+b.dataset.t))}});
 $('#pv').onclick=()=>go(-1);$('#nx').onclick=()=>go(1);
 $('#td').onclick=()=>{H.step();pick(t0)};
 $('#jp').onchange=e=>{const[y,m,d]=e.target.value.split('-').map(Number);if(y)pick(ad(new Date(y,m-1,d),0))};
@@ -2363,7 +2363,7 @@ function panel(dir){const{h,ev,rc}=info(sel),w=hDay(sel).getDay()==6,ps=parsha(h
  mzBuild();sc()}
 function pick(dt){const nm=dt<V||dt>ad(V,hlen(V)-1),d=dt>sel?1:dt<sel?-1:0;sel=dt;
  if(nm){V=hm1(dt);render(d)}else{document.querySelectorAll('.day.sel').forEach(x=>x.classList.remove('sel'));g.querySelector(`[data-t="${+dt}"]`)?.classList.add('sel')}panel(d);scrollTo({top:0,behavior:RM?'auto':'smooth'})}
-const mo=v=>{document.body.classList.toggle('om',v);$('#ms').inert=!v;if(v)requestAnimationFrame(()=>$('#ms').classList.add('fullscreen'));else $('#ms').classList.remove('fullscreen')};
+const mo=v=>{document.body.classList.toggle('om',v);if(!v&&window.__pStale){window.__pStale=0;requestAnimationFrame(()=>panel(0))}$('#ms').inert=!v;if(v)requestAnimationFrame(()=>$('#ms').classList.add('fullscreen'));else $('#ms').classList.remove('fullscreen')};
 const openMonth=()=>{V=hm1(sel);render(0);mo(true)};$('#mo').onclick=openMonth;
 
 const hdr=$('#hdr'),cbar=$('#cb'),foot=$('#foot'),hint=$('#hint');let tk=0;
@@ -2406,7 +2406,7 @@ return[{left:a.left,top:a.top,width:a.width,height:a.height},o]});MZ.cvh=vh;MZ.n
    if(!m.lt){m.lt=1;m.b.style.width=(r.width-2)+'px';m.b.style.height=(r.height-2)+'px';m.a.style.opacity='0'}
    /* v176 (owner: "half showing should still pop out … whichever ones are currently showing on the screen"): checked live — any part of the card's
       place visible right now (inside the column's box, above the bottom bar) → it buds and flies; otherwise it skips the drop */
-   const vis=()=>{const t=m.real.getBoundingClientRect(),rl=MZ.rl||(MZ.rl=document.querySelector('#rail .rl')),dk=MZ.dk||(MZ.dk=document.querySelector('.dock')),bx2=rl?rl.getBoundingClientRect():{top:0,bottom:1e9},bot=Math.min(bx2.bottom,dk?dk.getBoundingClientRect().top:innerHeight,innerHeight);return t.bottom>Math.max(bx2.top,0)+2&&t.top<bot-2};
+   const vis=()=>{const t=m.real.getBoundingClientRect(),rl=MZ.rl||(MZ.rl=document.querySelector('#rail .rl')),dk=MZ.dk||(MZ.dk=document.querySelector('.dock')),nw=performance.now();/* v187 perf: the column and dock boxes are measured once per frame, not once per tile */if(!MZ.vb||nw-MZ.vt>8){const bx2=rl?rl.getBoundingClientRect():{top:0,bottom:1e9};MZ.vb=[Math.max(bx2.top,0),Math.min(bx2.bottom,dk?dk.getBoundingClientRect().top:innerHeight,innerHeight)];MZ.vt=nw}return t.bottom>MZ.vb[0]+2&&t.top<MZ.vb[1]-2};
    if(m.fs==null)m.fs=p>=B?'land':'home';
    if(m.fs==='home'&&p>=B&&!vis()){m.fs='land'}
    else if(m.fs==='land'&&p<BK&&!vis()){m.fs='home'}
@@ -2465,9 +2465,10 @@ function sc(){tk=0;const y=scrollY,vh=innerHeight||700,cl=v=>Math.min(1,Math.max
  cbar.classList.toggle('on',y>120);if(cbar.getAttribute('aria-hidden')!==String(y<=120))cbar.setAttribute('aria-hidden',y<=120);document.documentElement.classList.toggle('cc-away',y>vh*.9);
  const pd=cl(y/(vh*.42)),pf=cl((y-vh*.03)/(vh*.4)),ph=MZ.pend&&!RM?0:cl(y/(vh*.1));   /* v167: the arrow stays while cards are still to come out of it */
  foot.classList.toggle('gone',pf>=1);hint.classList.toggle('gone',ph>=1);
- if(!RM){hdr.style.transform=`translateY(${-pd*34}px) scale(${1-.09*pd})`;hdr.style.opacity=Math.max(0,1-1.1*pd);
-  foot.style.opacity=1-pf;
-  hint.style.opacity=1-ph;$('#gh').style.transform=`translateY(${y*.16}px)`}
+ if(!RM){/* v187 perf: write only what changed (past the header's fade every value stays the same) */const W1=(el,k,v)=>{const c=el.__w||(el.__w={});if(c[k]!==v){c[k]=v;el.style[k]=v}};
+  W1(hdr,'transform',`translateY(${(-pd*34).toFixed(1)}px) scale(${(1-.09*pd).toFixed(4)})`);W1(hdr,'opacity',String(Math.max(0,1-1.1*pd).toFixed(3)));
+  W1(foot,'opacity',String((1-pf).toFixed(3)));W1(hint,'opacity',String((1-ph).toFixed(3)));
+  const gh=sc.gh||(sc.gh=$('#gh'));if(gh&&document.documentElement.classList.contains('tt-off-m3')&&y<vh*1.5)W1(gh,'transform',`translateY(${(y*.16).toFixed(1)}px)`)}
  else{foot.style.opacity=pf>=1?0:1;hint.style.opacity=ph>=1?0:1}
  if(y<=4&&FP_PEND){footPlace();setTimeout(footPlace,450)}
  if(!RM)mz(y,vh)}
@@ -2607,14 +2608,17 @@ const{A,Hh}=artMoonBase(),N=ART_N,c=document.createElement('canvas');c.width=c.h
   if(al_<1&&glow>0){const ga=glow*(1-al_);R=(R*al_+246*ga)/(al_+ga||1);G=(G*al_+238*ga)/(al_+ga||1);B=(B*al_+205*ga)/(al_+ga||1);al_=al_+ga}
   D[o]=R;D[o+1]=G;D[o+2]=B;D[o+3]=Math.min(255,al_*255)}
  g.putImageData(img,0,0);return ART_MCV[key]=c}
-function artMoonUrl(f){const key=Math.round(f*120)+(MOON_PX?'p':'')+(document.documentElement.dataset.theme==='light'?'d':'');if(ART_MC[key])return ART_MC[key];{/* perf (v32): keep at most ~16 moon images (each phase used to stay in memory forever) */const ks=Object.keys(ART_MC).filter(k=>!/^s/.test(k));if(ks.length>16)ks.forEach(k=>delete ART_MC[k])}return ART_MC[key]=artMoonCanvas(f).toDataURL('image/png')}
+function artMoonUrl(f){const key=Math.round(f*120)+(MOON_PX?'p':'')+(document.documentElement.dataset.theme==='light'?'d':'');if(ART_MC[key])return ART_MC[key];{/* perf (v32): keep at most ~16 moon images (each phase used to stay in memory forever) */const ks=Object.keys(ART_MC).filter(k=>!/^s/.test(k));if(ks.length>16)ks.forEach(k=>{const u=ART_MC[k];delete ART_MC[k];if(typeof u==='string'&&u.startsWith('blob:'))setTimeout(()=>URL.revokeObjectURL(u),8000)})}return ART_MC[key]=artMoonCanvas(f).toDataURL('image/png')}
 /* perf (v32): changing days shouldn't wait for a new moon picture. Use the nearest phase already drawn (a day's difference is invisible at this size),
    draw the exact one when the phone is idle, then swap it in. */
 let MQ=null;function artMoonUrlSoon(f){const sfx=(MOON_PX?'p':'')+(document.documentElement.dataset.theme==='light'?'d':''),k=Math.round(f*120),key=k+sfx;if(ART_MC[key])return ART_MC[key];
  let best=null,bd=9;for(const kk in ART_MC){const m=/^(\d+)(\D*)$/.exec(kk);if(!m||m[2]!==sfx)continue;const d=Math.min(Math.abs(+m[1]-k),120-Math.abs(+m[1]-k));if(d<bd){bd=d;best=kk}}
  if(!best)return artMoonUrl(f);
  const first=!MQ;MQ=MQ||new Map();MQ.set(key,f);if(first){const ric=window.requestIdleCallback||(fn=>setTimeout(fn,120));ric(()=>{const q=MQ;MQ=null;
-  for(const [,ff] of q){const kk=Math.round(ff*120),u=artMoonUrl(ff);document.querySelectorAll('img.mimg').forEach(i=>{if(Math.round(+i.dataset.f*120)===kk&&i.getAttribute('src')!==u)i.src=u})}},{timeout:400})}
+  for(const [,ff] of q){const kk=Math.round(ff*120),put=u=>document.querySelectorAll('img.mimg').forEach(i=>{if(Math.round(+i.dataset.f*120)===kk&&i.getAttribute('src')!==u)i.src=u});
+   /* v187 perf: draw the exact phase, then let the browser encode it in the background (toBlob) instead of a blocking toDataURL */
+   const sfx2=(MOON_PX?'p':'')+(document.documentElement.dataset.theme==='light'?'d':''),key2=kk+sfx2;if(ART_MC[key2]){put(ART_MC[key2]);continue}
+   const c=artMoonCanvas(ff);if(c.toBlob)c.toBlob(bl=>{if(!bl){put(artMoonUrl(ff));return}const u=URL.createObjectURL(bl);ART_MC[key2]=u;put(u)},'image/png');else put(artMoonUrl(ff))}},{timeout:400})}
  return ART_MC[best]}
 /* sun texture: everything that does not depend on how low the sun is (noise, halo, edge) is computed once; each colour variant then only mixes colours */
 let ART_SF=null;const ART_SCV={};
@@ -2992,7 +2996,7 @@ vec4 silk(vec2 p,float px){
  const dlIm=document.createElement('img');dlIm.className='dl-cv';dlIm.alt='';dlIm.setAttribute('aria-hidden','true');dlIm.style.display='none';
  let dlSnOK=false,dlSnT=0,dlSnU='',dlSw=false;
  const dlUnswap=()=>{if(!dlSw)return;dlSw=false;cv.style.display='block';dlIm.style.display='none'};
- const dlSnap=()=>{if(!cv.isConnected||!cv.width)return;try{cv.toBlob(b=>{if(!b)return;const u=URL.createObjectURL(b);const old=dlSnU;dlSnU=u;dlIm.onload=()=>{if(old)URL.revokeObjectURL(old)};dlIm.src=u;dlIm.style.cssText=cv.style.cssText+';display:none';if(dlIm.parentNode!==cv.parentNode||dlIm.previousSibling!==cv)cv.after(dlIm);dlSnOK=true;if(dlSw)dlIm.style.display=''})}catch(e){}};
+ const dlSnap=()=>{if(!cv.isConnected||!cv.width)return;/* v187 perf: reading the WebGL picture back is a slow GPU read; skip it while a full-screen window hides the date (or the app is hidden) and try again later */{const bc=document.body.classList;if(document.hidden||bc.contains('om')||bc.contains('rdo')||bc.contains('sd-hide')||scrollY>innerHeight*.6){clearTimeout(dlSnT);dlSnT=setTimeout(dlSnap,1600);return}}try{cv.toBlob(b=>{if(!b)return;const u=URL.createObjectURL(b);const old=dlSnU;dlSnU=u;dlIm.onload=()=>{if(old)URL.revokeObjectURL(old)};dlIm.src=u;dlIm.style.cssText=cv.style.cssText+';display:none';if(dlIm.parentNode!==cv.parentNode||dlIm.previousSibling!==cv)cv.after(dlIm);dlSnOK=true;if(dlSw)dlIm.style.display=''})}catch(e){}};
  let dlUT=0;addEventListener('scroll',()=>{if(!dlSw&&dlSnOK&&scrollY>2&&cv.isConnected){dlSw=true;dlIm.style.display='block';cv.style.display='none'}clearTimeout(dlUT);dlUT=setTimeout(dlUnswap,scrollY<=2?0:220)},{passive:true});   /* v160: the picture stands in ONLY while scrolling (the owner's phone once showed a blank picture after scrolling back: no date) */
  const NP=8,NG=14;   /* particles per bubble, letters with a bubble */
  const VS='attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
@@ -3115,9 +3119,12 @@ void main(){vec2 cuv=vec2(gl_FragCoord.x/uCR.x,1.-gl_FragCoord.y/uCR.y);vec4 m=t
  /* the bubble settles: once nothing new happens it stops drawing within a few seconds (no endless jitter against a wall) */
  let kT=0;const kick=()=>{kT=performance.now();if(!traf)traf=requestAnimationFrame(step)};
  /* gamma: tilt right -> bubble goes left. beta (from how the phone is normally held): top tipped down/forward -> bubble goes down */
- let bB=null;addEventListener('deviceorientation',e=>{if(e.gamma==null||!ok)return;const be=e.beta==null?45:e.beta;bB=bB==null?be:bB+(be-bB)*.025;const gx=Math.max(-1,Math.min(1,e.gamma/30)),gy=Math.max(-1,Math.min(1,(be-bB)/25));
+ let bB=null;const onOri=e=>{if(e.gamma==null||!ok)return;const be=e.beta==null?45:e.beta;bB=bB==null?be:bB+(be-bB)*.025;const gx=Math.max(-1,Math.min(1,e.gamma/30)),gy=Math.max(-1,Math.min(1,(be-bB)/25));
   /* perf (v32): ignore hand tremor (< ~1°) and don't animate while the date is scrolled away or covered by a sheet/reader */
-  if(Math.abs(gx-tg[0])+Math.abs(gy-tg[1])<.035)return;tg=[gx,gy];const bc=document.body.classList;if(R.classList.contains('cc-away')||document.hidden||bc.contains('op')||bc.contains('om')||bc.contains('rdo'))return;kick()},{passive:true});
+  if(Math.abs(gx-tg[0])+Math.abs(gy-tg[1])<.035)return;tg=[gx,gy];const bc=document.body.classList;if(R.classList.contains('cc-away')||document.hidden||bc.contains('op')||bc.contains('om')||bc.contains('rdo'))return;kick()};
+  /* v187 battery: the motion sensor only runs while the date can be seen (a listener keeps the phone's sensor awake even when we ignore it) */
+  {let on=false;const sync=()=>{const bc=document.body.classList,want=!document.hidden&&!R.classList.contains('cc-away')&&!R.classList.contains('tt-off-waterdate')&&!bc.contains('om')&&!bc.contains('rdo')&&!bc.contains('sd-hide');if(want!==on){on=want;if(want)addEventListener('deviceorientation',onOri,{passive:true});else removeEventListener('deviceorientation',onOri)}};
+   new MutationObserver(sync).observe(R,{attributes:true,attributeFilter:['class']});new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']});document.addEventListener('visibilitychange',sync);sync()}
  /* iPhone: Safari needs a tap before a website may read the tilt sensor; ask once, on the first tap */
  if(window.DeviceOrientationEvent&&typeof DeviceOrientationEvent.requestPermission==='function'){const ask=()=>{removeEventListener('touchend',ask,true);removeEventListener('click',ask,true);try{DeviceOrientationEvent.requestPermission().catch(()=>{})}catch(e){}};addEventListener('touchend',ask,true);addEventListener('click',ask,true)}
  GLS.lens=draw;window.dlLayout=layout;
@@ -3677,7 +3684,7 @@ function cchLive(el,base){if(!el)return{set(){},setBase(){},anim(){},nod(){},dar
  const fx=(k,kf,dur)=>{if(L.side<0){k=SW[k]||k;kf=kf.map(f=>{const g=Object.assign({},f);if(g.x!=null)g.x=-g.x;if(g.r!=null)g.r=-g.r;return g})}if(RM||!P[k])return;L.fx.push({k,kf,t0:now(),dur});kick()};
  const fxAt=(f,t)=>{const u=Math.min(1,(t-f.t0)/f.dur),kf=f.kf;let i=0;while(i<kf.length-2&&u>kf[i+1].t)i++;const a=kf[i],b=kf[i+1],w=b.t>a.t?(u-a.t)/(b.t-a.t):1,e=w<.5?2*w*w:1-Math.pow(-2*w+2,2)/2,g=(q,d)=>(a[q]??d)+((b[q]??d)-(a[q]??d))*e;
   return{x:g('x',0),y:g('y',0),r:g('r',0),sx:g('sx',1),sy:g('sy',1),o:(a.o!=null||b.o!=null)?g('o',1):null}};
- function frame(){L.raf=0;const t=now();let busy=false;const add={};
+ function frame(){L.raf=0;const t=now();/* v187 battery: on 120 Hz screens draw him at most ~60 times a second (he is 56 px; the extra frames cost twice the work for nothing visible) */if(L.lf&&t-L.lf<13.5&&!L.init){L.raf=requestAnimationFrame(frame);return}L.lf=t;let busy=false;const add={};
   L.fx=L.fx.filter(f=>{if(t>=f.t0+f.dur)return false;busy=true;const d=fxAt(f,t),A=add[f.k]||(add[f.k]={x:0,y:0,r:0,sx:1,sy:1,o:null});A.x+=d.x;A.y+=d.y;A.r+=d.r;A.sx*=d.sx;A.sy*=d.sy;if(d.o!=null)A.o=d.o;return true});
   for(const k in P){const p=P[k];if(p.dur&&t<p.t0+p.dur)busy=true;const c=curOf(p,t),A=add[k];let x=c.x,y=c.y,r=c.r,sx=c.sx,sy=c.sy,o=c.o;
    if(A){x+=A.x;y+=A.y;r+=A.r;sx*=A.sx;sy*=A.sy;if(A.o!=null)o=A.o}
@@ -3732,7 +3739,7 @@ function cchLive(el,base){if(!el)return{set(){},setBase(){},anim(){},nod(){},dar
  let taps=[];if(!L.ambient)el.addEventListener('pointerdown',()=>{if(document.documentElement.classList.contains('tt-off-charlife'))return;const n=Date.now();taps=taps.filter(x=>n-x<1500);taps.push(n);if(taps.length>=3){taps=[];L.dizzy()}else L.surprise()});
  const sabbath=()=>{try{const d=new Date(),wd=d.getDay();if((wd===5&&d.getHours()>=12)||wd===6)return'sh';return strictYT(hd(t0))?'yt':''}catch(e){return''}};
  L.init=1;mood(L.base);L.init=0;for(const k in P){P[k].dur=0}frame();
- if(!RM){const tick=()=>{if(!el.isConnected)return;const off=document.documentElement.classList.contains('tt-off-charlife'),sb=off?'':sabbath();setTimeout(tick,(L.ambient&&!off?1800+Math.random()*2200:2800+Math.random()*3400)*(sb==='sh'?1.5:1));   // v137: slightly less often (home 1.8–4 s, elsewhere 2.8–6.2 s)   // v134 (owner: "less idle"): the home-screen one moves about twice as often
+ if(!RM){const tick=()=>{if(!el.isConnected)return;const off=document.documentElement.classList.contains('tt-off-charlife'),sb=off?'':sabbath();setTimeout(tick,(L.ambient&&!off?1800+Math.random()*2200:2800+Math.random()*3400)*(sb==='sh'?1.5:1)*(document.documentElement.classList.contains('cc-still')?2.2:1));   /* v187 battery: once nobody has touched the phone for 20 s (cc-still) he moves about half as often */   // v137: slightly less often (home 1.8–4 s, elsewhere 2.8–6.2 s)   // v134 (owner: "less idle"): the home-screen one moves about twice as often
    if(document.hidden||!el.offsetParent||(el.parentElement&&el.parentElement.closest('[aria-hidden="true"]'))||(L.ambient&&document.documentElement.classList.contains('cc-away')))return;   // v125: not inside a closed (hidden) sheet
    const night=document.documentElement.dataset.night==='1',idle=Date.now()-CCH_ACT;
    const DZ=(night||(typeof HSH!=='undefined'&&HSH))?20000:180000;   // v146 (owner): after sunset he starts dozing after 20 s untouched (3 min by day)
@@ -3801,9 +3808,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=186;
+const CC_VER=187;
 const CC_LOG=[
-  {v:180,new:['The stats rings now use the new wavy style too.']},{v:181,new:['Clearer stats screen: rings and buttons easy to see in the evening, round day dots.']},{v:182,new:['Easier to read around sunset, clearer selected buttons, neater month boxes.']},{v:183,new:['Matching shapes: reminder cards, ticked shiurim and the streak days.']},{v:184,new:['Material 3 shapes for the calendar markers, the streak days and the stats.']},{v:185,new:['Each shiur has its own shape in the stats.']},{v:186,mid:1,new:['Month view: tap a day to see what’s on it right under the week; tap it again to open the day.']},
+  {v:180,new:['The stats rings now use the new wavy style too.']},{v:181,new:['Clearer stats screen: rings and buttons easy to see in the evening, round day dots.']},{v:182,new:['Easier to read around sunset, clearer selected buttons, neater month boxes.']},{v:183,new:['Matching shapes: reminder cards, ticked shiurim and the streak days.']},{v:184,new:['Material 3 shapes for the calendar markers, the streak days and the stats.']},{v:185,new:['Each shiur has its own shape in the stats.']},{v:186,mid:1,new:['Month view: tap a day to see what’s on it right under the week; tap it again to open the day.']},{v:187,new:['Smoother and lighter on the battery: faster day changes, quieter when idle.']},
   {v:179,new:['The new shapes now cover every screen: buttons, switches, text boxes, the month view and more.']},
   {v:178,new:['More small parts got the new shapes: the siddur tabs, progress rings, streak days, check boxes, the Coming up cards and the badge.']},
   {v:177,mid:1,new:['Buttons, the day picker, shiur circles and other small parts have new rounded shapes, springy motion and calmer colours.']},
