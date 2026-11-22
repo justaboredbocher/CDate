@@ -587,7 +587,7 @@ html.cc-boot,html.cc-boot body{background:#0a0b10!important}html.cc-boot #accoun
  linear-gradient(180deg,#070D22 0%,#091127 24%,#0e1736 46%,#131d48 66%,#1a2458 86%,#1e2860 100%)}
 #skyWaves{position:absolute;inset:0;overflow:hidden;opacity:var(--waveo);transition:opacity 1.6s}
 /* v150 (owner: "the sky a more flat colour … the waves behind a matte light blue screen … the sun a yellow circle behind this matte screen that shines through a little"): by day (light theme) */
-:root[data-theme="light"]:not(.tt-off-matte) #skyGrad{background:#c4d9f2!important}
+:root[data-theme="light"]:not(.tt-off-matte) #skyGrad{background:#b3cbea!important}   /* v161 (owner): a little darker behind the sun (was #c4d9f2) */
 /* v158 (owner): the soft sun in every sky, its colour following its height (--sunc/--sunh from skyApply: deep orange at sunrise/sunset → golden → yellow);
    the moon gets the same soft flat look but keeps its real phase every day (the photo, greyed, flattened and slightly blurred) */
 :root:not(.tt-off-matte) .sky-body.sun-b .skyimg{opacity:0}
@@ -596,6 +596,8 @@ html.cc-boot,html.cc-boot body{background:#0a0b10!important}html.cc-boot #accoun
 :root:not(.tt-off-matte) .sky-body.moon-b .skyimg{filter:grayscale(.9) contrast(.42) brightness(1.5) blur(1.6px)}
 :root[data-theme="light"]:not(.tt-off-matte) .sky-body.moon-b .skyimg{filter:grayscale(.9) contrast(.4) brightness(1.5) blur(1.6px);opacity:.9}
 :root:not(.tt-off-matte) .sky-body.moon-b.below .skyimg{filter:grayscale(.9) contrast(.42) brightness(.75) blur(1.6px)}
+/* v161 (owner: "a thin white sheet over the moon") */
+:root:not(.tt-off-matte) .sky-body.moon-b::after{content:'';position:absolute;inset:2%;border-radius:50%;pointer-events:none;background:radial-gradient(circle closest-side,rgba(255,255,255,.24) 0%,rgba(255,255,255,.22) 80%,rgba(255,255,255,.1) 93%,rgba(255,255,255,0) 100%)}
 /* v159 (owner: "make the atmosphere line and the moon trail less pronounced") */
 :root:not(.tt-off-matte) #hdr .sky-scene::after{opacity:.5}
 :root:not(.tt-off-matte) #hdr .sky-scene::before{opacity:.55}
@@ -3703,8 +3705,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=160;
+const CC_VER=161;
 const CC_LOG=[
+  {v:161,new:['A soft white veil over the moon, and a slightly deeper day sky.']},
   {v:160,new:['The sunrise/sunset pill now stays still.','Fixed: the Hebrew date could disappear after scrolling.']},
   {v:159,new:['The arch across the sky and the moon’s trail are softer.']},
   {v:158,new:['The sun’s colour now follows the time of day: orange at sunrise and sunset, yellow at midday. The moon has the same soft look and still shows its phase.']},
