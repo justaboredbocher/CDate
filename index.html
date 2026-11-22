@@ -348,6 +348,23 @@ body.om .foot,body.om .hint{opacity:0!important}
 .mc{visibility:hidden}.mc.show{visibility:visible}
 #gz{position:fixed;inset:0;z-index:10;pointer-events:none}body.om #gz{display:none}
 .gz{position:absolute;left:0;top:0;box-sizing:border-box;overflow:hidden;border:1px solid var(--line);display:none;contain:layout paint}
+:root:not(.tt-off-drop) .hint.hdw{background:none!important;border-color:transparent!important;box-shadow:none!important;overflow:visible!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+:root:not(.tt-off-drop) .hint.hdw::before,:root:not(.tt-off-drop) .hint.hdw::after{display:none!important}
+#hint svg.hdrop{position:absolute;left:50%;top:50%;width:320px!important;height:320px!important;max-width:none;margin:-160px 0 0 -160px;pointer-events:none;overflow:visible;z-index:-1;opacity:.72;fill:var(--dropc)!important;stroke:none!important;transform:none!important}
+#hint svg.hdrop circle{fill:var(--dropc)!important;stroke:none!important}
+:root{--dropc:#eef1f7}:root[data-night="1"]{--dropc:#b9c2dc}
+:root.tt-off-drop #hint svg.hdrop{display:none}
+/* v169 (owner: "post animation, the cards should still have a bubble look … same shape, a more bubble-like colour and texture"): Coming-up tiles and the
+   flying drop share one soap-bubble look: clear watery base, a bright highlight top-left, a soft second glint, a faint rainbow sheen at the rim, a light rim */
+:root{--bub:radial-gradient(120% 90% at 26% 14%,rgba(255,255,255,.8) 0 6%,rgba(255,255,255,.22) 15%,rgba(255,255,255,0) 32%),radial-gradient(60% 40% at 78% 86%,rgba(255,255,255,.3),rgba(255,255,255,0) 70%),conic-gradient(from 210deg at 50% 50%,rgba(255,190,225,.07),rgba(170,225,255,.08),rgba(200,255,225,.06),rgba(255,235,190,.06),rgba(255,190,225,.07)),rgba(255,255,255,.16);--bubr:inset 0 0 0 1px rgba(255,255,255,.62),inset -4px -6px 12px rgba(120,130,160,.10),inset 4px 5px 10px rgba(255,255,255,.32)}
+:root[data-night="1"]{--bub:radial-gradient(120% 90% at 26% 14%,rgba(255,255,255,.45) 0 6%,rgba(255,255,255,.12) 15%,rgba(255,255,255,0) 32%),radial-gradient(60% 40% at 78% 86%,rgba(255,255,255,.16),rgba(255,255,255,0) 70%),conic-gradient(from 210deg at 50% 50%,rgba(255,190,225,.06),rgba(170,225,255,.07),rgba(200,255,225,.05),rgba(255,235,190,.05),rgba(255,190,225,.06)),rgba(255,255,255,.06);--bubr:inset 0 0 0 1px rgba(255,255,255,.3),inset -4px -6px 12px rgba(0,0,0,.12),inset 4px 5px 10px rgba(255,255,255,.12)}   /* v170 (owner: "a more clear and more neutral look") */
+:root{--bubL:radial-gradient(120% 90% at 26% 14%,rgba(255,255,255,.34) 0 6%,rgba(255,255,255,.1) 15%,rgba(255,255,255,0) 32%),conic-gradient(from 210deg at 50% 50%,rgba(255,190,225,.04),rgba(170,225,255,.05),rgba(200,255,225,.04),rgba(255,235,190,.04),rgba(255,190,225,.04)),rgba(255,255,255,.16);--bubLr:inset -2px -3px 8px rgba(120,130,160,.04)}
+:root[data-night="1"]{--bubL:radial-gradient(120% 90% at 26% 14%,rgba(255,255,255,.18) 0 6%,rgba(255,255,255,.05) 15%,rgba(255,255,255,0) 32%),conic-gradient(from 210deg at 50% 50%,rgba(255,190,225,.03),rgba(170,225,255,.04),rgba(200,255,225,.03),rgba(255,235,190,.03),rgba(255,190,225,.03)),rgba(255,255,255,.06);--bubLr:inset -2px -3px 8px rgba(0,0,0,.06)}
+/* v171 (owner: "after they land they should be less shiny"): landed tiles use the calmer --bubL (one soft glint, no second glint); the flying drop keeps --bub */
+:root:not(.tt-off-drop) #rail .rt.mc{background:var(--bubL)!important;border:.5px solid rgba(255,255,255,.05)!important;box-shadow:var(--bubLr),0 6px 18px rgba(30,40,70,.06)!important}
+.gz.bub{background:var(--bub)!important;border-color:rgba(255,255,255,.6)!important;box-shadow:var(--bubr)}
+.gz.bead{border-color:transparent!important;background:radial-gradient(circle at 36% 30%,rgba(255,255,255,.95) 0 10%,rgba(255,255,255,0) 30%),radial-gradient(circle at 60% 72%,rgba(255,255,255,.35) 0,rgba(255,255,255,0) 45%),var(--dropc)!important;opacity:.72}
+.gzn{position:absolute;left:0;top:0;display:none;border-radius:999px;transform-origin:0 50%;pointer-events:none;background:color-mix(in srgb,var(--acc,#6b7cff) 22%,var(--card))}
 .gz .ga,.gz .gb{position:absolute;left:0;top:0;margin:0}
 .gz .ga.c .c2{border:0;background:none;font-size:14px;padding:7px 13px;max-width:none;margin:0}
 .gz .ga.t{inset:0;display:grid;place-items:center}.gz .ga.t svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
@@ -2340,36 +2357,64 @@ var MZ=[];
 const mzCl=v=>Math.min(1,Math.max(0,v)),mzSm=t=>t*t*(3-2*t),mzEase=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2,mzLp=(a,b,t)=>a+(b-a)*t;
 function wkStrip(){const s=ad(sel,-sel.getDay());return Array.from({length:7},(_,i)=>{const dt=ad(s,i),p=infoD(dt).ev.find(e=>on[e.k]);return `<i class="wd${i==sel.getDay()?' now':''}${p?' ev k-'+p.k:''}" data-t="${+dt}" role="button" aria-label="${dt.toDateString()}"><u>${'SMTWTFS'[i]}</u><b>${dt.getDate()}</b></i>`}).join('')}
 document.addEventListener('click',e=>{const w=e.target.closest&&e.target.closest('.wd');if(w){H.tap();pick(new Date(+w.dataset.t))}});
-function mzBuild(){let z=document.getElementById('gz');if(!z){z=document.createElement('div');z.id='gz';document.body.appendChild(z)}z.innerHTML='';MZ=[];
+function hDropInit(){const h=document.getElementById('hint');if(!h||h.querySelector('.hdrop')||document.documentElement.classList.contains('tt-off-drop'))return;h.classList.add('hdw');
+ /* v168 (owner: "it should look like an actual drop of water separating from another … redesign the arrow to look like a drop of water"): the arrow is a
+    liquid drop drawn in SVG through a "goo" filter (blur + alpha threshold = metaballs, so two touching drops merge with a real neck) plus specular
+    lighting for the wet highlight. Child drops (#hdC0-2) bud out of the main one in mz() and pinch off. The filter only re-renders while they move. */
+ h.insertAdjacentHTML('beforeend','<svg class="hdrop" viewBox="-160 -160 320 320" aria-hidden="true"><defs><filter id="hgoo" x="-160" y="-160" width="320" height="320" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="5.5" result="b"/><feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -10" result="g"/><feGaussianBlur in="g" stdDeviation="2.2" result="gb"/><feSpecularLighting in="gb" surfaceScale="5" specularConstant=".85" specularExponent="26" lighting-color="#fff" result="sp"><fePointLight x="-70" y="-110" z="140"/></feSpecularLighting><feComposite in="sp" in2="g" operator="in" result="si"/><feComposite in="g" in2="si" operator="arithmetic" k2="1" k3="1"/></filter></defs><g filter="url(#hgoo)"><circle id="hdM" cx="0" cy="0" r="20"/><circle id="hdC0" r="0"/><circle id="hdC1" r="0"/><circle id="hdC2" r="0"/></g></svg>')}
+function mzBuild(){hDropInit();let z=document.getElementById('gz');if(!z){z=document.createElement('div');z.id='gz';document.body.appendChild(z)}z.innerHTML='';MZ=[];
  if(RM){document.querySelectorAll('.mc').forEach(x=>x.classList.add('show','in'));return}
  const cards=[...document.querySelectorAll('#p .ev.mc')],tiles=[...document.querySelectorAll('#rail .rt.mc')],chips=[...document.querySelectorAll('#ch .c2')],org=$('#hint');
  const mk=(real,src,t,i)=>{const kind=[...real.classList].find(c=>c.startsWith('k-')),g=document.createElement('div'),a=document.createElement('div'),b=real.cloneNode(true);
   g.className='gz '+kind;b.classList.remove('mc','show','in','rv');b.classList.add('gb');b.removeAttribute('id');
   if(t=='c'){a.className='ga c';const c=src.cloneNode(true);c.classList.remove('rv','in');a.appendChild(c)}
   else{a.className='ga t';const o=org.querySelector('.m')||org.querySelector('svg');a.innerHTML=o?o.outerHTML:''}
-  g.append(a,b);z.appendChild(g);MZ.push({g,a,b,real,src,t,i})};
+  g.append(a,b);const nk=document.createElement('div');nk.className='gzn';z.append(nk,g);MZ.push({g,a,b,nk,real,src,t,i})};
  cards.forEach((c,i)=>{if(chips[i])mk(c,chips[i],'c',i)});tiles.forEach((c,i)=>mk(c,org,'t',i))}
 function mz(y,vh){if(!MZ.length)return;
- /* v137 (owner: "this part of the scroll feels very laggy"): the page positions are measured ONCE when a morph pass starts (they don't move while
-    scrolling: the chips/arrow are fixed, the cards are in the page), not on every frame; the flying cards move with transform, not left/top */
- if(!MZ.c||MZ.n!==MZ.length||MZ.cvh!==vh){const tp=$('#top').getBoundingClientRect();MZ.c={b0:Math.max(vh*.32,tp.top+y+30-vh*.6),rd:MZ.map(m=>{const s=m.src.getBoundingClientRect(),r=m.real.getBoundingClientRect();return[s,{left:r.left,top:r.top+y,width:r.width,height:r.height}]})};MZ.cvh=vh}
- const a0=vh*.02,b0=MZ.c.b0,u=(y-a0)/(b0-a0),st=u<=0?'lo':u>=1?'hi':'mid';if(st!=='mid'&&MZ.st===st&&MZ.n===MZ.length)return;const reM=st!=='mid'&&MZ.st==='mid';MZ.st=st;MZ.n=MZ.length;const C=MZ.c;if(reM)MZ.c=null;const rd=C?C.rd.map(([s,r])=>[s,{left:r.left,top:r.top-y,width:r.width,height:r.height}]):MZ.map(m=>[m.src.getBoundingClientRect(),m.real.getBoundingClientRect()]);
- MZ.forEach((m,k)=>{const[s,r]=rd[k],d=Math.min(.5,m.i*.07),p=mzCl((u-d)/(1-d)),g=m.g.style;
-  m.src.style.visibility=(m.t=='t'?u>0:p>0)?'hidden':'';
-  if(p<=0){g.display='none';m.real.classList.remove('show');m.on=0;return}
-  if(p>=1){g.display='none';m.real.classList.add('show','in');if(!m.on){m.on=1;H.rev()}return}
-  m.on=0;m.real.classList.remove('show');
-  const e=mzEase(p),q=mzSm(p),sh=Math.sin(p*Math.PI),tw=r.width,th=r.height,w=mzLp(s.width,tw,e),h=mzLp(s.height,th,e);
-  if(g.display!=='block'){g.display='block';g.left='0px';g.top='0px';g.willChange='transform'}g.transform=`translate3d(${mzLp(s.left,r.left,e).toFixed(1)}px,${mzLp(s.top,r.top+y-b0,e).toFixed(1)}px,0)`;g.width=w.toFixed(1)+'px';g.height=h.toFixed(1)+'px';
-  g.borderRadius=mzLp(Math.min(s.width,s.height)/2,m.t=='c'?18:16,e)+'px';
-  if(!g.boxShadow)g.boxShadow='0 10px 26px rgba(0,0,0,.12)';
-  if(m.t=='c'){g.background=`color-mix(in srgb,var(--card) ${(q*100)|0}%,color-mix(in srgb,var(--c) 13%,transparent))`;g.borderColor=`color-mix(in srgb,var(--c) ${(42*(1-q))|0}%,var(--line))`}
-  else{g.background='color-mix(in srgb,var(--c) 14%,var(--card))';g.borderColor='color-mix(in srgb,var(--c) 40%,var(--line))'}
-  m.a.style.opacity=1-mzSm(mzCl(p/.4));m.b.style.opacity=mzSm(mzCl((p-.3)/.55));m.b.style.width=(tw-2)+'px';if(m.t=='t')m.b.style.height=(th-2)+'px'})}
+ /* v167 (owner: "it should only pop out as the place where it's going to passes it … like a liquidy effect, a drop separating from a different drop"):
+    a card leaves its source (the arrow / its chip) only when its own place in the page scrolls past that source. Then: a drop buds out of the source
+    toward that place, a thin neck pinches and snaps, the arrow wobbles back, and the drop flies the short way up while wobbling (squash/stretch) into
+    the card. Driven by the scroll position, so scrolling back runs it in reverse. Positions are measured once (page coords) and at the top. */
+ if(y<6||!MZ.c||MZ.n!==MZ.length||MZ.cvh!==vh){MZ.c=MZ.map(m=>{const a=m.src.getBoundingClientRect(),b=m.real.getBoundingClientRect();return[{left:a.left,top:a.top,width:a.width,height:a.height},{left:b.left,top:b.top+y,width:b.width,height:b.height}]});MZ.cvh=vh;MZ.n=MZ.length}
+ const D=Math.max(150,vh*.2),B=.36;let pend=0,ab=0;
+ if(!DROP.c.length){const q=id=>document.getElementById(id);if(q('hdM'))DROP.c=[q('hdC0'),q('hdC1'),q('hdC2')],DROP.m=q('hdM')}DROP.on=!!DROP.m&&hint.classList.contains('hdw');DROP.mw=0;
+ MZ.forEach((m,k)=>{let[s,R]=MZ.c[k],r={left:R.left,top:R.top-y,width:R.width,height:R.height},
+   sx=s.left+s.width/2,sy=s.top+s.height/2,tx=r.left+r.width/2,ty=r.top+r.height/2,p=mzCl((sy-ty)/D),g=m.g.style,ns=m.nk.style;
+  if(m.t=='t'&&p<1)pend=1;
+  if(m.t=='c'){const hv=p>B?'hidden':'';if(m.src.style.visibility!==hv)m.src.style.visibility=hv}
+  if(p<=0||p>=1){const cz=m.t=='t'&&DROP.on?DROP.c[k%3]:null;if(cz&&m.st===2&&cz.getAttribute('r')!=='0')cz.setAttribute('r','0');if(m.g.classList.contains('bead'))m.g.classList.remove('bead');if(m.g.classList.contains('bub'))m.g.classList.remove('bub')}
+  if(p<=0){if(m.st!==0){m.st=0;g.display='none';ns.display='none';m.real.classList.remove('show')}return}
+  if(p>=1){if(m.st!==1){m.st=1;g.display='none';ns.display='none';m.real.classList.add('show','in');H.rev()}return}
+  if(m.st!==2){m.st=2;m.real.classList.remove('show');m.a.style.opacity='0'}
+  if(!m.lt){m.lt=1;m.b.style.width=(r.width-2)+'px';if(m.t=='t')m.b.style.height=(r.height-2)+'px'}
+  let R0=Math.min(s.width,s.height);const dx=tx-sx,dy=ty-sy,dl=Math.hypot(dx,dy)||1,ux=dx/dl,uy=dy/dl;let cx,cy,w,h,rad,nk=0;
+  const goo=m.t=='t'&&DROP.on,cc=goo?DROP.c[k%3]:null;
+  if(goo){const RR=s.width/2;
+   if(p<B){const b=p/B,e=mzSm(b),off=RR*2.65*e,cr=RR*(.3+.5*mzSm(mzCl(b/.7)));cc.setAttribute('cx',(ux*off).toFixed(1));cc.setAttribute('cy',(uy*off).toFixed(1));cc.setAttribute('r',cr.toFixed(1));
+    DROP.mw=Math.max(DROP.mw,Math.sin(b*Math.PI)*.12);DROP.mx=ux;DROP.my=uy;if(g.display!=='none')g.display='none';if(ns.display!=='none')ns.display='none';m.b.style.opacity='0';return}
+   if(cc.getAttribute('r')!=='0')cc.setAttribute('r','0');R0=RR*1.6/.9;sx+=ux*RR*2.65-ux*R0*.92;sy+=uy*RR*2.65-uy*R0*.92}
+  if(p<B){const b=p/B,e=mzSm(b),dia=R0*(.3+.62*e),off=R0*(.12+.8*e),st=1+.38*b*b*b;
+   cx=sx+ux*off;cy=sy+uy*off;w=dia/Math.sqrt(st);h=dia*st;rad='50%';nk=1-mzSm(mzCl((b-.4)/.6));ab=Math.max(ab,Math.sin(b*Math.PI*.5)*.09);
+   if(m.ph!==1){m.ph=1;g.background='color-mix(in srgb,var(--acc,#6b7cff) 22%,var(--card))';g.borderColor='transparent'}}
+  else{const q=(p-B)/(1-B),e=1-Math.pow(1-q,3),dia=R0*.9,wob=Math.sin(q*Math.PI*3)*(1-q)*.16;
+   cx=mzLp(sx+ux*R0*.92,tx,e);cy=mzLp(sy+uy*R0*.92,ty,e);w=mzLp(dia*.86,r.width,e)*(1+wob);h=mzLp(dia*1.16,r.height,e)*(1-wob);rad=mzLp(dia/2,16,mzSm(q)).toFixed(1)+'px';
+   if(q<.45)ab=Math.max(ab,-Math.sin(q/.45*Math.PI*2)*(1-q/.45)*.06);
+   if(m.ph!==2){m.ph=2;g.background='color-mix(in srgb,var(--c) 8%,var(--card))';g.borderColor='color-mix(in srgb,var(--c) 26%,var(--line))'}
+   const bd=goo&&q<.32,bb=goo&&!bd;if(m.g.classList.contains('bead')!==bd)m.g.classList.toggle('bead',bd);if(m.g.classList.contains('bub')!==bb)m.g.classList.toggle('bub',bb)}
+  if(g.display!=='block'){g.display='block';g.left='0px';g.top='0px'}
+  g.transform=`translate(${(cx-w/2).toFixed(1)}px,${(cy-h/2).toFixed(1)}px)`;g.width=w.toFixed(1)+'px';g.height=h.toFixed(1)+'px';g.borderRadius=rad;
+  if(nk>.03){const L2=Math.hypot(cx-sx,cy-sy),th=R0*.46*nk;ns.display='block';ns.width=L2.toFixed(1)+'px';ns.height=th.toFixed(1)+'px';ns.transform=`translate(${sx.toFixed(1)}px,${(sy-th/2).toFixed(1)}px) rotate(${Math.atan2(cy-sy,cx-sx).toFixed(3)}rad)`}
+  else if(ns.display!=='none')ns.display='none';
+  m.b.style.opacity=mzSm(mzCl((p-.58)/.38)).toFixed(3)});
+ MZ.pend=pend;
+ if(DROP.on){const mw=DROP.mw,k2=(mw>.002?[(DROP.mx*mw*20).toFixed(1),(DROP.my*mw*20).toFixed(1),(20*(1-mw*.5)).toFixed(1)]:['0','0','20']).join();if(DROP.k!==k2){DROP.k=k2;const v=k2.split(',');DROP.m.setAttribute('cx',v[0]);DROP.m.setAttribute('cy',v[1]);DROP.m.setAttribute('r',v[2])}if(hint.style.scale)hint.style.scale=''}
+ else{const hs=Math.abs(ab)>.002?(1+ab).toFixed(3):'';if(hint.style.scale!==hs)hint.style.scale=hs}}
+var DROP={on:false,c:[],mw:0};
 
 function sc(){tk=0;const y=scrollY,vh=innerHeight||700,cl=v=>Math.min(1,Math.max(0,v));
  cbar.classList.toggle('on',y>120);if(cbar.getAttribute('aria-hidden')!==String(y<=120))cbar.setAttribute('aria-hidden',y<=120);document.documentElement.classList.toggle('cc-away',y>vh*.9);
- const pd=cl(y/(vh*.42)),pf=cl((y-vh*.03)/(vh*.4)),ph=cl(y/(vh*.1));
+ const pd=cl(y/(vh*.42)),pf=cl((y-vh*.03)/(vh*.4)),ph=MZ.pend&&!RM?0:cl(y/(vh*.1));   /* v167: the arrow stays while cards are still to come out of it */
  foot.classList.toggle('gone',pf>=1);hint.classList.toggle('gone',ph>=1);
  if(!RM){hdr.style.transform=`translateY(${-pd*34}px) scale(${1-.09*pd})`;hdr.style.opacity=Math.max(0,1-1.1*pd);
   foot.style.opacity=1-pf;
@@ -2713,7 +2758,7 @@ function skyApply(st){
  {const th=p.dark?'dark':'light';if(r.dataset.theme!==th){r.dataset.theme=th;if(MOON_PX)document.querySelectorAll('img.mimg').forEach(i=>{i.src=artMoonUrl(+i.dataset.f)})}}sv('--bg',nt>.5?'#0b1330':p.mid);sv('--card',nt>.5?'#121a3d':`color-mix(in srgb,${p.dark?'#161a30':'#ffffff'} 90%,${p.mid})`);sd('night',nt>.5?'1':'0');sd('sky',nt>.5?'night':st.alt<9?'dusk':'day');
  skyLightCalc(st);
  /* v158: the soft sun's colour by its height (owner: "fit the sunrise and set times") */
- if(st.kind==='sun'){const a=st.alt||0,K=[[-2,[255,112,58],[255,150,100]],[2,[255,128,60],[255,170,110]],[5,[255,165,64],[255,200,130]],[11,[255,200,80],[255,225,150]],[22,[250,218,100],[255,236,165]],[90,[247,224,112],[255,240,170]]];let j=0;while(j<K.length-2&&a>K[j+1][0])j++;const A=K[j],B=K[j+1],t=Math.max(0,Math.min(1,(a-A[0])/(B[0]-A[0]))),m=(u,v)=>u.map((x,k)=>Math.round(x+(v[k]-x)*t)).join(' ');sv('--sunc',m(A[1],B[1]));sv('--sunh',m(A[2],B[2]))}
+ if(st.kind==='sun'){const a=st.alt||0,w=1-artSm(-.5,34,a),m=(u,v)=>u.map((x,k)=>Math.round(x+(v[k]-x)*w)).join(' ');sv('--sunc',m([247,224,112],[255,134,44]));sv('--sunh',m([255,240,170],[255,150,80]))}   /* v164 (owner: "change colours for morning and evening, just like the old one did"): the old sun picture's curve (warm until 24° high, artSunKey), ending in the midday yellow */
  /* the silk picks up the warm light around sunrise and sunset */
  {const g=SKL.g;if(g>.05&&nt<.5){const m=Math.min(.55,g*.9),base=p.dark?[1,.89,.85]:[.84,.89,1],c=base.map((v,i)=>v+(SKL.gc[i]-v)*m),hx='#'+c.map(v=>Math.round(v*255).toString(16).padStart(2,'0')).join('');if(r.style.getPropertyValue('--rbe')!==hx){r.style.setProperty('--rbe',hx);if(GLS.kick)GLS.kick()}}else if(r.style.getPropertyValue('--rbe')){r.style.removeProperty('--rbe');if(GLS.kick)GLS.kick()}}
  skyLightUI(nt);
@@ -3705,8 +3750,17 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=163;
+const CC_VER=172;
 const CC_LOG=[
+  {v:172,new:['The Coming up bubbles have almost no edge.']},
+  {v:171,new:['The Coming up bubbles are less shiny once they land.']},
+  {v:170,new:['The bubbles and the drop are clearer, with no blue tint.']},
+  {v:169,new:['The Coming up cards now look like bubbles.']},
+  {v:168,new:['The arrow is now a drop of water, and each card splits off it like one drop becoming two.']},
+  {v:167,new:['Each card now drips out of the arrow like a drop of water, right when its place scrolls past.']},
+  {v:166,new:['The cards now pop out of the arrow one after another as you scroll.']},
+  {v:165,new:['Smoother scrolling while the cards fly out of the arrow.']},
+  {v:164,new:['The cards that fly out of the arrow are lighter and smoother.','The sun is warm orange in the morning and evening again, like before, and yellow at midday.']},
   {v:163,new:['The sunrise/sunset pill now sits right under the Hebrew date.']},
   {v:162,new:['The sun’s edge is a little crisper.']},
   {v:161,new:['A soft white veil over the moon, and a slightly deeper day sky.']},
@@ -5311,7 +5365,7 @@ aiEl('aiMemoryBtn').addEventListener('click',()=>{const p=aiPrefs(),names=Object
   let tg;if(k==='sr')tg=T.sr+10*6e4;else if(k==='ss')tg=T.ss-10*6e4;else if(k==='noon')tg=(T.sr+T.ss)/2;else{const p=ad(t0,-1),x=new RD(p.getFullYear(),p.getMonth(),p.getDate(),21,30);tg=+x}
   if(tg){setClock(tg);applyClock(false)}});
  /* New features get a switch here (owner's standing request). Each one maps to a class on <html>: tt-off-<id> turns it off. */
- const FLAGS=[['glassui','Matching glass cards, sheets and buttons'],['occ','Birthday & yahrzeit touches (confetti, candle, customs)'],['aim','Semicircle faces the sun/moon'],['capdate','Rise/set label under the big date'],['swave','Softer, quieter night waves'],['duskglass','Liquid-glass evening and day sky'],['waterdate','Date letters made of water (tilt the phone)'],['reallight','Real light (sunrise/sunset colours on everything)'],['side','Big date when the middle of the sky is empty'],['dome','Semicircle swivels on scroll'],['siddur','Siddur button in the dock'],['charlife','The assistant’s extra life (reacting to taps, wind, sleep, stretches…)'],['shabbos','Shabbos & Yom Tov screen (the app rests; no reminders)'],['matte','Flat matte-blue day sky with a yellow sun']];
+ const FLAGS=[['drop','The arrow is a water drop that the cards split off from'],['glassui','Matching glass cards, sheets and buttons'],['occ','Birthday & yahrzeit touches (confetti, candle, customs)'],['aim','Semicircle faces the sun/moon'],['capdate','Rise/set label under the big date'],['swave','Softer, quieter night waves'],['duskglass','Liquid-glass evening and day sky'],['waterdate','Date letters made of water (tilt the phone)'],['reallight','Real light (sunrise/sunset colours on everything)'],['side','Big date when the middle of the sky is empty'],['dome','Semicircle swivels on scroll'],['siddur','Siddur button in the dock'],['charlife','The assistant’s extra life (reacting to taps, wind, sleep, stretches…)'],['shabbos','Shabbos & Yom Tov screen (the app rests; no reminders)'],['matte','Flat matte-blue day sky with a yellow sun']];
  const fl=()=>{try{return JSON.parse(localStorage.getItem('cc_test_flags')||'{}')}catch(e){return{}}},flApply=()=>{const f=fl();for(const[id,,opt]of FLAGS){if(opt)document.documentElement.classList.toggle('tt-on-'+id,f[id]===true);else document.documentElement.classList.toggle('tt-off-'+id,f[id]===false)}};
  box.querySelector('#ttFlags').innerHTML=FLAGS.map(([id,t])=>`<label style="display:flex;align-items:center;gap:10px;margin:0;font-weight:500"><input type="checkbox" data-f="${id}" style="width:20px;height:20px;accent-color:#8c94ef"> ${t}</label>`).join('');
  box.querySelectorAll('[data-f]').forEach(c=>{const opt=(FLAGS.find(x=>x[0]===c.dataset.f)||[])[2];c.checked=opt?fl()[c.dataset.f]===true:fl()[c.dataset.f]!==false;c.onchange=()=>{const f=fl();f[c.dataset.f]=c.checked;localStorage.setItem('cc_test_flags',JSON.stringify(f));flApply();H.sel();if(c.dataset.f==='side'){SKY.last=null;skyTick();render(0)}if(c.dataset.f==='swave'&&GLS.kick)GLS.kick();if(c.dataset.f==='aim'&&SKY.last)skyDomeAim(SKY.last)}});flApply();
