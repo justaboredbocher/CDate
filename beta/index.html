@@ -358,10 +358,10 @@ body.om .foot,body.om .hint{opacity:0!important}
    flying drop share one soap-bubble look: clear watery base, a bright highlight top-left, a soft second glint, a faint rainbow sheen at the rim, a light rim */
 :root{--bub:radial-gradient(120% 90% at 26% 14%,rgba(255,255,255,.8) 0 6%,rgba(255,255,255,.22) 15%,rgba(255,255,255,0) 32%),radial-gradient(60% 40% at 78% 86%,rgba(255,255,255,.3),rgba(255,255,255,0) 70%),conic-gradient(from 210deg at 50% 50%,rgba(255,190,225,.07),rgba(170,225,255,.08),rgba(200,255,225,.06),rgba(255,235,190,.06),rgba(255,190,225,.07)),rgba(255,255,255,.16);--bubr:inset 0 0 0 1px rgba(255,255,255,.62),inset -4px -6px 12px rgba(120,130,160,.10),inset 4px 5px 10px rgba(255,255,255,.32)}
 :root[data-night="1"]{--bub:radial-gradient(120% 90% at 26% 14%,rgba(255,255,255,.45) 0 6%,rgba(255,255,255,.12) 15%,rgba(255,255,255,0) 32%),radial-gradient(60% 40% at 78% 86%,rgba(255,255,255,.16),rgba(255,255,255,0) 70%),conic-gradient(from 210deg at 50% 50%,rgba(255,190,225,.06),rgba(170,225,255,.07),rgba(200,255,225,.05),rgba(255,235,190,.05),rgba(255,190,225,.06)),rgba(255,255,255,.06);--bubr:inset 0 0 0 1px rgba(255,255,255,.3),inset -4px -6px 12px rgba(0,0,0,.12),inset 4px 5px 10px rgba(255,255,255,.12)}   /* v170 (owner: "a more clear and more neutral look") */
-:root{--bubL:radial-gradient(120% 90% at 26% 14%,rgba(255,255,255,.34) 0 6%,rgba(255,255,255,.1) 15%,rgba(255,255,255,0) 32%),conic-gradient(from 210deg at 50% 50%,rgba(255,190,225,.04),rgba(170,225,255,.05),rgba(200,255,225,.04),rgba(255,235,190,.04),rgba(255,190,225,.04)),rgba(255,255,255,.16);--bubLr:inset 0 0 0 1px rgba(255,255,255,.45),inset -3px -4px 10px rgba(120,130,160,.07)}
-:root[data-night="1"]{--bubL:radial-gradient(120% 90% at 26% 14%,rgba(255,255,255,.18) 0 6%,rgba(255,255,255,.05) 15%,rgba(255,255,255,0) 32%),conic-gradient(from 210deg at 50% 50%,rgba(255,190,225,.03),rgba(170,225,255,.04),rgba(200,255,225,.03),rgba(255,235,190,.03),rgba(255,190,225,.03)),rgba(255,255,255,.06);--bubLr:inset 0 0 0 1px rgba(255,255,255,.22),inset -3px -4px 10px rgba(0,0,0,.1)}
+:root{--bubL:radial-gradient(120% 90% at 26% 14%,rgba(255,255,255,.34) 0 6%,rgba(255,255,255,.1) 15%,rgba(255,255,255,0) 32%),conic-gradient(from 210deg at 50% 50%,rgba(255,190,225,.04),rgba(170,225,255,.05),rgba(200,255,225,.04),rgba(255,235,190,.04),rgba(255,190,225,.04)),rgba(255,255,255,.16);--bubLr:inset -2px -3px 8px rgba(120,130,160,.04)}
+:root[data-night="1"]{--bubL:radial-gradient(120% 90% at 26% 14%,rgba(255,255,255,.18) 0 6%,rgba(255,255,255,.05) 15%,rgba(255,255,255,0) 32%),conic-gradient(from 210deg at 50% 50%,rgba(255,190,225,.03),rgba(170,225,255,.04),rgba(200,255,225,.03),rgba(255,235,190,.03),rgba(255,190,225,.03)),rgba(255,255,255,.06);--bubLr:inset -2px -3px 8px rgba(0,0,0,.06)}
 /* v171 (owner: "after they land they should be less shiny"): landed tiles use the calmer --bubL (one soft glint, no second glint); the flying drop keeps --bub */
-:root:not(.tt-off-drop) #rail .rt.mc{background:var(--bubL)!important;border:1px solid rgba(255,255,255,.45)!important;box-shadow:var(--bubLr),0 6px 18px rgba(30,40,70,.07)!important}
+:root:not(.tt-off-drop) #rail .rt.mc{background:var(--bubL)!important;border:.5px solid rgba(255,255,255,.05)!important;box-shadow:var(--bubLr),0 6px 18px rgba(30,40,70,.06)!important}
 .gz.bub{background:var(--bub)!important;border-color:rgba(255,255,255,.6)!important;box-shadow:var(--bubr)}
 .gz.bead{border-color:transparent!important;background:radial-gradient(circle at 36% 30%,rgba(255,255,255,.95) 0 10%,rgba(255,255,255,0) 30%),radial-gradient(circle at 60% 72%,rgba(255,255,255,.35) 0,rgba(255,255,255,0) 45%),var(--dropc)!important;opacity:.72}
 .gzn{position:absolute;left:0;top:0;display:none;border-radius:999px;transform-origin:0 50%;pointer-events:none;background:color-mix(in srgb,var(--acc,#6b7cff) 22%,var(--card))}
@@ -3750,8 +3750,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=171;
+const CC_VER=172;
 const CC_LOG=[
+  {v:172,new:['The Coming up bubbles have almost no edge.']},
   {v:171,new:['The Coming up bubbles are less shiny once they land.']},
   {v:170,new:['The bubbles and the drop are clearer, with no blue tint.']},
   {v:169,new:['The Coming up cards now look like bubbles.']},
