@@ -2376,7 +2376,9 @@ function mz(y,vh){if(!MZ.length)return;
     a card leaves its source (the arrow / its chip) only when its own place in the page scrolls past that source. Then: a drop buds out of the source
     toward that place, a thin neck pinches and snaps, the arrow wobbles back, and the drop flies the short way up while wobbling (squash/stretch) into
     the card. Driven by the scroll position, so scrolling back runs it in reverse. Positions are measured once (page coords) and at the top. */
- if(y<6||!MZ.c||MZ.n!==MZ.length||MZ.cvh!==vh){MZ.c=MZ.map(m=>{const a=m.src.getBoundingClientRect(),b=m.real.getBoundingClientRect();return[{left:a.left,top:a.top,width:a.width,height:a.height},{left:b.left,top:b.top+y,width:b.width,height:b.height}]});MZ.cvh=vh;MZ.n=MZ.length}
+ if(y<6||!MZ.c||MZ.n!==MZ.length||MZ.cvh!==vh){const rl=document.querySelector('#rail .rl'),rr=rl&&rl.getBoundingClientRect(),rh=rl?rl.clientHeight:1e9;MZ.c=MZ.map(m=>{const a=m.src.getBoundingClientRect(),b=m.real.getBoundingClientRect(),o={left:b.left,top:b.top+y,width:b.width,height:b.height};
+   /* v175 (owner: "the ones that won't be showing on the screen should not appear to pop out of the arrow"): Coming-up tiles hidden below the end of the column's scroll box don't come out of the drop */
+   if(m.t=='t'&&rl){const ins=b.top-rr.top+rl.scrollTop,stT=parseFloat(getComputedStyle(rl).top)||64,fin=stT+ins;o.hid=ins+b.height*.5>rh||fin+b.height*.6>a.top-12}   /* hidden inside the column, or its final (sticky) place is behind the arrow / bottom bar */return[{left:a.left,top:a.top,width:a.width,height:a.height},o]});MZ.cvh=vh;MZ.n=MZ.length}
  const D=Math.max(150,vh*.2),B=.36;let pend=0,ab=0;MZ.fly=0;
  if(!DROP.c.length){const q=id=>document.getElementById(id);if(q('hdM'))DROP.c=[q('hdC0'),q('hdC1'),q('hdC2')],DROP.m=q('hdM')}DROP.on=!!DROP.m&&hint.classList.contains('hdw');DROP.mw=0;
  MZ.forEach((m,k)=>{let[s,R]=MZ.c[k],r={left:R.left,top:R.top-y,width:R.width,height:R.height},
@@ -2387,6 +2389,7 @@ function mz(y,vh){if(!MZ.length)return;
      scrolling … the way back the same: stuck in its place, and the second it breaks free immediately dragged to the arrow"): for drops from the arrow
      the budding is scroll-driven, but once it splits the flight runs on its own clock (a springy 420 ms pull to its place, following the place if it
      moves); scrolling back, the landed card stays put until its break-free point, then is pulled back (360 ms) to where it split off and merges. */
+  if(m.t=='t'&&R.hid){if(m.fs!=='land'){m.fs='land';g.display='none';ns.display='none';m.real.classList.add('show','in')}return}
   if(m.t=='t'&&DROP.on){const cc=DROP.c[k%3],ci=k%3,own=()=>{DROP.o=DROP.o||[];DROP.o[ci]=k},z0=()=>{if(DROP.o&&DROP.o[ci]===k&&cc.getAttribute('r')!=='0')cc.setAttribute('r','0')},RR=s.width/2,dx0=tx-sx,dy0=ty-sy,dl0=Math.hypot(dx0,dy0)||1,ux=dx0/dl0,uy=dy0/dl0,bx=sx+ux*RR*1.8,by=sy+uy*RR*1.8,now=performance.now(),BK=B*.45,cur=()=>m.lp||{cx:tx,cy:ty,w:r.width,h:r.height};
    if(!m.lt){m.lt=1;m.b.style.width=(r.width-2)+'px';m.b.style.height=(r.height-2)+'px';m.a.style.opacity='0'}
    if(m.fs==null)m.fs=p>=B?'land':'home';
@@ -3779,8 +3782,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=174;
+const CC_VER=175;
 const CC_LOG=[
+  {v:175,new:['Coming up cards that are hidden further down the column no longer pop out of the drop.']},
   {v:174,new:['Fixed: a bubble could sit loose next to the drop without flying away.']},
   {v:173,new:['Once a bubble breaks off the drop it now springs to its place by itself, and on the way back it snaps free and is pulled back into the drop.']},
   {v:172,new:['The Coming up bubbles have almost no edge.']},
