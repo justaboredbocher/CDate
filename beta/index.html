@@ -2360,7 +2360,7 @@ function mz(y,vh){if(!MZ.length)return;
   if(p>=1){g.display='none';m.real.classList.add('show','in');if(!m.on){m.on=1;H.rev()}return}
   m.on=0;m.real.classList.remove('show');
   const e=mzEase(p),q=mzSm(p),sh=Math.sin(p*Math.PI),tw=r.width,th=r.height,w=mzLp(s.width,tw,e),h=mzLp(s.height,th,e);
-  if(g.display!=='block'){g.display='block';g.left='0px';g.top='0px';g.willChange='transform'}g.transform=`translate3d(${mzLp(s.left,r.left,e).toFixed(1)}px,${mzLp(s.top,r.top+y-b0,e).toFixed(1)}px,0)`;g.width=w.toFixed(1)+'px';g.height=h.toFixed(1)+'px';
+  if(g.display!=='block'){g.display='block';g.left='0px';g.top='0px'}g.transform=`translate3d(${mzLp(s.left,r.left,e).toFixed(1)}px,${mzLp(s.top,r.top+y-b0,e).toFixed(1)}px,0)`;g.width=w.toFixed(1)+'px';g.height=h.toFixed(1)+'px';
   g.borderRadius=mzLp(Math.min(s.width,s.height)/2,m.t=='c'?18:16,e)+'px';
   /* v164 (owner: "don't change the animation, only the cards"): the flying cards are lighter — no shadow, a pale fixed tint set once (not a new colour every frame), the inner card sized once */
   if(!m.lt){m.lt=1;g.background='color-mix(in srgb,var(--c) 8%,var(--card))';g.borderColor='color-mix(in srgb,var(--c) 26%,var(--line))';m.b.style.width=(tw-2)+'px';if(m.t=='t')m.b.style.height=(th-2)+'px'}
@@ -3704,8 +3704,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=164;
+const CC_VER=165;
 const CC_LOG=[
+  {v:165,new:['Smoother scrolling while the cards fly out of the arrow.']},
   {v:164,new:['The cards that fly out of the arrow are lighter and smoother.','The sun is warm orange in the morning and evening again, like before, and yellow at midday.']},
   {v:163,new:['The sunrise/sunset pill now sits right under the Hebrew date.']},
   {v:162,new:['The sun’s edge is a little crisper.']},
