@@ -348,6 +348,7 @@ body.om .foot,body.om .hint{opacity:0!important}
 .mc{visibility:hidden}.mc.show{visibility:visible}
 #gz{position:fixed;inset:0;z-index:10;pointer-events:none}body.om #gz{display:none}
 .gz{position:absolute;left:0;top:0;box-sizing:border-box;overflow:hidden;border:1px solid var(--line);display:none;contain:layout paint}
+.gzn{position:absolute;left:0;top:0;display:none;border-radius:999px;transform-origin:0 50%;pointer-events:none;background:color-mix(in srgb,var(--acc,#6b7cff) 22%,var(--card))}
 .gz .ga,.gz .gb{position:absolute;left:0;top:0;margin:0}
 .gz .ga.c .c2{border:0;background:none;font-size:14px;padding:7px 13px;max-width:none;margin:0}
 .gz .ga.t{inset:0;display:grid;place-items:center}.gz .ga.t svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
@@ -2347,30 +2348,41 @@ function mzBuild(){let z=document.getElementById('gz');if(!z){z=document.createE
   g.className='gz '+kind;b.classList.remove('mc','show','in','rv');b.classList.add('gb');b.removeAttribute('id');
   if(t=='c'){a.className='ga c';const c=src.cloneNode(true);c.classList.remove('rv','in');a.appendChild(c)}
   else{a.className='ga t';const o=org.querySelector('.m')||org.querySelector('svg');a.innerHTML=o?o.outerHTML:''}
-  g.append(a,b);z.appendChild(g);MZ.push({g,a,b,real,src,t,i})};
+  g.append(a,b);const nk=document.createElement('div');nk.className='gzn';z.append(nk,g);MZ.push({g,a,b,nk,real,src,t,i})};
  cards.forEach((c,i)=>{if(chips[i])mk(c,chips[i],'c',i)});tiles.forEach((c,i)=>mk(c,org,'t',i))}
 function mz(y,vh){if(!MZ.length)return;
- /* v137 (owner: "this part of the scroll feels very laggy"): the page positions are measured ONCE when a morph pass starts (they don't move while
-    scrolling: the chips/arrow are fixed, the cards are in the page), not on every frame; the flying cards move with transform, not left/top */
- if(!MZ.c||MZ.n!==MZ.length||MZ.cvh!==vh){const tp=$('#top').getBoundingClientRect();MZ.c={b0:Math.max(vh*.32,tp.top+y+30-vh*.6),rd:MZ.map(m=>{const s=m.src.getBoundingClientRect(),r=m.real.getBoundingClientRect();return[s,{left:r.left,top:r.top+y,width:r.width,height:r.height}]})};MZ.cvh=vh}
- const a0=vh*.02,b0=MZ.c.b0,u=(y-a0)/(b0-a0),st=u<=0?'lo':u>=1?'hi':'mid';if(st!=='mid'&&MZ.st===st&&MZ.n===MZ.length)return;const reM=st!=='mid'&&MZ.st==='mid';MZ.st=st;MZ.n=MZ.length;const C=MZ.c;if(reM)MZ.c=null;const rd=C?C.rd.map(([s,r])=>[s,{left:r.left,top:r.top-y,width:r.width,height:r.height}]):MZ.map(m=>[m.src.getBoundingClientRect(),m.real.getBoundingClientRect()]);
- /* v166 (owner: "instead of all coming out at the same time, make them pop out of it as they go up"): one after another — each card gets its own slice of the scroll, starting when the one before is on its way */
- if(MZ.nt==null){MZ.nt=MZ.filter(m=>m.t=='t').length;MZ.nc=MZ.filter(m=>m.t=='c').length}
- MZ.forEach((m,k)=>{const[s,r]=rd[k],n=m.t=='t'?MZ.nt:MZ.nc,sp=n>1?Math.min(.16,.62/(n-1)):0,L=1-sp*(n-1),d=m.i*sp,p=mzCl((u-d)/L),g=m.g.style;
-  m.src.style.visibility=(m.t=='t'?u>0:p>0)?'hidden':'';
-  if(p<=0){g.display='none';m.real.classList.remove('show');m.on=0;return}
-  if(p>=1){g.display='none';m.real.classList.add('show','in');if(!m.on){m.on=1;H.rev()}return}
-  m.on=0;m.real.classList.remove('show');
-  const e=mzEase(p),q=mzSm(p),sh=Math.sin(p*Math.PI),tw=r.width,th=r.height,w=mzLp(s.width,tw,e),h=mzLp(s.height,th,e);
-  if(g.display!=='block'){g.display='block';g.left='0px';g.top='0px'}g.transform=`translate3d(${mzLp(s.left,r.left,e).toFixed(1)}px,${mzLp(s.top,r.top+y-b0,e).toFixed(1)}px,0)`;g.width=w.toFixed(1)+'px';g.height=h.toFixed(1)+'px';
-  g.borderRadius=mzLp(Math.min(s.width,s.height)/2,m.t=='c'?18:16,e)+'px';
-  /* v164 (owner: "don't change the animation, only the cards"): the flying cards are lighter — no shadow, a pale fixed tint set once (not a new colour every frame), the inner card sized once */
-  if(!m.lt){m.lt=1;g.background='color-mix(in srgb,var(--c) 8%,var(--card))';g.borderColor='color-mix(in srgb,var(--c) 26%,var(--line))';m.b.style.width=(tw-2)+'px';if(m.t=='t')m.b.style.height=(th-2)+'px'}
-  m.a.style.opacity=1-mzSm(mzCl(p/.4));m.b.style.opacity=mzSm(mzCl((p-.3)/.55))})}
+ /* v167 (owner: "it should only pop out as the place where it's going to passes it … like a liquidy effect, a drop separating from a different drop"):
+    a card leaves its source (the arrow / its chip) only when its own place in the page scrolls past that source. Then: a drop buds out of the source
+    toward that place, a thin neck pinches and snaps, the arrow wobbles back, and the drop flies the short way up while wobbling (squash/stretch) into
+    the card. Driven by the scroll position, so scrolling back runs it in reverse. Positions are measured once (page coords) and at the top. */
+ if(y<6||!MZ.c||MZ.n!==MZ.length||MZ.cvh!==vh){MZ.c=MZ.map(m=>{const a=m.src.getBoundingClientRect(),b=m.real.getBoundingClientRect();return[{left:a.left,top:a.top,width:a.width,height:a.height},{left:b.left,top:b.top+y,width:b.width,height:b.height}]});MZ.cvh=vh;MZ.n=MZ.length}
+ const D=Math.max(150,vh*.2),B=.36;let pend=0,ab=0;
+ MZ.forEach((m,k)=>{const[s,R]=MZ.c[k],r={left:R.left,top:R.top-y,width:R.width,height:R.height},
+   sx=s.left+s.width/2,sy=s.top+s.height/2,tx=r.left+r.width/2,ty=r.top+r.height/2,p=mzCl((sy-ty)/D),g=m.g.style,ns=m.nk.style;
+  if(m.t=='t'&&p<1)pend=1;
+  if(m.t=='c'){const hv=p>B?'hidden':'';if(m.src.style.visibility!==hv)m.src.style.visibility=hv}
+  if(p<=0){if(m.st!==0){m.st=0;g.display='none';ns.display='none';m.real.classList.remove('show')}return}
+  if(p>=1){if(m.st!==1){m.st=1;g.display='none';ns.display='none';m.real.classList.add('show','in');H.rev()}return}
+  if(m.st!==2){m.st=2;m.real.classList.remove('show');m.a.style.opacity='0'}
+  if(!m.lt){m.lt=1;m.b.style.width=(r.width-2)+'px';if(m.t=='t')m.b.style.height=(r.height-2)+'px'}
+  const R0=Math.min(s.width,s.height),dx=tx-sx,dy=ty-sy,dl=Math.hypot(dx,dy)||1,ux=dx/dl,uy=dy/dl;let cx,cy,w,h,rad,nk=0;
+  if(p<B){const b=p/B,e=mzSm(b),dia=R0*(.3+.62*e),off=R0*(.12+.8*e),st=1+.38*b*b*b;
+   cx=sx+ux*off;cy=sy+uy*off;w=dia/Math.sqrt(st);h=dia*st;rad='50%';nk=1-mzSm(mzCl((b-.4)/.6));ab=Math.max(ab,Math.sin(b*Math.PI*.5)*.09);
+   if(m.ph!==1){m.ph=1;g.background='color-mix(in srgb,var(--acc,#6b7cff) 22%,var(--card))';g.borderColor='transparent'}}
+  else{const q=(p-B)/(1-B),e=1-Math.pow(1-q,3),dia=R0*.9,wob=Math.sin(q*Math.PI*3)*(1-q)*.16;
+   cx=mzLp(sx+ux*R0*.92,tx,e);cy=mzLp(sy+uy*R0*.92,ty,e);w=mzLp(dia*.86,r.width,e)*(1+wob);h=mzLp(dia*1.16,r.height,e)*(1-wob);rad=mzLp(dia/2,16,mzSm(q)).toFixed(1)+'px';
+   if(q<.45)ab=Math.max(ab,-Math.sin(q/.45*Math.PI*2)*(1-q/.45)*.06);
+   if(m.ph!==2){m.ph=2;g.background='color-mix(in srgb,var(--c) 8%,var(--card))';g.borderColor='color-mix(in srgb,var(--c) 26%,var(--line))'}}
+  if(g.display!=='block'){g.display='block';g.left='0px';g.top='0px'}
+  g.transform=`translate(${(cx-w/2).toFixed(1)}px,${(cy-h/2).toFixed(1)}px)`;g.width=w.toFixed(1)+'px';g.height=h.toFixed(1)+'px';g.borderRadius=rad;
+  if(nk>.03){const L2=Math.hypot(cx-sx,cy-sy),th=R0*.46*nk;ns.display='block';ns.width=L2.toFixed(1)+'px';ns.height=th.toFixed(1)+'px';ns.transform=`translate(${sx.toFixed(1)}px,${(sy-th/2).toFixed(1)}px) rotate(${Math.atan2(cy-sy,cx-sx).toFixed(3)}rad)`}
+  else if(ns.display!=='none')ns.display='none';
+  m.b.style.opacity=mzSm(mzCl((p-.58)/.38)).toFixed(3)});
+ MZ.pend=pend;const hs=Math.abs(ab)>.002?(1+ab).toFixed(3):'';if(hint.style.scale!==hs)hint.style.scale=hs}
 
 function sc(){tk=0;const y=scrollY,vh=innerHeight||700,cl=v=>Math.min(1,Math.max(0,v));
  cbar.classList.toggle('on',y>120);if(cbar.getAttribute('aria-hidden')!==String(y<=120))cbar.setAttribute('aria-hidden',y<=120);document.documentElement.classList.toggle('cc-away',y>vh*.9);
- const pd=cl(y/(vh*.42)),pf=cl((y-vh*.03)/(vh*.4)),ph=cl(y/(vh*.1));
+ const pd=cl(y/(vh*.42)),pf=cl((y-vh*.03)/(vh*.4)),ph=MZ.pend&&!RM?0:cl(y/(vh*.1));   /* v167: the arrow stays while cards are still to come out of it */
  foot.classList.toggle('gone',pf>=1);hint.classList.toggle('gone',ph>=1);
  if(!RM){hdr.style.transform=`translateY(${-pd*34}px) scale(${1-.09*pd})`;hdr.style.opacity=Math.max(0,1-1.1*pd);
   foot.style.opacity=1-pf;
@@ -3706,8 +3718,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=166;
+const CC_VER=167;
 const CC_LOG=[
+  {v:167,new:['Each card now drips out of the arrow like a drop of water, right when its place scrolls past.']},
   {v:166,new:['The cards now pop out of the arrow one after another as you scroll.']},
   {v:165,new:['Smoother scrolling while the cards fly out of the arrow.']},
   {v:164,new:['The cards that fly out of the arrow are lighter and smoother.','The sun is warm orange in the morning and evening again, like before, and yellow at midday.']},
