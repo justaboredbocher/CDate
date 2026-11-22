@@ -2354,7 +2354,9 @@ function mz(y,vh){if(!MZ.length)return;
     scrolling: the chips/arrow are fixed, the cards are in the page), not on every frame; the flying cards move with transform, not left/top */
  if(!MZ.c||MZ.n!==MZ.length||MZ.cvh!==vh){const tp=$('#top').getBoundingClientRect();MZ.c={b0:Math.max(vh*.32,tp.top+y+30-vh*.6),rd:MZ.map(m=>{const s=m.src.getBoundingClientRect(),r=m.real.getBoundingClientRect();return[s,{left:r.left,top:r.top+y,width:r.width,height:r.height}]})};MZ.cvh=vh}
  const a0=vh*.02,b0=MZ.c.b0,u=(y-a0)/(b0-a0),st=u<=0?'lo':u>=1?'hi':'mid';if(st!=='mid'&&MZ.st===st&&MZ.n===MZ.length)return;const reM=st!=='mid'&&MZ.st==='mid';MZ.st=st;MZ.n=MZ.length;const C=MZ.c;if(reM)MZ.c=null;const rd=C?C.rd.map(([s,r])=>[s,{left:r.left,top:r.top-y,width:r.width,height:r.height}]):MZ.map(m=>[m.src.getBoundingClientRect(),m.real.getBoundingClientRect()]);
- MZ.forEach((m,k)=>{const[s,r]=rd[k],d=Math.min(.5,m.i*.07),p=mzCl((u-d)/(1-d)),g=m.g.style;
+ /* v166 (owner: "instead of all coming out at the same time, make them pop out of it as they go up"): one after another — each card gets its own slice of the scroll, starting when the one before is on its way */
+ if(MZ.nt==null){MZ.nt=MZ.filter(m=>m.t=='t').length;MZ.nc=MZ.filter(m=>m.t=='c').length}
+ MZ.forEach((m,k)=>{const[s,r]=rd[k],n=m.t=='t'?MZ.nt:MZ.nc,sp=n>1?Math.min(.16,.62/(n-1)):0,L=1-sp*(n-1),d=m.i*sp,p=mzCl((u-d)/L),g=m.g.style;
   m.src.style.visibility=(m.t=='t'?u>0:p>0)?'hidden':'';
   if(p<=0){g.display='none';m.real.classList.remove('show');m.on=0;return}
   if(p>=1){g.display='none';m.real.classList.add('show','in');if(!m.on){m.on=1;H.rev()}return}
@@ -3704,8 +3706,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=165;
+const CC_VER=166;
 const CC_LOG=[
+  {v:166,new:['The cards now pop out of the arrow one after another as you scroll.']},
   {v:165,new:['Smoother scrolling while the cards fly out of the arrow.']},
   {v:164,new:['The cards that fly out of the arrow are lighter and smoother.','The sun is warm orange in the morning and evening again, like before, and yellow at midday.']},
   {v:163,new:['The sunrise/sunset pill now sits right under the Hebrew date.']},
