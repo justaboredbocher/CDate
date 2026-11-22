@@ -3231,7 +3231,9 @@ function stsCalc(R){const tk=ds(shDay(t0)),days=[];for(let d=R.s;+d<=+R.e;d=ad(d
  const T=cnt.reduce((a,b)=>a+b,0),D=den.reduce((a,b)=>a+b,0);
  return{days,cnt,den,dd,full,pct:D?T/D:0,sumDone:T,sumAll:D,avg:dd?sumN/dd:0,r3,r1,hy,per:cnt.map((c,i)=>den[i]?c/den[i]:0)}}
 const sLvl=n=>n>=4?4:n;
-const S_GA=.75,sRing=(p,size,r,sw,cls,inner)=>{const C=2*Math.PI*r,A=C*S_GA,c=size/2;return `<div class="sring ${cls}" data-p="${p.toFixed(4)}" style="--sz:${size}px"><svg viewBox="0 0 ${size} ${size}" aria-hidden="true"><circle class="tr" cx="${c}" cy="${c}" r="${r}" stroke-width="${sw}" stroke-dasharray="${A.toFixed(2)} ${C.toFixed(2)}" transform="rotate(135 ${c} ${c})"/><circle class="pg" cx="${c}" cy="${c}" r="${r}" stroke-width="${sw}" data-da="${(A*p).toFixed(2)} ${C.toFixed(2)}" style="stroke-dasharray:0 ${C.toFixed(2)}${p<=0?';opacity:0':''}" transform="rotate(135 ${c} ${c})"/></svg>${inner}</div>`};
+/* v180 (owner: "the big stats ring should change too"): the progress arc is an M3 wavy line (same length as the circle via pathLength, so the dash animation is unchanged) */
+const sWave=(c,r,sw)=>{const C=2*Math.PI*r,n=Math.max(10,Math.round(C/(sw*2.3))),a=sw*.15,N=n*16;let d='';for(let i=0;i<=N;i++){const t=2*Math.PI*i/N,rr=r+a*Math.sin(n*t);d+=(i?'L':'M')+(c+rr*Math.cos(t)).toFixed(2)+' '+(c+rr*Math.sin(t)).toFixed(2)}return d};
+const S_GA=.75,sRing=(p,size,r,sw,cls,inner)=>{const C=2*Math.PI*r,A=C*S_GA,c=size/2;return `<div class="sring ${cls}" data-p="${p.toFixed(4)}" style="--sz:${size}px"><svg viewBox="0 0 ${size} ${size}" aria-hidden="true"><circle class="tr" cx="${c}" cy="${c}" r="${r}" stroke-width="${sw}" stroke-dasharray="${A.toFixed(2)} ${C.toFixed(2)}" transform="rotate(135 ${c} ${c})"/>${document.documentElement.classList.contains('tt-off-m3')?`<circle class="pg" cx="${c}" cy="${c}" r="${r}" stroke-width="${sw}" data-da="${(A*p).toFixed(2)} ${C.toFixed(2)}" style="stroke-dasharray:0 ${C.toFixed(2)}${p<=0?';opacity:0':''}" transform="rotate(135 ${c} ${c})"/>`:`<path class="pg pgw" pathLength="${C.toFixed(2)}" d="${sWave(c,r,sw)}" stroke-width="${sw}" data-da="${(A*p).toFixed(2)} ${C.toFixed(2)}" style="stroke-dasharray:0 ${C.toFixed(2)}${p<=0?';opacity:0':''}" transform="rotate(135 ${c} ${c})"/>`}</svg>${inner}</div>`};
 const sPct=p=>Math.round(p*100);
 function stsWeek(R,S){const hd=[],rows=SHI.map(()=>[]);let h='';
  for(let i=0;i<7;i++){const d=ad(R.ps,i),inR=+d>=+R.s&&+d<=+R.e,x=inR?S.days.find(z=>+z.d==+d):null;h+=`<span class="shd${x&&x.today?' now':''}${inR?'':' fu'}">${WL[d.getDay()]}<b>${d.getDate()}</b></span>`;SHI.forEach((s,j)=>rows[j].push(`<i class="dot${x&&x.f[j]?' f':''}${inR?'':' fu'}"></i>`))}
@@ -3785,8 +3787,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=179;
+const CC_VER=180;
 const CC_LOG=[
+  {v:180,new:['The stats rings now use the new wavy style too.']},
   {v:179,new:['The new shapes now cover every screen: buttons, switches, text boxes, the month view and more.']},
   {v:178,new:['More small parts got the new shapes: the siddur tabs, progress rings, streak days, check boxes, the Coming up cards and the badge.']},
   {v:177,mid:1,new:['Buttons, the day picker, shiur circles and other small parts have new rounded shapes, springy motion and calmer colours.']},
@@ -5552,6 +5555,8 @@ aiEl('aiMemoryBtn').addEventListener('click',()=>{const p=aiPrefs(),names=Object
 :root:not(.tt-off-m3) #g .day:active{transform:scale(.95);border-radius:22px!important}
 :root:not(.tt-off-m3) #g .day.sel{border-radius:22px!important;box-shadow:inset 0 0 0 2px var(--m3p)!important;border-color:transparent!important}
 :root:not(.tt-off-m3) #g .day.today .g{display:inline-grid;place-items:center;min-width:26px;height:26px;padding:0;border-radius:0;background:var(--m3p);color:var(--m3op);-webkit-mask:var(--m3cookie) center/100% 100% no-repeat;mask:var(--m3cookie) center/100% 100% no-repeat}
+:root:not(.tt-off-m3) .sring .pg{stroke:var(--m3p)!important;filter:none!important}
+:root:not(.tt-off-m3) .sring .tr{stroke:color-mix(in srgb,var(--m3p) 16%,transparent)!important}
 /* settings row icons sit on a soft 8-point "sunny" shape */
 :root:not(.tt-off-m3) .shi{background:var(--m3pc)!important;color:var(--m3opc)!important;border-radius:0!important;-webkit-mask:var(--m3sunny) center/100% 100% no-repeat;mask:var(--m3sunny) center/100% 100% no-repeat}
 :root:not(.tt-off-m3) .shr:active .shi{animation:m3pop .45s var(--m3sp)}
