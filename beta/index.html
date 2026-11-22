@@ -702,7 +702,7 @@ html.cc-boot,html.cc-boot body{background:#0a0b10!important}html.cc-boot #accoun
 #skyBody,#skyTrailC{--fa:4px;--fy:9.2s;--fx:13.6s;--fd:-3.1s;--pd:.2}
 #hdr .sky-scene::after{--fa:3px;--fy:11.4s;--fx:7.8s;--fd:-6.2s;--pd:.1}
 #hdr .sky-scene::before{--fa:3px;--fy:11.4s;--fx:7.8s;--fd:-6.2s}
-.sky-cap{--fa:2.4px;--fy:7.4s;--fx:10.2s;--fd:-1.7s;--pd:.05}
+.sky-cap{--fa:0px;--fy:7.4s;--fx:10.2s;--fd:-1.7s;--pd:0}   /* v160 (owner: "why is this moving around?"): the rise/set pill stays still */
 #hdr .hd-he{--fa:2.2px;--fy:8.6s;--fx:12.8s;--fd:-4.4s;--pd:.03}
 #hdr .hd-div{--fa:1.6px;--fy:6.9s;--fx:9.3s;--fd:-2.6s;--pd:.015}
 #hdr .hd-en{--fa:1.8px;--fy:10.1s;--fx:7.1s;--fd:-5.3s;--pd:0}
@@ -2897,7 +2897,7 @@ vec4 silk(vec2 p,float px){
  let dlSnOK=false,dlSnT=0,dlSnU='',dlSw=false;
  const dlUnswap=()=>{if(!dlSw)return;dlSw=false;cv.style.display='block';dlIm.style.display='none'};
  const dlSnap=()=>{if(!cv.isConnected||!cv.width)return;try{cv.toBlob(b=>{if(!b)return;const u=URL.createObjectURL(b);const old=dlSnU;dlSnU=u;dlIm.onload=()=>{if(old)URL.revokeObjectURL(old)};dlIm.src=u;dlIm.style.cssText=cv.style.cssText+';display:none';if(dlIm.parentNode!==cv.parentNode||dlIm.previousSibling!==cv)cv.after(dlIm);dlSnOK=true;if(dlSw)dlIm.style.display=''})}catch(e){}};
- addEventListener('scroll',()=>{if(!dlSw&&dlSnOK&&scrollY>2&&cv.isConnected){dlSw=true;dlIm.style.display='block';cv.style.display='none'}},{passive:true});
+ let dlUT=0;addEventListener('scroll',()=>{if(!dlSw&&dlSnOK&&scrollY>2&&cv.isConnected){dlSw=true;dlIm.style.display='block';cv.style.display='none'}clearTimeout(dlUT);dlUT=setTimeout(dlUnswap,scrollY<=2?0:220)},{passive:true});   /* v160: the picture stands in ONLY while scrolling (the owner's phone once showed a blank picture after scrolling back: no date) */
  const NP=8,NG=14;   /* particles per bubble, letters with a bubble */
  const VS='attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
  /* texture: R = letter shape, G = softened depth (the water's curved surface), B = which letter, A = shape with a very small blur (for the thin outline) */
@@ -3703,8 +3703,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=159;
+const CC_VER=160;
 const CC_LOG=[
+  {v:160,new:['The sunrise/sunset pill now stays still.','Fixed: the Hebrew date could disappear after scrolling.']},
   {v:159,new:['The arch across the sky and the moon’s trail are softer.']},
   {v:158,new:['The sun’s colour now follows the time of day: orange at sunrise and sunset, yellow at midday. The moon has the same soft look and still shows its phase.']},
   {v:157,mid:1,new:['Easier to move around: swipe a window down to close it, swipe right to go back in the reader, siddur and settings, the phone’s Back button closes whatever is open, and Settings and the month have an × button.']},
