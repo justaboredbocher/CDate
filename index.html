@@ -586,6 +586,22 @@ html.cc-boot,html.cc-boot body{background:#0a0b10!important}html.cc-boot #accoun
  radial-gradient(130% 50% at 50% 112%,rgba(40,50,118,.55) 0%,transparent 70%),
  linear-gradient(180deg,#070D22 0%,#091127 24%,#0e1736 46%,#131d48 66%,#1a2458 86%,#1e2860 100%)}
 #skyWaves{position:absolute;inset:0;overflow:hidden;opacity:var(--waveo);transition:opacity 1.6s}
+/* v150 (owner: "the sky a more flat colour … the waves behind a matte light blue screen … the sun a yellow circle behind this matte screen that shines through a little"): by day (light theme) */
+:root[data-theme="light"]:not(.tt-off-matte) #skyGrad{background:#b3cbea!important}   /* v161 (owner): a little darker behind the sun (was #c4d9f2) */
+/* v158 (owner): the soft sun in every sky, its colour following its height (--sunc/--sunh from skyApply: deep orange at sunrise/sunset → golden → yellow);
+   the moon gets the same soft flat look but keeps its real phase every day (the photo, greyed, flattened and slightly blurred) */
+:root:not(.tt-off-matte) .sky-body.sun-b .skyimg{opacity:0}
+:root:not(.tt-off-matte) .sky-body.sun-b::before{content:'';position:absolute;left:50%;top:50%;width:200%;height:200%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgb(var(--sunh,255 240 170)/.5) 0%,rgb(var(--sunh,255 240 170)/.22) 22%,rgb(var(--sunh,255 240 170)/.07) 40%,transparent 60%)}
+:root:not(.tt-off-matte) .sky-body.sun-b::after{content:'';position:absolute;left:50%;top:50%;width:54%;height:54%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;background:radial-gradient(circle closest-side,rgb(var(--sunc,247 224 112)) 0%,rgb(var(--sunc,247 224 112)) 70%,rgb(var(--sunc,247 224 112)/.8) 79%,rgb(var(--sunc,247 224 112)/.4) 88%,rgb(var(--sunc,247 224 112)/.12) 95%,rgb(var(--sunc,247 224 112)/0) 100%)}   /* v162 (owner): a little less blurry */
+:root:not(.tt-off-matte) .sky-body.moon-b .skyimg{filter:grayscale(.9) contrast(.42) brightness(1.5) blur(1.6px)}
+:root[data-theme="light"]:not(.tt-off-matte) .sky-body.moon-b .skyimg{filter:grayscale(.9) contrast(.4) brightness(1.5) blur(1.6px);opacity:.9}
+:root:not(.tt-off-matte) .sky-body.moon-b.below .skyimg{filter:grayscale(.9) contrast(.42) brightness(.75) blur(1.6px)}
+/* v161 (owner: "a thin white sheet over the moon") */
+:root:not(.tt-off-matte) .sky-body.moon-b::after{content:'';position:absolute;inset:2%;border-radius:50%;pointer-events:none;background:radial-gradient(circle closest-side,rgba(255,255,255,.24) 0%,rgba(255,255,255,.22) 80%,rgba(255,255,255,.1) 93%,rgba(255,255,255,0) 100%)}
+/* v159 (owner: "make the atmosphere line and the moon trail less pronounced") */
+:root:not(.tt-off-matte) #hdr .sky-scene::after{opacity:.5}
+:root:not(.tt-off-matte) #hdr .sky-scene::before{opacity:.55}
+:root:not(.tt-off-matte) .sky-trailc{opacity:.4}
 .wv{position:absolute;left:-8%;top:-15%;width:116%;height:130%;overflow:visible;will-change:transform}
 /* layout of the first screen */
 .hero{align-items:flex-start;padding:max(6.4vh,44px) 16px 0;margin:0 -16px;overflow:hidden}
@@ -688,7 +704,7 @@ html.cc-boot,html.cc-boot body{background:#0a0b10!important}html.cc-boot #accoun
 #skyBody,#skyTrailC{--fa:4px;--fy:9.2s;--fx:13.6s;--fd:-3.1s;--pd:.2}
 #hdr .sky-scene::after{--fa:3px;--fy:11.4s;--fx:7.8s;--fd:-6.2s;--pd:.1}
 #hdr .sky-scene::before{--fa:3px;--fy:11.4s;--fx:7.8s;--fd:-6.2s}
-.sky-cap{--fa:2.4px;--fy:7.4s;--fx:10.2s;--fd:-1.7s;--pd:.05}
+.sky-cap{--fa:0px;--fy:7.4s;--fx:10.2s;--fd:-1.7s;--pd:0}   /* v160 (owner: "why is this moving around?"): the rise/set pill stays still */
 #hdr .hd-he{--fa:2.2px;--fy:8.6s;--fx:12.8s;--fd:-4.4s;--pd:.03}
 #hdr .hd-div{--fa:1.6px;--fy:6.9s;--fx:9.3s;--fd:-2.6s;--pd:.015}
 #hdr .hd-en{--fa:1.8px;--fy:10.1s;--fx:7.1s;--fd:-5.3s;--pd:0}
@@ -727,11 +743,11 @@ html.cc-boot,html.cc-boot body{background:#0a0b10!important}html.cc-boot #accoun
 :root.tt-off-dome #hdr .sky-scene::after{animation-name:flXY,flP,none!important}
 :root.tt-off-dome #hdr .sky-scene::before{animation-name:flXY,domeBreath,none!important}
 .sky-cap2{display:none}
-:root:not(.tt-off-capdate) #hdr.sky-side .sky-cap{display:none}
+:root:not(.tt-off-capdate) #hdr .sky-cap{display:none}   /* v163 (owner: the pill belongs under the Hebrew date, above the year): the scene pill is never shown; #skyCap2 under the date is, in every state */
 :root.tt-off-capdate .sky-cap2{display:none!important}
-#hdr.sky-side .sky-cap2:not([hidden]){display:flex;align-items:center;gap:10px;width:max-content;max-width:88vw;margin:clamp(10px,1.8vh,16px) auto 0;padding:9px 20px 9px 16px;border-radius:999px;position:relative;
+#hdr .sky-cap2:not([hidden]){display:flex;align-items:center;gap:10px;width:max-content;max-width:88vw;margin:clamp(10px,1.8vh,16px) auto 0;padding:9px 20px 9px 16px;border-radius:999px;position:relative;
  font:500 15px/1.2 Figtree,system-ui,sans-serif;color:var(--gl-tx);white-space:nowrap;background:color-mix(in srgb,var(--card) 58%,transparent);border:1px solid color-mix(in srgb,var(--rbe) 26%,transparent);box-shadow:0 8px 24px rgba(4,6,26,.22)}
-:root[data-night="1"] #hdr.sky-side .sky-cap2{background:rgba(13,19,50,.56);border-color:rgba(182,172,255,.26)}
+:root[data-night="1"] #hdr .sky-cap2{background:rgba(13,19,50,.56);border-color:rgba(182,172,255,.26)}
 /* ===== One look for every card, sheet and button, matched to the sky (dark sky = night glass, light sky = day glass) =====
    Cards that scroll with the page use translucent fills without blur (smooth scrolling); overlays may blur what is behind them. */
 :root[data-theme="dark"]{--gx-bg:linear-gradient(180deg,rgba(46,56,128,.44),rgba(22,30,80,.40));--gx-bd:rgba(172,182,255,.16);--gx-sh:0 14px 40px rgba(3,6,26,.26);
@@ -1811,7 +1827,7 @@ function rdScrollUI(b){const m=b.querySelector('.rdm'),sb=b.querySelector('.rdsb
 function rdClose(){const st=RDS,b=$('#rdr');RDS=null;if(b)b.classList.remove('on');document.body.classList.remove('rdo');
  // leaving checks it off only when the text loaded and was read to the end; otherwise the reading place is kept
  if(st&&st.ok){clearTimeout(st.svT);const fin=(st.maxF||0)>=.995;if(!fin){rdPosSet(st.dk,st.k,{p:st.posF||0,m:st.maxF||0});return}rdPosSet(st.dk,st.k,null);const D=(DN[st.dk]??={});if(!D[st.k]){if(st.k==='rambam3'||st.k==='rambam1')delete D[st.k==='rambam3'?'rambam1':'rambam3'];D[st.k]=1;SVD();upd();H.ok();if(st.dk===ds(shDay(t0))&&typeof ltRecord=='function'){ltRecord(st.dk,dayLeft(st.dk)<=0);if(window.ccCharShiur)ccCharShiur()}if(typeof nCfg=='function'){const q=nCfg();if(q.on&&q.learn)notifSyncSoon(2500)}}}}
-addEventListener('popstate',()=>{if(RDS)rdClose()});
+addEventListener('popstate',e=>{if(window.WMpop&&WMpop(e))return;if(RDS)rdClose()});
 /* ===== Siddur (owner, v36; v37 = paged): Siddur Tehillat Hashem (Kehot) Hebrew davening pages from the owner's PDF
    (owner has permission; no credit line on screen, owner's choice). siddur/p/<i>.webp = alpha stencils painted in var(--ink);
    siddur/pages.json {n:[book page per image]}. ONE page at a time (owner: no floating between pages): swipe up/left = next,
@@ -2202,7 +2218,7 @@ function sdOpen(){const b=sdBuild();SD.open=true;SD.ins=null;SD.adP=new Set();SD
   if(sv&&sv.fk===fk&&sv.m==='flow'&&Date.now()-sv.at<2*36e5){const z=sdFind(C,sv.i,sv.a);if(z!=null)y=z}sdSet(C,'flow',fk,y*SD.s)})
  .catch(()=>{$('#sdSt').insertAdjacentHTML('beforeend','<p style="position:absolute;inset:40% 20px auto;text-align:center;color:var(--mut)">The siddur could not be loaded. Check the internet connection and try again.</p>')})}
 function sdClose(){const b=$('#sdr');if(!b||!SD.open)return;SD.open=false;clearTimeout(SD.hT);document.body.classList.remove('sd-hide');document.documentElement.classList.remove('cc-away');b.classList.remove('on');document.body.classList.remove('sdo');sdSheet(false);try{sc()}catch(e){}}
-addEventListener('popstate',()=>{if(SD.open)sdClose()});
+addEventListener('popstate',e=>{if(window.WMpop&&WMpop(e))return;if(SD.open)sdClose()});
 // a few seconds after the app opens: load the siddur's page list and the first pages of the tefillah for now, so opening it is instant
 addEventListener('load',()=>setTimeout(()=>{const go=()=>{if(SD.open)return;sdLoad().then(()=>{if(SD.open)return;const L=sdPieces(sdAuto());[...new Set(L.slice(0,8).map(q=>q.i))].forEach(i=>sdFetch(i))}).catch(()=>{})};
  'requestIdleCallback' in window?requestIdleCallback(go,{timeout:4000}):go()},6000));
@@ -2696,6 +2712,8 @@ function skyApply(st){
   if(p.dark===SKYA.runDark)return;SKYA.runDark=p.dark}SKYA.lastDark=p.dark;const nt=skyNightAmt(p),sv=(k,v)=>{if(r.style.getPropertyValue(k)!==v)r.style.setProperty(k,v)},sd=(k,v)=>{if(r.dataset[k]!==v)r.dataset[k]=v};
  {const th=p.dark?'dark':'light';if(r.dataset.theme!==th){r.dataset.theme=th;if(MOON_PX)document.querySelectorAll('img.mimg').forEach(i=>{i.src=artMoonUrl(+i.dataset.f)})}}sv('--bg',nt>.5?'#0b1330':p.mid);sv('--card',nt>.5?'#121a3d':`color-mix(in srgb,${p.dark?'#161a30':'#ffffff'} 90%,${p.mid})`);sd('night',nt>.5?'1':'0');sd('sky',nt>.5?'night':st.alt<9?'dusk':'day');
  skyLightCalc(st);
+ /* v158: the soft sun's colour by its height (owner: "fit the sunrise and set times") */
+ if(st.kind==='sun'){const a=st.alt||0,K=[[-2,[255,112,58],[255,150,100]],[2,[255,128,60],[255,170,110]],[5,[255,165,64],[255,200,130]],[11,[255,200,80],[255,225,150]],[22,[250,218,100],[255,236,165]],[90,[247,224,112],[255,240,170]]];let j=0;while(j<K.length-2&&a>K[j+1][0])j++;const A=K[j],B=K[j+1],t=Math.max(0,Math.min(1,(a-A[0])/(B[0]-A[0]))),m=(u,v)=>u.map((x,k)=>Math.round(x+(v[k]-x)*t)).join(' ');sv('--sunc',m(A[1],B[1]));sv('--sunh',m(A[2],B[2]))}
  /* the silk picks up the warm light around sunrise and sunset */
  {const g=SKL.g;if(g>.05&&nt<.5){const m=Math.min(.55,g*.9),base=p.dark?[1,.89,.85]:[.84,.89,1],c=base.map((v,i)=>v+(SKL.gc[i]-v)*m),hx='#'+c.map(v=>Math.round(v*255).toString(16).padStart(2,'0')).join('');if(r.style.getPropertyValue('--rbe')!==hx){r.style.setProperty('--rbe',hx);if(GLS.kick)GLS.kick()}}else if(r.style.getPropertyValue('--rbe')){r.style.removeProperty('--rbe');if(GLS.kick)GLS.kick()}}
  skyLightUI(nt);
@@ -2793,7 +2811,7 @@ function glassShine(){const H=innerHeight,W=innerWidth,rl=typeof SKL!=='undefine
  const fb=()=>{skyRibbonsSvg(host);GLS.still=true;const f=()=>{GLS.sc=scrollY||0;requestAnimationFrame(glassShine)};addEventListener('scroll',f,{passive:true});addEventListener('resize',f);f()};
  if(!gl){fb();return}
  const VS='attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
- const SILK=`uniform float uT,uS;uniform vec3 uF,uE,uL;uniform float uO,uK;uniform vec4 uA[11],uB[11],uC[11];
+ const SILK=`uniform float uT,uS;uniform vec3 uF,uE,uL;uniform float uO,uK,uMt;uniform vec4 uA[11],uB[11],uC[11];
 vec4 silk(vec2 p,float px){
  vec3 acc=vec3(0.);float aa=0.;vec3 Hv=normalize(uL+vec3(0.,0.,1.));
  for(int i=0;i<11;i++){vec4 A=uA[i],B=uB[i],C=uC[i];if(i>8){C.z*=2.4*(1.-uK);if(C.z<.01)continue;}if(A.x>.5&&A.x<1.15)C.z*=1.+(1.-uK);float x=p.x,t=uT*C.w;
@@ -2806,12 +2824,12 @@ vec4 silk(vec2 p,float px){
   vec3 T=normalize(vec3(1.,dc,0.)),N2=normalize(vec3(-dc,1.,0.)),Bv=ct*N2+st*vec3(0.,0.,1.);
   vec3 n=normalize(cross(T,Bv));if(n.z<0.)n=-n;float uc=clamp(u,-1.,1.);n=normalize(n-Bv*uc*.7);
   float nh=max(dot(n,Hv),0.),sp=pow(nh,24.),sp2=pow(nh,5.),dif=.3+.7*max(dot(n,uL),0.),fr=pow(1.-abs(n.z),1.6);
-  float ins=smoothstep(-.5,2.4+5.*uK,epx),rim=exp(-abs(epx)/(2.4+4.5*uK));sp*=1.-.8*uK;sp2*=1.-.55*uK;
+  float ins=smoothstep(-.5,2.4+5.*uK,epx),rim=exp(-abs(epx)/(2.4+4.5*uK));sp*=1.-.8*uK;sp2*=1.-.55*uK;sp*=1.-.6*uMt;sp2*=1.-.25*uMt;fr*=1.-.2*uMt;
   float top=u<0.?1.:.42,fade=.55+.45*sin(x*2.1+A.w*1.3+t*.5);
   float wp=w/px,fib=.55*pow(.5+.5*sin(u*41.+x*2.3),7.)*smoothstep(70.,190.,wp)+.45*pow(.5+.5*sin(u*15.-x*1.6+A.w),4.)*smoothstep(24.,70.,wp)+.12;
   float lit=mix(1.,.3,clamp((u+1.)*.5,0.,1.));
-  float body=ins*(.05+.03*fib+.2*fr+.16*sp2*lit+.42*sp)*(.6+.4*dif);
-  float edge=rim*top*(.28+.7*sp2+.3*sp)*(1.-.55*uK);
+  float body=ins*(.05+.1*uMt+.03*fib*(1.-uMt)+.2*fr+.16*sp2*lit+.42*sp)*(.6+.4*dif);
+  float edge=rim*top*(.28+.7*sp2+.3*sp)*(1.-.55*uK)*(1.-.35*uMt);
   float halo=(1.-ins)*exp(epx/(w/px*.45+10.))*.07*top;
   float al=(body+edge+halo)*C.z*fade*(1.-.3*uK);
   vec3 irid=mix(uF,uE,.5+.5*sin(u*2.4+x*3.1+A.w+t*.3)),col=mix(irid,mix(uE,vec3(1.),.35),clamp(sp2*.7+edge*.5,0.,1.))+vec3(sp*.28*(1.-uK));
@@ -2825,7 +2843,7 @@ vec4 silk(vec2 p,float px){
  host.appendChild(cv);GLS.ok=true;gl.useProgram(pr);
  const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
  const al=gl.getAttribLocation(pr,'a');gl.enableVertexAttribArray(al);gl.vertexAttribPointer(al,2,gl.FLOAT,false,0,0);
- const U={};for(const k of['uR','uT','uS','uF','uE','uL','uO','uK','uA','uB','uC'])U[k]=gl.getUniformLocation(pr,k);
+ const U={};for(const k of['uR','uT','uS','uF','uE','uL','uO','uK','uMt','uA','uB','uC'])U[k]=gl.getUniformLocation(pr,k);
  /* per ribbon: A=(height, sway, sway freq, phase)  B=(2nd sway, 2nd freq, half width, twist freq)  C=(twist phase, parallax, strength, drift speed) */
  const R=[[.62,.42,2.5,1.25, .06,5.2,.085,3.1, .4,.32,.95,.05],
   [.18,.10,3.3,2.6, .04,6.,.05,4.2, 2.1,.22,.68,.04],
@@ -2851,7 +2869,8 @@ vec4 silk(vec2 p,float px){
  const size=()=>{if(!window.ResizeObserver){HW=host.clientWidth;HHt=host.clientHeight}const d=Math.min(devicePixelRatio||1,2)*Q,w=Math.round(HW*d),h=Math.round(HHt*d);if(w&&h&&(w!==W||h!==Hh)){W=cv.width=w;Hh=cv.height=h;gl.viewport(0,0,w,h);dirty=true}};
  const colors=()=>{const cs=getComputedStyle(document.documentElement);GLS.F=hex(cs.getPropertyValue('--rbf'));GLS.E=hex(cs.getPropertyValue('--rbe'));gl.uniform3fv(U.uF,GLS.F);gl.uniform3fv(U.uE,GLS.E);const nightW=document.documentElement.dataset.night==='1';GLS.O=parseFloat(cs.getPropertyValue('--wo'))||1;GLS.WO=parseFloat(cs.getPropertyValue('--waveo'))||1;gl.uniform1f(U.uO,GLS.O);
   /* night waves are kept soft and quiet so they stay in the background (owner); Test tools switch "swave" turns that off */
-  const rc=document.documentElement.classList;GLS.K=nightW?(rc.contains('tt-off-swave')?0:1):(parseFloat(cs.getPropertyValue('--wk'))||0);gl.uniform1f(U.uK,GLS.K)};
+  const rc=document.documentElement.classList;GLS.K=nightW?(rc.contains('tt-off-swave')?0:1):(parseFloat(cs.getPropertyValue('--wk'))||0);gl.uniform1f(U.uK,GLS.K);
+  /* matte day sky (v152): flat 2D silk bands, no shine */GLS.M=document.documentElement.dataset.theme==='light'&&!rc.contains('tt-off-matte')?1:0;gl.uniform1f(U.uMt,GLS.M)};
  const draw=()=>{size();if(!W)return false;if(colT<0){colT=1;colors()}
   const y=scrollY||document.documentElement.scrollTop||0;if(y===sc&&!dirty)return true;sc=y;dirty=false;GLS.sc=y;GLS.t=0;
   GLS.ang=-2.25+y/innerHeight*.5;const ca=Math.cos(GLS.ang),sa=Math.sin(GLS.ang);GLS.L=[ca*.76,sa*.76,.65];
@@ -2871,7 +2890,16 @@ vec4 silk(vec2 p,float px){
    Drawn only when the background redraws, the layout changes, or the phone is tilted. Test tools switch "waterdate". */
 (function(){if(!GLS.ok||!GLS.SILK)return;
  const R=document.documentElement,cv=document.createElement('canvas');cv.id='dlCv';cv.className='dl-cv';cv.setAttribute('aria-hidden','true');
- const gl=cv.getContext('webgl',{premultipliedAlpha:true,alpha:true,antialias:false,depth:false,stencil:false});if(!gl)return;
+ const gl=cv.getContext('webgl',{premultipliedAlpha:true,alpha:true,antialias:false,depth:false,stencil:false,preserveDrawingBuffer:true});if(!gl)return;
+ /* v156 (owner: "make this part of the animation lighter", the header fading into the cards): a live WebGL canvas inside the fading header
+    made the compositor's work per scrolling frame ~5× bigger even when it wasn't redrawn (measured: Commit 1.5 s → 0.25 s per test scroll
+    with a plain picture instead). So a still picture of the letters (`dlIm`) is taken once they settle, and while scrolling it stands in
+    for the canvas; the canvas comes back the moment it draws again. */
+ const dlIm=document.createElement('img');dlIm.className='dl-cv';dlIm.alt='';dlIm.setAttribute('aria-hidden','true');dlIm.style.display='none';
+ let dlSnOK=false,dlSnT=0,dlSnU='',dlSw=false;
+ const dlUnswap=()=>{if(!dlSw)return;dlSw=false;cv.style.display='block';dlIm.style.display='none'};
+ const dlSnap=()=>{if(!cv.isConnected||!cv.width)return;try{cv.toBlob(b=>{if(!b)return;const u=URL.createObjectURL(b);const old=dlSnU;dlSnU=u;dlIm.onload=()=>{if(old)URL.revokeObjectURL(old)};dlIm.src=u;dlIm.style.cssText=cv.style.cssText+';display:none';if(dlIm.parentNode!==cv.parentNode||dlIm.previousSibling!==cv)cv.after(dlIm);dlSnOK=true;if(dlSw)dlIm.style.display=''})}catch(e){}};
+ let dlUT=0;addEventListener('scroll',()=>{if(!dlSw&&dlSnOK&&scrollY>2&&cv.isConnected){dlSw=true;dlIm.style.display='block';cv.style.display='none'}clearTimeout(dlUT);dlUT=setTimeout(dlUnswap,scrollY<=2?0:220)},{passive:true});   /* v160: the picture stands in ONLY while scrolling (the owner's phone once showed a blank picture after scrolling back: no date) */
  const NP=8,NG=14;   /* particles per bubble, letters with a bubble */
  const VS='attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
  /* texture: R = letter shape, G = softened depth (the water's curved surface), B = which letter, A = shape with a very small blur (for the thin outline) */
@@ -2983,9 +3011,9 @@ void main(){vec2 cuv=vec2(gl_FragCoord.x/uCR.x,1.-gl_FragCoord.y/uCR.y);vec4 m=t
   if(L){gl.uniform1f(U.uGa,L.side&&!night?L.g:0);gl.uniform1f(U.uGr,Math.max(innerWidth,innerHeight)*.6);gl.uniform2f(U.uGp,lp[0],lp[1]);gl.uniform2f(U.uBp,innerWidth-lp[0],lp[1]+60);gl.uniform3fv(U.uGc,L.gc);gl.uniform3fv(U.uBc,L.bc)}else gl.uniform1f(U.uGa,0);
   gl.uniform2f(U.uCR,W,H);gl.uniform2f(U.uCO,r.left,r.top);gl.uniform2f(U.uCS,r.width,r.height);gl.uniform2f(U.uV,innerWidth,innerHeight);gl.uniform2f(U.uLd,ld[0],ld[1]);
   gl.uniform3fv(U.uTop,hx(night?'#0a1230':pal&&pal.top));gl.uniform3fv(U.uBot,hx(night?'#18225a':pal&&pal.bot));gl.uniform3fv(U.uRim,dk?[.96,.97,1]:[.1,.15,.38]);gl.uniform3fv(U.uSun,lc);
-  gl.uniform1f(U.uRef,dlFs*.55);gl.uniform1f(U.uPx,W/(r.width||1));gl.uniform1f(U.uDk,dk?1:0);gl.uniform1f(U.uWo,GLS.WO||1);gl.uniform1f(U.uSl,Math.min(1,Math.hypot(tv[0],tv[1])*.6));gl.uniform1f(U.uTm,performance.now()/1000%1000);
+  gl.uniform1f(U.uRef,dlFs*.55);gl.uniform1f(U.uPx,W/(r.width||1));gl.uniform1f(U.uDk,dk?1:0);gl.uniform1f(U.uWo,GLS.M?0:(GLS.WO||1));gl.uniform1f(U.uSl,Math.min(1,Math.hypot(tv[0],tv[1])*.6));gl.uniform1f(U.uTm,performance.now()/1000%1000);
   gl.uniform1f(U.uT,GLS.T||7);gl.uniform3fv(U.uF,GLS.F||[1,1,1]);gl.uniform3fv(U.uE,GLS.E||[1,1,1]);gl.uniform3fv(U.uL,GLS.L||[0,0,1]);gl.uniform1f(U.uO,GLS.O||1);gl.uniform1f(U.uK,GLS.K||0);
-  gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.drawArrays(gl.TRIANGLES,0,3)}
+  dlUnswap();dlSnOK=false;gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.drawArrays(gl.TRIANGLES,0,3);clearTimeout(dlSnT);dlSnT=setTimeout(dlSnap,450)}
  /* tilt: a soft spring for the light; the bubble runs its own physics each frame until everything settles */
  let tlast=0;const step=now=>{traf=0;const dt=Math.min(.033,(now-(tlast||now))/1000)||.016;tlast=now;let moving=false;
   for(let i=0;i<2;i++){const f=(tg[i]-tl[i])*26-tv[i]*4.2;tv[i]+=f*dt;tl[i]+=tv[i]*dt;if(Math.abs(tg[i]-tl[i])>.002||Math.abs(tv[i])>.002)moving=true}
@@ -3540,16 +3568,15 @@ function cchLive(el,base){if(!el)return{set(){},setBase(){},anim(){},nod(){},dar
  const now=()=>performance.now();
  const kick=()=>{if(!L.raf)L.raf=requestAnimationFrame(frame)};
  const mix=(a,b,e)=>({x:a.x+(b.x-a.x)*e,y:a.y+(b.y-a.y)*e,r:a.r+(b.r-a.r)*e,sx:a.sx+(b.sx-a.sx)*e,sy:a.sy+(b.sy-a.sy)*e,o:a.o+(b.o-a.o)*Math.min(1,Math.max(0,e))});
- const curOf=(p,t)=>{if(!p.dur||t>=p.t0+p.dur)return p.to;const u=(t-p.t0)/p.dur;return mix(p.from,p.to,cchBack(u))};
+ const curOf=(p,t)=>{if(p.fl&&t<p.t0+p.dur){const u=Math.max(0,(t-p.t0)/p.dur),F=p.fl;if(u<.5){const e=u*2;return{x:F.s0<0?21.2:0,y:0,r:14*F.s0*e*e*(3-2*e),sx:F.s0,sy:1,o:1}}const e=(u-.5)*2;return{x:F.s1<0?21.2:0,y:0,r:14*F.s1*(1-e*e*(3-2*e)),sx:F.s1,sy:1,o:1}}
+  if(!p.dur||t>=p.t0+p.dur)return p.to;const u=(t-p.t0)/p.dur;return mix(p.from,p.to,cchBack(u))};
  const tween=(k,to,dur)=>{const p=P[k];if(!p)return;const t=now();p.from=curOf(p,t);p.to=to;p.t0=t;p.dur=RM?0:dur;kick()};
  const mood=(m,d)=>{m=CCP[m]||m;el.dataset.m=m;for(const k in P)if(k!=='look'&&k!=='sway'&&k!=='hatb'&&k!=='root'&&k!=='page'&&k!=='zz')tween(k,mir(cchS(L.side<0?(SW[k]||k):k,m)),d||440);
   if(P.hatb&&P.hatb.to.sx!==L.side)hatFlip(d)};
  /* v139/v140 (owner: "the hat should tilt with the head … it shouldn't spin, just tilt"): the hat's drawing has its own ~14° tilt, so when he turns
     to the other side the hat first rotates level, swaps to its mirror image while level (looks the same there), then rotates on to the new tilt */
- const HS=s=>({x:s<0?21.2:0,y:0,r:0,sx:s,sy:1,o:1}),hatFlip=d=>{const s1=L.side,s0=-s1,hd=(d||440)/2;clearTimeout(L.hft);
-  if(L.init){tween('hatb',HS(s1),0);return}
-  tween('hatb',Object.assign(HS(s0),{r:14*s0}),hd);
-  L.hft=setTimeout(()=>{tween('hatb',Object.assign(HS(s1),{r:14*s1}),0);tween('hatb',HS(s1),hd)},hd)};
+ const HS=s=>({x:s<0?21.2:0,y:0,r:0,sx:s,sy:1,o:1}),hatFlip=d=>{const s1=L.side,s0=-s1,p=P.hatb;if(!p)return;   // v150 (owner: "his hat glitches and doesn't turn right away"): one smooth move in step with the head
+  if(L.init||RM){p.fl=null;tween('hatb',HS(s1),0);return}const t=now();p.from=HS(s1);p.to=HS(s1);p.fl={s0,s1};p.t0=t;p.dur=Math.round((d||440)*.85);kick()};
  /* one-shot moves: keyframes [{t,...state deltas}] added on top (x,y,r add; sx,sy multiply; o overrides) */
  const fx=(k,kf,dur)=>{if(L.side<0){k=SW[k]||k;kf=kf.map(f=>{const g=Object.assign({},f);if(g.x!=null)g.x=-g.x;if(g.r!=null)g.r=-g.r;return g})}if(RM||!P[k])return;L.fx.push({k,kf,t0:now(),dur});kick()};
  const fxAt=(f,t)=>{const u=Math.min(1,(t-f.t0)/f.dur),kf=f.kf;let i=0;while(i<kf.length-2&&u>kf[i+1].t)i++;const a=kf[i],b=kf[i+1],w=b.t>a.t?(u-a.t)/(b.t-a.t):1,e=w<.5?2*w*w:1-Math.pow(-2*w+2,2)/2,g=(q,d)=>(a[q]??d)+((b[q]??d)-(a[q]??d))*e;
@@ -3678,8 +3705,22 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=149;
+const CC_VER=163;
 const CC_LOG=[
+  {v:163,new:['The sunrise/sunset pill now sits right under the Hebrew date.']},
+  {v:162,new:['The sun’s edge is a little crisper.']},
+  {v:161,new:['A soft white veil over the moon, and a slightly deeper day sky.']},
+  {v:160,new:['The sunrise/sunset pill now stays still.','Fixed: the Hebrew date could disappear after scrolling.']},
+  {v:159,new:['The arch across the sky and the moon’s trail are softer.']},
+  {v:158,new:['The sun’s colour now follows the time of day: orange at sunrise and sunset, yellow at midday. The moon has the same soft look and still shows its phase.']},
+  {v:157,mid:1,new:['Easier to move around: swipe a window down to close it, swipe right to go back in the reader, siddur and settings, the phone’s Back button closes whatever is open, and Settings and the month have an × button.']},
+  {v:156,new:['Smoother scrolling where the top part fades into your day.','The sun’s edge is softer.']},
+  {v:155,new:['The day sky waves are back to the old moving waves, with softer shine and less depth.']},
+  {v:154,adm:1,new:['Admin: Check for an update now.']},
+  {v:153,new:['Smoother waves behind the date.']},
+  {v:152,new:['The day sky waves are back: flat and matte instead of shiny.']},
+  {v:151,new:['The new day sky now uses less graphics memory.']},
+  {v:150,new:['A calmer day sky: a flat, soft blue with the waves behind it, and a yellow sun glowing through.','The little character’s hat now turns smoothly together with his head.']},
   {v:149,adm:1,new:['Admin tools: a test version of the app for trying new features before they are released.']},
   {v:148,adm:1,new:['Admin tools: list and delete accounts.']},
   {v:147,new:['Some admin updates.']},
@@ -5214,6 +5255,7 @@ aiEl('aiMemoryBtn').addEventListener('click',()=>{const p=aiPrefs(),names=Object
  <div class="qseg" id="ttWhen" style="margin-top:10px"><button type="button" data-w="am">Morning</button><button type="button" data-w="pm">Afternoon</button><button type="button" data-w="night">Night</button></div>
  <button class="btn" type="button" id="ttSdGo" style="width:100%;margin-top:10px">Go there and open the siddur</button><p class="mut" id="ttSdMsg" role="status" style="margin:8px 0 0;font-size:13px"></p>
  <h3 class="admh">Chabad.org English</h3><p class="mut" style="margin:0 0 6px">Downloads today's page on this phone and checks it lines up with the Hebrew.</p><div class="rw" style="flex-wrap:wrap;gap:8px"><button class="btn gh" type="button" id="ttChC">Test Chumash</button><button class="btn gh" type="button" id="ttChX" hidden>Copy page outline</button></div><p class="mut" id="ttChM" role="status" style="margin:8px 0 0;font-size:13px;white-space:pre-wrap"></p>
+ <h3 class="admh">Updates</h3><div id="ttUpdM" class="mut" style="margin:0 0 8px">Look for a newer version right now.</div><button class="btn gh" type="button" id="ttUpd">Check for an update now</button>
  <h3 class="admh">Test version</h3><div id="ttBeta" class="mut" style="margin:0 0 8px">Checking…</div><button class="btn gh" type="button" id="ttBetaGo">${window.CC_BETA?'Back to the main app':'Open the test version'}</button>
  <h3 class="admh">Usage</h3><div id="admUse" class="mut" style="margin:0 0 8px">Loading…</div><button class="btn gh" type="button" id="ttUse">Refresh</button>
  <h3 class="admh">Accounts</h3><p class="mut" style="margin:0 0 8px">Every account saved on the server. Deleting removes it from the server only (a phone that still has it keeps its own copy but stops saving).</p><div class="rw" style="gap:8px"><input id="ttAc" type="password" placeholder="Admin code" autocomplete="off" style="flex:1;min-width:0"><button class="btn gh" type="button" id="ttAcGo">Show</button></div><div id="ttAcL" style="margin-top:8px"></div>
@@ -5269,12 +5311,21 @@ aiEl('aiMemoryBtn').addEventListener('click',()=>{const p=aiPrefs(),names=Object
   let tg;if(k==='sr')tg=T.sr+10*6e4;else if(k==='ss')tg=T.ss-10*6e4;else if(k==='noon')tg=(T.sr+T.ss)/2;else{const p=ad(t0,-1),x=new RD(p.getFullYear(),p.getMonth(),p.getDate(),21,30);tg=+x}
   if(tg){setClock(tg);applyClock(false)}});
  /* New features get a switch here (owner's standing request). Each one maps to a class on <html>: tt-off-<id> turns it off. */
- const FLAGS=[['glassui','Matching glass cards, sheets and buttons'],['occ','Birthday & yahrzeit touches (confetti, candle, customs)'],['aim','Semicircle faces the sun/moon'],['capdate','Rise/set label under the big date'],['swave','Softer, quieter night waves'],['duskglass','Liquid-glass evening and day sky'],['waterdate','Date letters made of water (tilt the phone)'],['reallight','Real light (sunrise/sunset colours on everything)'],['side','Big date when the middle of the sky is empty'],['dome','Semicircle swivels on scroll'],['siddur','Siddur button in the dock'],['charlife','The assistant’s extra life (reacting to taps, wind, sleep, stretches…)'],['shabbos','Shabbos & Yom Tov screen (the app rests; no reminders)']];
+ const FLAGS=[['glassui','Matching glass cards, sheets and buttons'],['occ','Birthday & yahrzeit touches (confetti, candle, customs)'],['aim','Semicircle faces the sun/moon'],['capdate','Rise/set label under the big date'],['swave','Softer, quieter night waves'],['duskglass','Liquid-glass evening and day sky'],['waterdate','Date letters made of water (tilt the phone)'],['reallight','Real light (sunrise/sunset colours on everything)'],['side','Big date when the middle of the sky is empty'],['dome','Semicircle swivels on scroll'],['siddur','Siddur button in the dock'],['charlife','The assistant’s extra life (reacting to taps, wind, sleep, stretches…)'],['shabbos','Shabbos & Yom Tov screen (the app rests; no reminders)'],['matte','Flat matte-blue day sky with a yellow sun']];
  const fl=()=>{try{return JSON.parse(localStorage.getItem('cc_test_flags')||'{}')}catch(e){return{}}},flApply=()=>{const f=fl();for(const[id,,opt]of FLAGS){if(opt)document.documentElement.classList.toggle('tt-on-'+id,f[id]===true);else document.documentElement.classList.toggle('tt-off-'+id,f[id]===false)}};
  box.querySelector('#ttFlags').innerHTML=FLAGS.map(([id,t])=>`<label style="display:flex;align-items:center;gap:10px;margin:0;font-weight:500"><input type="checkbox" data-f="${id}" style="width:20px;height:20px;accent-color:#8c94ef"> ${t}</label>`).join('');
  box.querySelectorAll('[data-f]').forEach(c=>{const opt=(FLAGS.find(x=>x[0]===c.dataset.f)||[])[2];c.checked=opt?fl()[c.dataset.f]===true:fl()[c.dataset.f]!==false;c.onchange=()=>{const f=fl();f[c.dataset.f]=c.checked;localStorage.setItem('cc_test_flags',JSON.stringify(f));flApply();H.sel();if(c.dataset.f==='side'){SKY.last=null;skyTick();render(0)}if(c.dataset.f==='swave'&&GLS.kick)GLS.kick();if(c.dataset.f==='aim'&&SKY.last)skyDomeAim(SKY.last)}});flApply();
  {const el=box.querySelector('#ttBeta'),esc=t=>String(t).replace(/[<>&]/g,m=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[m]));   // v149: the test version (beta/) and what it has that the main app doesn't yet
-  box.querySelector('#ttBetaGo').onclick=()=>{location.href=new URL(window.CC_BETA?'./':'beta/',document.baseURI).href};
+  {const b=box.querySelector('#ttUpd'),m=box.querySelector('#ttUpdM');   // v154: force an update check (admin)
+  b.onclick=async()=>{try{H.tap()}catch(e){}b.disabled=true;m.textContent='Checking…';
+   try{const beta=!!window.CC_BETA,u=beta?location.pathname:((await navigator.serviceWorker?.getRegistration())?.scope||new URL('./',document.baseURI).href);
+    if(!beta&&window.caches){try{const c=await caches.open('cdate-app-v1');await c.delete(u)}catch(e){}}
+    try{(await navigator.serviceWorker?.getRegistration())?.update()}catch(e){}
+    const t=await fetch(u,{cache:'reload'}).then(r=>r.ok?r.text():Promise.reject());const nv=+((t.match(/const CC_VER=(\d+);/)||[])[1]||0);
+    if(nv>CC_VER){m.textContent='Update found. Opening it…';setTimeout(()=>{try{sessionStorage.setItem('cc_quiet','1')}catch(e){}location.reload()},700)}
+    else{m.textContent='You already have the newest version ('+(typeof ccVerStr==='function'?'Version '+ccVerStr():'build '+CC_VER)+').';b.disabled=false}
+   }catch(e){m.textContent='Could not check (no internet?). Try again.';b.disabled=false}}}
+ box.querySelector('#ttBetaGo').onclick=()=>{location.href=new URL(window.CC_BETA?'./':'beta/',document.baseURI).href};
   fetch(new URL(window.CC_BETA?'index.html':'beta/index.html',document.baseURI).href+'?v='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():Promise.reject()).then(t=>{const ov=+((t.match(/const CC_VER=(\d+);/)||[])[1]||0),mine=CC_VER;
    const bv=window.CC_BETA?mine:ov,mv=window.CC_BETA?ov:mine;
    if(bv<=mv){el.textContent=window.CC_BETA?'You’re in the test version. It has nothing new yet: the main app is the same.':'The test version is the same as the main app right now. New features will appear there first.';return}
@@ -5323,6 +5374,88 @@ aiEl('aiMemoryBtn').addEventListener('click',()=>{const p=aiPrefs(),names=Object
   try{localStorage.removeItem(sdK())}catch(e){}op(false);setTimeout(()=>{try{sdOpen()}catch(e){}},420)};
  if(TEST){augment(getDemo());if(!localStorage.getItem(AK('cc_test_seeded')))seed();else{render(0);panel(0)}}else if(window.__TOFF){render(0);panel(0)}
  fill_();document.getElementById('mn').addEventListener('click',()=>setTimeout(fill_,50));
+})();
+</script>
+<style id="cc-wm">
+/* v157 (owner: "swipe back or swipe something down or X something away … not only one button to go back"): window switching */
+.wm-drag{transition:none!important}
+.wm-x{position:sticky;top:0;z-index:3;width:34px;height:34px;margin:-8px -6px 6px auto;border-radius:50%;border:1px solid var(--gx-bd,var(--line));background:var(--gx-bg,var(--card));color:var(--ink);font:400 22px/1 Figtree,system-ui,sans-serif;display:grid;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#ms .mh .wm-x{position:static;float:none;margin:0 0 0 6px;flex:none}
+.wm-x:active{transform:scale(.92)}
+</style>
+<script>
+/* Window switching (v157). Every window can be closed several ways:
+   - the phone's Back button / back gesture closes the top window (one history entry "guards" all open sheets; the reader and the siddur keep their own);
+   - swipe a sheet or card DOWN (from its top, when it isn't scrolled) to send it away; it follows the finger;
+   - swipe RIGHT in the reader, the siddur or a settings page to go back;
+   - Settings and the month view get an × button (the others already have one). */
+(()=>{const $=s=>document.querySelector(s),B=document.body;
+ const W=[ // top first
+  {o:()=>$('#gdb.on'),c:()=>gdClose(),p:()=>$('#gdb .dmc')},
+  {o:()=>$('#apkBox.on'),c:()=>{const l=$('#apkLater');l?l.click():$('#apkBox').classList.remove('on')},p:()=>$('#apkBox .apk-card')},
+  {o:()=>$('#newsBox.on'),c:()=>$('#newsBox').classList.remove('on'),p:()=>$('#newsBox .dmc')},
+  {o:()=>$('#dmb.on'),c:()=>dmClose(),p:()=>$('#dmb .dmc')},
+  {o:()=>$('#rmb.on'),c:()=>$('#rmb').classList.remove('on'),p:()=>$('#rmb .dmc')},
+  {o:()=>$('#sdSh.on'),c:()=>sdSheet(false),p:()=>$('#sdSh .sd-tc')},
+  {o:()=>$('#sts.on'),c:()=>$('#sts').classList.remove('on'),p:()=>$('#sts .stsp')},
+  {o:()=>$('#aiBackdrop.on'),c:()=>aiClose(),p:()=>$('.ai-card')},
+  {o:()=>B.classList.contains('op'),c:()=>op(false),p:()=>$('#sh'),
+   sub:()=>{const c=$('#sh .shp.on');if(c&&c.dataset.p!=='home'){shGo('home',1);return true}return false}},
+  {o:()=>B.classList.contains('om'),c:()=>$('#bd').click(),p:()=>$('#ms')}];
+ const tour=()=>!!$('#tg');
+ const top=()=>{for(const w of W){try{if(w.o())return w}catch(e){}}return null};
+ /* phone Back */
+ let G=0,SKIP=0,lastE=null,lastR=false;
+ const sync=()=>{if(tour())return;const t=top();
+  if(t&&!G){try{history.pushState({wm:1},'');G=1}catch(e){}}
+  else if(!t&&G){G=0;SKIP=1;try{history.back()}catch(e){SKIP=0}}};
+ const soon=()=>{clearTimeout(soon.t);soon.t=setTimeout(sync,120)};
+ window.WMsync=soon;
+ window.WMpop=e=>{if(e&&e===lastE)return lastR;lastE=e;
+  if(SKIP){SKIP=0;return lastR=true}
+  if(tour()){G=0;return lastR=false}
+  const wasG=G;G=0;const t=top();
+  if(t&&wasG){try{t.sub&&t.sub()||t.c()}catch(x){}try{H.tap()}catch(x){}soon();return lastR=true}
+  return lastR=false};
+ addEventListener('popstate',e=>WMpop(e));
+ ['click','keydown'].forEach(ev=>document.addEventListener(ev,soon,true));
+ new MutationObserver(soon).observe(B,{attributes:true,attributeFilter:['class']});
+ /* × buttons for Settings and the month */
+ const addX=(host,fn,lbl,before)=>{if(!host||host.querySelector(':scope>.wm-x'))return;const x=document.createElement('button');x.type='button';x.className='wm-x';x.setAttribute('aria-label',lbl);x.textContent='×';x.onclick=e=>{e.stopPropagation();try{H.tap()}catch(z){}fn()};before?host.insertBefore(x,host.firstChild):host.appendChild(x)};
+ addX($('#sh'),()=>op(false),'Close settings',1);
+ addX($('#ms .mh'),()=>$('#bd').click(),'Close month');
+ /* swipes */
+ const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ let D=null;
+ const scrolledUp=(t,stop)=>{for(let e=t;e&&e!==stop.parentNode;e=e.parentElement){if(e.scrollTop>0&&e.scrollHeight>e.clientHeight+1)return true}return false};
+ const hScroll=(t,stop)=>{for(let e=t;e&&e!==stop;e=e.parentElement){if(e.scrollWidth>e.clientWidth+2){const ox=getComputedStyle(e).overflowX;if(ox==='auto'||ox==='scroll')return true}}return false};
+ const skipT=t=>t.closest('input,textarea,select,[contenteditable],.dfb,.rdlg');
+ const end=(ok,el,ax,fn)=>{const set=v=>el.style.translate=ax==='y'?'0 '+v:v+' 0';
+  el.classList.remove('wm-drag');el.style.transition='translate .22s cubic-bezier(.3,.7,.3,1)';
+  if(ok){set(ax==='y'?'110vh':'105vw');setTimeout(()=>{try{fn()}catch(e){}soon();setTimeout(()=>{el.style.transition='none';el.style.translate='';requestAnimationFrame(()=>el.style.transition='')},480)},200)}
+  else{set('0px');setTimeout(()=>{el.style.transition='';el.style.translate=''},240)}};
+ const tm=e=>{if(!D)return;const t=e.touches[0],dx=t.clientX-D.x,dy=t.clientY-D.y;
+  if(!D.on){if(Math.abs(dx)<10&&Math.abs(dy)<10)return;
+   if(D.ax==='y'&&dy>0&&dy>Math.abs(dx)*1.2&&!D.sc){D.on=1}
+   else if(D.h&&dx>0&&dx>Math.abs(dy)*1.5){D.on=1;D.ax='x';D.el=D.h.el;D.fn=D.h.fn}
+   else{stop();return}
+   D.el.classList.add('wm-drag')}
+  e.preventDefault();e.stopPropagation();
+  const v=D.ax==='y'?Math.max(0,dy):Math.max(0,dx);D.el.style.translate=D.ax==='y'?'0 '+v+'px':v+'px 0';
+  const n=performance.now();D.v=(v-D.lv)/Math.max(1,n-D.lt);D.lv=v;D.lt=n};
+ const te=()=>{if(!D)return;const d=D;stop();if(!d.on)return;
+  const lim=d.ax==='y'?Math.min(140,d.el.offsetHeight*.28):innerWidth*.3;end(d.lv>lim||d.v>.55,d.el,d.ax,d.fn)};
+ const stop=()=>{document.removeEventListener('touchmove',tm,{capture:true});document.removeEventListener('touchend',te,true);document.removeEventListener('touchcancel',te,true);D=null};
+ document.addEventListener('touchstart',e=>{if(D||e.touches.length!==1||RM||tour())return;const t=e.target;if(!t.closest||skipT(t))return;
+  const p=e.touches[0];let d=null;
+  /* sheets/cards: swipe down */
+  const w=top();if(w){const el=w.p();if(el&&el.contains(t)){d={el,ax:'y',fn:w.c,sc:scrolledUp(t,el)};
+    if(w.sub){const c=$('#sh .shp.on');if(c&&c.dataset.p!=='home'&&!hScroll(t,el))d.h={el:c,fn:()=>shGo('home',1)}}}}
+  /* reader / siddur: swipe right = back */
+  if(!d&&!w){const r=$('#rdr.on'),s=$('#sdr.on'),el=s&&s.contains(t)&&!$('#sdSh.on')?s:r&&r.contains(t)?r:null;
+   if(el&&!hScroll(t,el))d={el,ax:'x',h:{el,fn:()=>history.back()},sc:1}}
+  if(!d)return;D=Object.assign(d,{x:p.clientX,y:p.clientY,on:0,v:0,lv:0,lt:performance.now()});
+  document.addEventListener('touchmove',tm,{capture:true,passive:false});document.addEventListener('touchend',te,true);document.addEventListener('touchcancel',te,true)},{capture:true,passive:true});
 })();
 </script>
 </body></html>
