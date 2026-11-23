@@ -3814,9 +3814,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=190;
+const CC_VER=191;
 const CC_LOG=[
-  {v:180,new:['The stats rings now use the new wavy style too.']},{v:181,new:['Clearer stats screen: rings and buttons easy to see in the evening, round day dots.']},{v:182,new:['Easier to read around sunset, clearer selected buttons, neater month boxes.']},{v:183,new:['Matching shapes: reminder cards, ticked shiurim and the streak days.']},{v:184,new:['Material 3 shapes for the calendar markers, the streak days and the stats.']},{v:185,new:['Each shiur has its own shape in the stats.']},{v:186,mid:1,new:['Month view: tap a day to see what’s on it right under the week; tap it again to open the day.']},{v:187,new:['Smoother and lighter on the battery: faster day changes, quieter when idle.']},{v:188,mid:1,new:['New motion everywhere: springy, physical animations — windows grow from where you tap and their content flows in.']},{v:189,mid:1,new:['Real Material 3 motion: windows grow out of the button you tap and shrink back into it, swipes between days and months follow your finger and keep its speed, selected buttons slide to their new place.']},{v:190,new:['Faster, smoother animations.']},
+  {v:180,new:['The stats rings now use the new wavy style too.']},{v:181,new:['Clearer stats screen: rings and buttons easy to see in the evening, round day dots.']},{v:182,new:['Easier to read around sunset, clearer selected buttons, neater month boxes.']},{v:183,new:['Matching shapes: reminder cards, ticked shiurim and the streak days.']},{v:184,new:['Material 3 shapes for the calendar markers, the streak days and the stats.']},{v:185,new:['Each shiur has its own shape in the stats.']},{v:186,mid:1,new:['Month view: tap a day to see what’s on it right under the week; tap it again to open the day.']},{v:187,new:['Smoother and lighter on the battery: faster day changes, quieter when idle.']},{v:188,mid:1,new:['New motion everywhere: springy, physical animations — windows grow from where you tap and their content flows in.']},{v:189,mid:1,new:['Real Material 3 motion: windows grow out of the button you tap and shrink back into it, swipes between days and months follow your finger and keep its speed, selected buttons slide to their new place.']},{v:190,new:['Faster, smoother animations.']},{v:191,new:['No more blue flash when you tap something.']},
   {v:179,new:['The new shapes now cover every screen: buttons, switches, text boxes, the month view and more.']},
   {v:178,new:['More small parts got the new shapes: the siddur tabs, progress rings, streak days, check boxes, the Coming up cards and the badge.']},
   {v:177,mid:1,new:['Buttons, the day picker, shiur circles and other small parts have new rounded shapes, springy motion and calmer colours.']},
@@ -5774,6 +5774,10 @@ body.om #ms:has(.cal.has-sum){overflow-y:auto!important}
 })();
 </script>
 <style id="cc-m3x">
+/* v191 (owner: "when I click on something it turns blue, and only then it opens"): no Android tap highlight anywhere, and tapping a button/card never selects its text */
+*,*::before,*::after{-webkit-tap-highlight-color:transparent}
+:is(button,a,[role=button],[role=radio],[data-t],[data-go],.sm,.rt,.c2,.chip,.ev,.ck,.shr,.qrc,.wd,.day,.dock,.ai-fab,label){-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+:focus:not(:focus-visible){outline:none}
 /* v189 (owner: "everything, every last detail, Material 3 Expressive"). Test tools switch "m3x". */
 :root:not(.tt-off-m3x) .m3mv>button,:root:not(.tt-off-m3x) .m3mv>[role=radio]{background:transparent!important;box-shadow:none!important;position:relative;z-index:1}
 :root:not(.tt-off-m3x) .m3gh{position:absolute;left:0;top:0;z-index:0;pointer-events:none;border-radius:99px}
