@@ -3814,9 +3814,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=195;
+const CC_VER=196;
 const CC_LOG=[
-  {v:180,new:['The stats rings now use the new wavy style too.']},{v:181,new:['Clearer stats screen: rings and buttons easy to see in the evening, round day dots.']},{v:182,new:['Easier to read around sunset, clearer selected buttons, neater month boxes.']},{v:183,new:['Matching shapes: reminder cards, ticked shiurim and the streak days.']},{v:184,new:['Material 3 shapes for the calendar markers, the streak days and the stats.']},{v:185,new:['Each shiur has its own shape in the stats.']},{v:186,mid:1,new:['Month view: tap a day to see what’s on it right under the week; tap it again to open the day.']},{v:187,new:['Smoother and lighter on the battery: faster day changes, quieter when idle.']},{v:188,mid:1,new:['New motion everywhere: springy, physical animations — windows grow from where you tap and their content flows in.']},{v:189,mid:1,new:['Real Material 3 motion: windows grow out of the button you tap and shrink back into it, swipes between days and months follow your finger and keep its speed, selected buttons slide to their new place.']},{v:190,new:['Faster, smoother animations.']},{v:191,new:['No more blue flash when you tap something.']},{v:192,mid:1,new:['Shapes change into other shapes: ticking a box turns its square into a scalloped cookie, the selected day becomes a new shape, switches and buttons morph when you press them.']},{v:193,new:['Fixed: tapping a shiur box ticks it again.']},{v:194,mid:1,new:['The siddur has a little compass arrow at the top that points toward Yerushalayim. Tap it to see the direction.']},{v:195,new:['The siddur arrow is now a soft triangle that points the way to daven (map direction or shortest path — tap it to choose).']},
+  {v:180,new:['The stats rings now use the new wavy style too.']},{v:181,new:['Clearer stats screen: rings and buttons easy to see in the evening, round day dots.']},{v:182,new:['Easier to read around sunset, clearer selected buttons, neater month boxes.']},{v:183,new:['Matching shapes: reminder cards, ticked shiurim and the streak days.']},{v:184,new:['Material 3 shapes for the calendar markers, the streak days and the stats.']},{v:185,new:['Each shiur has its own shape in the stats.']},{v:186,mid:1,new:['Month view: tap a day to see what’s on it right under the week; tap it again to open the day.']},{v:187,new:['Smoother and lighter on the battery: faster day changes, quieter when idle.']},{v:188,mid:1,new:['New motion everywhere: springy, physical animations — windows grow from where you tap and their content flows in.']},{v:189,mid:1,new:['Real Material 3 motion: windows grow out of the button you tap and shrink back into it, swipes between days and months follow your finger and keep its speed, selected buttons slide to their new place.']},{v:190,new:['Faster, smoother animations.']},{v:191,new:['No more blue flash when you tap something.']},{v:192,mid:1,new:['Shapes change into other shapes: ticking a box turns its square into a scalloped cookie, the selected day becomes a new shape, switches and buttons morph when you press them.']},{v:193,new:['Fixed: tapping a shiur box ticks it again.']},{v:194,mid:1,new:['The siddur has a little compass arrow at the top that points toward Yerushalayim. Tap it to see the direction.']},{v:195,new:['The siddur arrow is now a soft triangle that points the way to daven (map direction or shortest path — tap it to choose).']},{v:196,new:['The siddur direction arrow has its new shape.']},
   {v:179,new:['The new shapes now cover every screen: buttons, switches, text boxes, the month view and more.']},
   {v:178,new:['More small parts got the new shapes: the siddur tabs, progress rings, streak days, check boxes, the Coming up cards and the badge.']},
   {v:177,mid:1,new:['Buttons, the day picker, shiur circles and other small parts have new rounded shapes, springy motion and calmer colours.']},
@@ -5780,9 +5780,9 @@ body.om #ms:has(.cal.has-sum){overflow-y:auto!important}
 #sdr .sd-mz::after{content:none!important;display:none!important}#sdr .sd-mz{outline:none!important;border:0!important}
 #sdr .sd-mz svg{width:30px;height:30px;overflow:visible}
 #sdr .sd-mz .nd{transform-origin:15px 15px;transition:transform .12s linear}
-#sdr .sd-mz .tr{fill:var(--m3p,var(--ink));transition:fill .3s,transform .5s var(--m3eb,ease);transform-origin:15px 15px}
+#sdr .sd-mz .tr{fill:var(--m3p,var(--ink));transition:fill .3s}#sdr .sd-mz .nd>*{transform-box:view-box}
 #sdr .sd-mz.dim .tr{fill:var(--m3ol,color-mix(in srgb,var(--ink) 45%,transparent))}
-#sdr .sd-mz.ok .tr{transform:scale(1.18)}
+#sdr .sd-mz svg{transition:transform .5s var(--m3eb,ease)}#sdr .sd-mz.ok svg{transform:scale(1.15)}
 #sdr .sd-mz.ok::before{content:"";position:absolute;inset:1px;border-radius:50%;background:color-mix(in srgb,var(--m3p,var(--ink)) 16%,transparent);animation:mzOk .5s var(--m3eb,ease)}
 @keyframes mzOk{from{transform:scale(.4);opacity:0}}
 #sdr .sd-mz.nc .nd{transition:transform .5s var(--m3e,ease)}
@@ -5805,14 +5805,12 @@ body.om #ms:has(.cal.has-sum){overflow-y:auto!important}
    if(dl>Math.PI)dl-=2*Math.PI;if(dl<-Math.PI)dl+=2*Math.PI;const dp=Math.log(Math.tan(Math.PI/4+p2/2)/Math.tan(Math.PI/4+p1/2));return{b:(Math.atan2(dl,dp)/rad+360)%360,d}};
  const DIRS=['north','north-east','east','south-east','south','south-west','west','north-west'],dn=b=>DIRS[Math.round(b/45)%8];
  /* the M3 soft triangle (r = 1 − a + a·(½+½cos 3θ)^p), one vertex up = the pointing tip */
- const triPath=(()=>{const rc=.34,P=[];for(let k=0;k<3;k++){const th=-Math.PI/2+k*2*Math.PI/3,cx=Math.cos(th),cy=Math.sin(th);
-   for(let a=-60;a<=60;a+=10){const t=th+a*rad;P.push([cx+rc*Math.cos(t),cy+rc*Math.sin(t)])}}
-   const xs=P.map(q=>q[0]),ys=P.map(q=>q[1]),w=Math.max(...xs)-Math.min(...xs),h=Math.max(...ys)-Math.min(...ys),sc=26/Math.max(w,h),ox=(Math.max(...xs)+Math.min(...xs))/2,oy=(Math.max(...ys)+Math.min(...ys))/2;
-   return'M'+P.map(q=>(15+(q[0]-ox)*sc).toFixed(2)+' '+(15+(q[1]-oy)*sc).toFixed(2)).join('L')+'Z'})();
+ /* v196 (owner picked the notched arrow): a rounded triangle with a notch in its base, like a map's 'you are here' arrow (drawn on a 160 box, centred at 80,81) */
+ const ARW='M80 18 C88 18 92 24 96 32 L140 122 C146 136 138 144 126 140 L84 124 C81 123 79 123 76 124 L34 140 C22 144 14 136 20 122 L64 32 C68 24 72 18 80 18 Z';
  let el=null,nd=null,tip=null,hd=null,last=0,shown=null,rot=0,ok=false,on=false,raf=0,src='';
  const build=()=>{const top=document.querySelector('#sdr .sd-top');if(!top)return false;if(el&&top.contains(el))return true;
    el=document.createElement('button');el.type='button';el.className='sd-mz nc dim';
-   el.innerHTML='<svg viewBox="0 0 30 30" aria-hidden="true"><g class="nd"><path class="tr" d="'+triPath+'"/></g></svg><span class="sd-mzt" role="status"></span>';
+   el.innerHTML='<svg viewBox="0 0 30 30" aria-hidden="true"><g class="nd"><path class="tr" transform="translate(-.6 -.79) scale(.195)" d="'+ARW+'"/></g></svg><span class="sd-mzt" role="status"></span>';
    top.insertBefore(el,top.querySelector('.sd-m'));nd=el.querySelector('.nd');tip=el.querySelector('.sd-mzt');
    el.addEventListener('click',e=>{e.stopPropagation();const sw=e.target.closest('.mzs button');if(sw){M=sw.dataset.m;try{localStorage.setItem('cc_jlm_m',M)}catch(_){}shown=null;kick();say(1);return}if(e.target.closest('.sd-mzt'))return;say(1)});return true};
  const lbl=()=>{const B=brg();if(!B)return'Set your location in ⋯ → Location so the arrow can point the way to daven.';
