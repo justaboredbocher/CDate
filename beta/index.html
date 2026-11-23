@@ -3818,9 +3818,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=197;
+const CC_VER=198;
 const CC_LOG=[
-  {v:180,new:['The stats rings now use the new wavy style too.']},{v:181,new:['Clearer stats screen: rings and buttons easy to see in the evening, round day dots.']},{v:182,new:['Easier to read around sunset, clearer selected buttons, neater month boxes.']},{v:183,new:['Matching shapes: reminder cards, ticked shiurim and the streak days.']},{v:184,new:['Material 3 shapes for the calendar markers, the streak days and the stats.']},{v:185,new:['Each shiur has its own shape in the stats.']},{v:186,mid:1,new:['Month view: tap a day to see what’s on it right under the week; tap it again to open the day.']},{v:187,new:['Smoother and lighter on the battery: faster day changes, quieter when idle.']},{v:188,mid:1,new:['New motion everywhere: springy, physical animations — windows grow from where you tap and their content flows in.']},{v:189,mid:1,new:['Real Material 3 motion: windows grow out of the button you tap and shrink back into it, swipes between days and months follow your finger and keep its speed, selected buttons slide to their new place.']},{v:190,new:['Faster, smoother animations.']},{v:191,new:['No more blue flash when you tap something.']},{v:192,mid:1,new:['Shapes change into other shapes: ticking a box turns its square into a scalloped cookie, the selected day becomes a new shape, switches and buttons morph when you press them.']},{v:193,new:['Fixed: tapping a shiur box ticks it again.']},{v:194,mid:1,new:['The siddur has a little compass arrow at the top that points toward Yerushalayim. Tap it to see the direction.']},{v:195,new:['The siddur arrow is now a soft triangle that points the way to daven (map direction or shortest path — tap it to choose).']},{v:196,new:['The siddur direction arrow has its new shape.']},{v:197,new:['The drop arrow and its flying bubbles are gone; the cards now simply slide up as you scroll.']},
+  {v:180,new:['The stats rings now use the new wavy style too.']},{v:181,new:['Clearer stats screen: rings and buttons easy to see in the evening, round day dots.']},{v:182,new:['Easier to read around sunset, clearer selected buttons, neater month boxes.']},{v:183,new:['Matching shapes: reminder cards, ticked shiurim and the streak days.']},{v:184,new:['Material 3 shapes for the calendar markers, the streak days and the stats.']},{v:185,new:['Each shiur has its own shape in the stats.']},{v:186,mid:1,new:['Month view: tap a day to see what’s on it right under the week; tap it again to open the day.']},{v:187,new:['Smoother and lighter on the battery: faster day changes, quieter when idle.']},{v:188,mid:1,new:['New motion everywhere: springy, physical animations — windows grow from where you tap and their content flows in.']},{v:189,mid:1,new:['Real Material 3 motion: windows grow out of the button you tap and shrink back into it, swipes between days and months follow your finger and keep its speed, selected buttons slide to their new place.']},{v:190,new:['Faster, smoother animations.']},{v:191,new:['No more blue flash when you tap something.']},{v:192,mid:1,new:['Shapes change into other shapes: ticking a box turns its square into a scalloped cookie, the selected day becomes a new shape, switches and buttons morph when you press them.']},{v:193,new:['Fixed: tapping a shiur box ticks it again.']},{v:194,mid:1,new:['The siddur has a little compass arrow at the top that points toward Yerushalayim. Tap it to see the direction.']},{v:195,new:['The siddur arrow is now a soft triangle that points the way to daven (map direction or shortest path — tap it to choose).']},{v:196,new:['The siddur direction arrow has its new shape.']},{v:197,new:['The drop arrow and its flying bubbles are gone; the cards now simply slide up as you scroll.']},{v:198,new:['Windows open and close a little slower, so the motion is easier to enjoy.']},
   {v:179,new:['The new shapes now cover every screen: buttons, switches, text boxes, the month view and more.']},
   {v:178,new:['More small parts got the new shapes: the siddur tabs, progress rings, streak days, check boxes, the Coming up cards and the badge.']},
   {v:177,mid:1,new:['Buttons, the day picker, shiur circles and other small parts have new rounded shapes, springy motion and calmer colours.']},
@@ -5927,13 +5927,13 @@ body.om #ms:has(.cal.has-sum){overflow-y:auto!important}
   const pt=panel.style.transition;panel.style.transition='none';
   const pr=panel.getBoundingClientRect(),sr=src.getBoundingClientRect();if(!pr.width||!pr.height){panel.style.transition=pt;return false}
   const tx=(sr.left+sr.width/2)-(pr.left+pr.width/2),ty=(sr.top+sr.height/2)-(pr.top+pr.height/2),sx=Math.max(.04,sr.width/pr.width),sy=Math.max(.04,sr.height/pr.height);
-  const a1=anim(panel,[{translate:`${tx}px ${ty}px`},{translate:'0px 0px'}],ease(700,.78));
-  anim(panel,[{scale:`${sx} ${sy}`},{scale:'1 1'}],ease(620,.86));
-  anim(panel,[{opacity:.35},{opacity:1}],ease(1600,1));
+  const a1=anim(panel,[{translate:`${tx}px ${ty}px`},{translate:'0px 0px'}],ease(330,.74));
+  anim(panel,[{scale:`${sx} ${sy}`},{scale:'1 1'}],ease(290,.82));
+  anim(panel,[{opacity:.35},{opacity:1}],ease(700,1));
   const sCol=getComputedStyle(src).backgroundColor;
   if(!full&&sCol&&!/rgba\(0, 0, 0, 0\)|transparent/.test(sCol)){const ov=document.createElement('div');ov.style.cssText=`position:absolute;inset:0;background:${sCol};pointer-events:none;z-index:9;border-radius:inherit`;
-   if(getComputedStyle(panel).position==='static')panel.style.position='relative';panel.appendChild(ov);anim(ov,[{opacity:1},{opacity:0}],{e:'ease-out',d:160},{fill:'forwards'}).finished.then(()=>ov.remove(),()=>ov.remove())}
-  kidsOf(panel).slice(0,6).forEach((k,i)=>anim(k,[{opacity:0},{opacity:1}],{e:'ease-out',d:180},{delay:60+i*22,fill:'backwards'}));
+   if(getComputedStyle(panel).position==='static')panel.style.position='relative';panel.appendChild(ov);anim(ov,[{opacity:1},{opacity:0}],{e:'ease-out',d:280},{fill:'forwards'}).finished.then(()=>ov.remove(),()=>ov.remove())}
+  kidsOf(panel).slice(0,6).forEach((k,i)=>anim(k,[{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'none'}],{e:'ease-out',d:320},{delay:110+i*40,fill:'backwards'}));
   const sh=anim(src,[{opacity:1},{opacity:0}],{e:'linear',d:80},{fill:'forwards'});
   live.set(panel,{src,sh,full});
   const wd=()=>{if(live.get(panel)?.sh!==sh)return;const vis=panel.getClientRects().length&&getComputedStyle(panel.parentElement!==B?panel.parentElement:panel).opacity!=='0'&&getComputedStyle(panel).visibility!=='hidden';if(!vis||off()){live.delete(panel);try{sh.cancel()}catch(e){}return}setTimeout(wd,2500)};setTimeout(wd,2500);
@@ -5945,7 +5945,7 @@ body.om #ms:has(.cal.has-sum){overflow-y:auto!important}
   const cs=getComputedStyle(panel),keep={tr:panel.style.transform,ts:panel.style.transition};
   panel.style.transform=cs.transform==='none'?'':cs.transform;panel.style.transition='none';
   const pr=panel.getBoundingClientRect(),tx=(sr.left+sr.width/2)-(pr.left+pr.width/2),ty=(sr.top+sr.height/2)-(pr.top+pr.height/2);
-  const s=ease(1000,.95);
+  const s=ease(480,.9);
   const a1=anim(panel,[{translate:'0px 0px',scale:'1 1',opacity:1},{translate:`${tx}px ${ty}px`,scale:`${Math.max(.04,sr.width/pr.width)} ${Math.max(.04,sr.height/pr.height)}`,opacity:0}],s,{fill:'forwards'});
   setTimeout(back,s.d*.5);
   a1.finished.then(()=>{panel.style.transform=keep.tr;requestAnimationFrame(()=>{a1.cancel();panel.style.transition=keep.ts})},()=>{})}
@@ -6036,7 +6036,7 @@ body.om #ms:has(.cal.has-sum){overflow-y:auto!important}
  const fresh=()=>performance.now()-tap.t<900;
  /* cascade a container's direct blocks: each comes up a little later than the one before */
  const cascade=(els,o={})=>{let i=0;for(const el of els){if(!el||!el.getClientRects().length)continue;const r=el.getBoundingClientRect();if(r.top>innerHeight+40)break;
-   el.animate([{transform:`translateY(${Math.min(10,o.dy||10)}px)`,opacity:0},{transform:'none',opacity:1}],{duration:o.d||300,delay:Math.min(24,o.st||24)*i+(o.d0||30),easing:V('--m3sF'),fill:'backwards'});if(++i>=(o.max||8))break}};
+   el.animate([{transform:`translateY(${Math.min(10,o.dy||10)}px)`,opacity:0},{transform:'none',opacity:1}],{duration:o.d||440,delay:Math.min(36,o.st||36)*i+(o.d0||50),easing:V('--m3sD'),fill:'backwards'});if(++i>=(o.max||8))break}};
  const kids=el=>{if(!el)return[];let c=[...el.children].filter(x=>x.offsetParent!==null&&!x.matches('script,style,.wm-x,.x'));if(c.length===1&&c[0].children.length>1)c=[...c[0].children].filter(x=>x.offsetParent!==null);return c};
  /* a window/sheet grows from the tap: scale + corner radius morph, origin = the finger (shared-element feel) */
  const grow=(el,full)=>{if(!el)return;const r=el.getBoundingClientRect();if(!r.width)return;const ox=fresh()?Math.max(0,Math.min(r.width,tap.x-r.left)):r.width/2,oy=fresh()?Math.max(0,Math.min(r.height,tap.y-r.top)):r.height;
