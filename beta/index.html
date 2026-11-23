@@ -3814,9 +3814,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=193;
+const CC_VER=194;
 const CC_LOG=[
-  {v:180,new:['The stats rings now use the new wavy style too.']},{v:181,new:['Clearer stats screen: rings and buttons easy to see in the evening, round day dots.']},{v:182,new:['Easier to read around sunset, clearer selected buttons, neater month boxes.']},{v:183,new:['Matching shapes: reminder cards, ticked shiurim and the streak days.']},{v:184,new:['Material 3 shapes for the calendar markers, the streak days and the stats.']},{v:185,new:['Each shiur has its own shape in the stats.']},{v:186,mid:1,new:['Month view: tap a day to see what’s on it right under the week; tap it again to open the day.']},{v:187,new:['Smoother and lighter on the battery: faster day changes, quieter when idle.']},{v:188,mid:1,new:['New motion everywhere: springy, physical animations — windows grow from where you tap and their content flows in.']},{v:189,mid:1,new:['Real Material 3 motion: windows grow out of the button you tap and shrink back into it, swipes between days and months follow your finger and keep its speed, selected buttons slide to their new place.']},{v:190,new:['Faster, smoother animations.']},{v:191,new:['No more blue flash when you tap something.']},{v:192,mid:1,new:['Shapes change into other shapes: ticking a box turns its square into a scalloped cookie, the selected day becomes a new shape, switches and buttons morph when you press them.']},{v:193,new:['Fixed: tapping a shiur box ticks it again.']},
+  {v:180,new:['The stats rings now use the new wavy style too.']},{v:181,new:['Clearer stats screen: rings and buttons easy to see in the evening, round day dots.']},{v:182,new:['Easier to read around sunset, clearer selected buttons, neater month boxes.']},{v:183,new:['Matching shapes: reminder cards, ticked shiurim and the streak days.']},{v:184,new:['Material 3 shapes for the calendar markers, the streak days and the stats.']},{v:185,new:['Each shiur has its own shape in the stats.']},{v:186,mid:1,new:['Month view: tap a day to see what’s on it right under the week; tap it again to open the day.']},{v:187,new:['Smoother and lighter on the battery: faster day changes, quieter when idle.']},{v:188,mid:1,new:['New motion everywhere: springy, physical animations — windows grow from where you tap and their content flows in.']},{v:189,mid:1,new:['Real Material 3 motion: windows grow out of the button you tap and shrink back into it, swipes between days and months follow your finger and keep its speed, selected buttons slide to their new place.']},{v:190,new:['Faster, smoother animations.']},{v:191,new:['No more blue flash when you tap something.']},{v:192,mid:1,new:['Shapes change into other shapes: ticking a box turns its square into a scalloped cookie, the selected day becomes a new shape, switches and buttons morph when you press them.']},{v:193,new:['Fixed: tapping a shiur box ticks it again.']},{v:194,mid:1,new:['The siddur has a little compass arrow at the top that points toward Yerushalayim. Tap it to see the direction.']},
   {v:179,new:['The new shapes now cover every screen: buttons, switches, text boxes, the month view and more.']},
   {v:178,new:['More small parts got the new shapes: the siddur tabs, progress rings, streak days, check boxes, the Coming up cards and the badge.']},
   {v:177,mid:1,new:['Buttons, the day picker, shiur circles and other small parts have new rounded shapes, springy motion and calmer colours.']},
@@ -5436,7 +5436,7 @@ aiEl('aiMemoryBtn').addEventListener('click',()=>{const p=aiPrefs(),names=Object
   let tg;if(k==='sr')tg=T.sr+10*6e4;else if(k==='ss')tg=T.ss-10*6e4;else if(k==='noon')tg=(T.sr+T.ss)/2;else{const p=ad(t0,-1),x=new RD(p.getFullYear(),p.getMonth(),p.getDate(),21,30);tg=+x}
   if(tg){setClock(tg);applyClock(false)}});
  /* New features get a switch here (owner's standing request). Each one maps to a class on <html>: tt-off-<id> turns it off. */
- const FLAGS=[['morph','Shapes morph into other Material 3 shapes when ticked, selected or pressed'],['m3x','Material 3 physics: windows morph out of what you tap, swipes follow the finger, sliding selectors'],['m3m','Material 3 Expressive motion: windows grow from your tap, content cascades, springs everywhere'],['msum','Month view: a summary under the selected day; tap again to open it'],['m3','Material 3 Expressive shapes, motion and colours on small parts'],['drop','The arrow is a water drop that the cards split off from'],['glassui','Matching glass cards, sheets and buttons'],['occ','Birthday & yahrzeit touches (confetti, candle, customs)'],['aim','Semicircle faces the sun/moon'],['capdate','Rise/set label under the big date'],['swave','Softer, quieter night waves'],['duskglass','Liquid-glass evening and day sky'],['waterdate','Date letters made of water (tilt the phone)'],['reallight','Real light (sunrise/sunset colours on everything)'],['side','Big date when the middle of the sky is empty'],['dome','Semicircle swivels on scroll'],['siddur','Siddur button in the dock'],['charlife','The assistant’s extra life (reacting to taps, wind, sleep, stretches…)'],['shabbos','Shabbos & Yom Tov screen (the app rests; no reminders)'],['matte','Flat matte-blue day sky with a yellow sun']];
+ const FLAGS=[['jlm','Siddur: compass arrow pointing to Yerushalayim'],['morph','Shapes morph into other Material 3 shapes when ticked, selected or pressed'],['m3x','Material 3 physics: windows morph out of what you tap, swipes follow the finger, sliding selectors'],['m3m','Material 3 Expressive motion: windows grow from your tap, content cascades, springs everywhere'],['msum','Month view: a summary under the selected day; tap again to open it'],['m3','Material 3 Expressive shapes, motion and colours on small parts'],['drop','The arrow is a water drop that the cards split off from'],['glassui','Matching glass cards, sheets and buttons'],['occ','Birthday & yahrzeit touches (confetti, candle, customs)'],['aim','Semicircle faces the sun/moon'],['capdate','Rise/set label under the big date'],['swave','Softer, quieter night waves'],['duskglass','Liquid-glass evening and day sky'],['waterdate','Date letters made of water (tilt the phone)'],['reallight','Real light (sunrise/sunset colours on everything)'],['side','Big date when the middle of the sky is empty'],['dome','Semicircle swivels on scroll'],['siddur','Siddur button in the dock'],['charlife','The assistant’s extra life (reacting to taps, wind, sleep, stretches…)'],['shabbos','Shabbos & Yom Tov screen (the app rests; no reminders)'],['matte','Flat matte-blue day sky with a yellow sun']];
  const fl=()=>{try{return JSON.parse(localStorage.getItem('cc_test_flags')||'{}')}catch(e){return{}}},flApply=()=>{const f=fl();for(const[id,,opt]of FLAGS){if(opt)document.documentElement.classList.toggle('tt-on-'+id,f[id]===true);else document.documentElement.classList.toggle('tt-off-'+id,f[id]===false)}};
  box.querySelector('#ttFlags').innerHTML=FLAGS.map(([id,t])=>`<label style="display:flex;align-items:center;gap:10px;margin:0;font-weight:500"><input type="checkbox" data-f="${id}" style="width:20px;height:20px;accent-color:#8c94ef"> ${t}</label>`).join('');
  box.querySelectorAll('[data-f]').forEach(c=>{const opt=(FLAGS.find(x=>x[0]===c.dataset.f)||[])[2];c.checked=opt?fl()[c.dataset.f]===true:fl()[c.dataset.f]!==false;c.onchange=()=>{const f=fl();f[c.dataset.f]=c.checked;localStorage.setItem('cc_test_flags',JSON.stringify(f));flApply();H.sel();if(c.dataset.f==='side'){SKY.last=null;skyTick();render(0)}if(c.dataset.f==='swave'&&GLS.kick)GLS.kick();if(c.dataset.f==='aim'&&SKY.last)skyDomeAim(SKY.last)}});flApply();
@@ -5773,6 +5773,59 @@ body.om #ms:has(.cal.has-sum){overflow-y:auto!important}
   document.addEventListener('touchmove',tm,{capture:true,passive:false});document.addEventListener('touchend',te,true);document.addEventListener('touchcancel',te,true)},{capture:true,passive:true});
 })();
 </script>
+<style id="cc-jlm">
+/* v194 (owner: "a little compass-style arrow on the top right that points toward Yerushalayim in the siddur"). Test tools switch "jlm". */
+#sdr .sd-mz{position:relative;flex:none;width:36px;height:36px;border:0;padding:0;border-radius:50%;background:var(--m3sc,color-mix(in srgb,var(--ink) 8%,transparent));color:var(--ink);display:grid;place-items:center;cursor:pointer;transition:background .25s,box-shadow .35s}
+#sdr .sd-mz svg{width:30px;height:30px;overflow:visible}
+#sdr .sd-mz .nd{transform-origin:15px 15px;transition:transform .12s linear}
+#sdr .sd-mz .f{fill:var(--m3p,var(--ink));transition:fill .25s}
+#sdr .sd-mz .b{fill:var(--m3ol,color-mix(in srgb,var(--ink) 45%,transparent))}
+#sdr .sd-mz .tk{stroke:color-mix(in srgb,var(--ink) 35%,transparent);stroke-width:1.4;stroke-linecap:round}
+#sdr .sd-mz.ok{background:var(--m3p,var(--ink));box-shadow:0 0 0 3px color-mix(in srgb,var(--m3p,var(--ink)) 25%,transparent)}
+#sdr .sd-mz.ok .f{fill:var(--m3op,var(--card))}#sdr .sd-mz.ok .b{fill:color-mix(in srgb,var(--m3op,var(--card)) 45%,transparent)}#sdr .sd-mz.ok .tk{stroke:color-mix(in srgb,var(--m3op,var(--card)) 60%,transparent)}
+#sdr .sd-mz.nc .nd{transition:transform .5s var(--m3e,ease)}
+#sdr .sd-mzt{position:absolute;top:calc(100% + 8px);right:-40px;z-index:5;width:max-content;max-width:min(250px,70vw);background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:9px 12px;font:500 12.5px/1.4 Figtree,system-ui;text-align:left;box-shadow:0 10px 30px rgba(0,0,0,.25);opacity:0;transform:translateY(-4px);transition:opacity .2s,transform .3s var(--m3e,ease);pointer-events:none}
+#sdr .sd-mzt.on{opacity:1;transform:none}
+:root.tt-off-jlm #sdr .sd-mz{display:none}
+</style>
+<script>/* v194: arrow toward Yerushalayim (the Beis HaMikdash, 31.7777 N 35.2355 E) from the user's location LC, turned by the phone's compass.
+ Android: deviceorientationabsolute (alpha = degrees counter-clockwise from north) → heading = 360 − alpha + screen angle; iPhone: webkitCompassHeading.
+ Listens only while the siddur is open. No compass → the arrow shows the direction as if the top of the phone pointed north (and says so when tapped). */
+(function(){const R=document.documentElement,J=[31.7777,35.2355],rad=Math.PI/180;
+ const brg=()=>{const L=(typeof LC!=='undefined'&&LC)||{};const a=+L.la,b=+L.lo;if(!isFinite(a)||!isFinite(b))return null;const p1=a*rad,p2=J[0]*rad,dl=(J[1]-b)*rad;
+   const y=Math.sin(dl)*Math.cos(p2),x=Math.cos(p1)*Math.sin(p2)-Math.sin(p1)*Math.cos(p2)*Math.cos(dl);
+   const d=6371*Math.acos(Math.min(1,Math.sin(p1)*Math.sin(p2)+Math.cos(p1)*Math.cos(p2)*Math.cos(dl)));return{b:(Math.atan2(y,x)/rad+360)%360,d}};
+ const DIRS=['north','north-east','east','south-east','south','south-west','west','north-west'],dn=b=>DIRS[Math.round(b/45)%8];
+ let el=null,nd=null,tip=null,hd=null,last=0,shown=null,rot=0,ok=false,on=false,raf=0,src='';
+ const svg='<svg viewBox="0 0 30 30" aria-hidden="true"><line class="tk" x1="15" y1="1.8" x2="15" y2="4.6"/><line class="tk" x1="28.2" y1="15" x2="25.4" y2="15"/><line class="tk" x1="15" y1="28.2" x2="15" y2="25.4"/><line class="tk" x1="1.8" y1="15" x2="4.6" y2="15"/><g class="nd"><path class="f" d="M15 4.5 L19.2 15 L10.8 15 Z"/><path class="b" d="M10.8 15 L19.2 15 L15 25.5 Z"/><circle cx="15" cy="15" r="1.7" fill="var(--card)"/></g></svg>';
+ const build=()=>{const top=document.querySelector('#sdr .sd-top');if(!top)return false;if(el&&top.contains(el))return true;
+   el=document.createElement('button');el.type='button';el.className='sd-mz nc';el.innerHTML=svg+'<span class="sd-mzt" role="status"></span>';
+   top.insertBefore(el,top.querySelector('.sd-m'));nd=el.querySelector('.nd');tip=el.querySelector('.sd-mzt');
+   el.addEventListener('click',e=>{e.stopPropagation();say(1)});return true};
+ const lbl=()=>{const B=brg();if(!B)return'Set your location in ⋯ → Location to point to Yerushalayim.';
+   if(B.d<3)return'You are in Yerushalayim: the arrow points to the Har HaBayis.';
+   const w=Math.round(B.b)+'° ('+dn(B.b)+')';
+   return hd==null?'Yerushalayim is '+w+' from '+((typeof LC!=='undefined'&&LC.n)||'here')+'. No compass reading: the arrow assumes the top of the phone faces north.'
+     :'Points toward Yerushalayim, '+w+', '+Math.round(B.d).toLocaleString()+' km. Hold the phone flat'+(ok?' · you are facing it ✓':'.')};
+ let tT=0;const say=v=>{if(!tip)return;tip.textContent=lbl();tip.classList.add('on');clearTimeout(tT);tT=setTimeout(()=>tip.classList.remove('on'),4200)};
+ const draw=()=>{raf=0;if(!el)return;const B=brg();if(!B){el.style.opacity=.4;return}el.style.opacity='';
+   const want=((B.b-(hd||0))%360+360)%360;let d=((want-shown)%360+540)%360-180;if(shown==null){shown=want;rot=want;d=0}
+   shown+=d*(hd==null?1:.35);rot+=d*(hd==null?1:.35);nd.style.transform='rotate('+rot.toFixed(1)+'deg)';
+   const a=Math.abs(((want)%360+540)%360-180);const nok=hd!=null&&(want<9||want>351);if(nok!==ok){ok=nok;el.classList.toggle('ok',ok);if(ok)try{H.sel&&H.sel()}catch(e){}}
+   el.setAttribute('aria-label','Direction to Yerushalayim: '+Math.round(B.b)+' degrees, '+dn(B.b));
+   if(hd!=null&&Math.abs(d)>.6)raf=requestAnimationFrame(draw)};
+ const kick=()=>{if(!raf)raf=requestAnimationFrame(draw)};
+ const scr=()=>{const a=(screen.orientation&&screen.orientation.angle)||window.orientation||0;return +a||0};
+ const onAbs=e=>{if(e.alpha==null)return;src='abs';set(360-e.alpha+scr())};
+ const onRel=e=>{if(e.webkitCompassHeading!=null){src='ios';set(e.webkitCompassHeading+scr())}else if(e.absolute&&e.alpha!=null&&src!=='abs'){src='rel';set(360-e.alpha+scr())}};
+ const set=h=>{h=(h%360+360)%360;if(hd==null){el&&el.classList.remove('nc');hd=h;if(tip&&tip.classList.contains('on'))tip.textContent=lbl()}hd=h;const n=performance.now();if(n-last<33)return;last=n;kick()};
+ const start=()=>{if(on||R.classList.contains('tt-off-jlm'))return;if(!build())return;on=true;hd=null;shown=null;el.classList.add('nc');kick();
+   if('ondeviceorientationabsolute' in window)addEventListener('deviceorientationabsolute',onAbs);addEventListener('deviceorientation',onRel)};
+ const stop=()=>{if(!on)return;on=false;removeEventListener('deviceorientationabsolute',onAbs);removeEventListener('deviceorientation',onRel);if(tip)tip.classList.remove('on')};
+ const chk=()=>{const o=document.body.classList.contains('sdo')&&!document.hidden;o?start():stop()};
+ new MutationObserver(chk).observe(document.body,{attributes:true,attributeFilter:['class']});document.addEventListener('visibilitychange',chk);
+ window.JLM={brg,start,stop,set:h=>set(h)};
+})();</script>
 <style id="cc-morph">
 /* v192 (owner: "any shape that gets selected or checked … should morph into a different Material 3 Expressive shape"). Test tools switch "morph".
  Every shape = a polygon of the same 40 points (outer ring + inner ring, evenodd), so the browser can blend any one into any other:
