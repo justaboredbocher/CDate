@@ -18,6 +18,9 @@
 /* Website for Chabad Calendar 2.0 — Material 3 Expressive: calm slate-indigo tonal colours, rounded expressive shapes,
    springy motion. The moon on the phone's screen is drawn live on top of the screenshot and morphs + turns like in the app. */
 @font-face{font-family:'Flex';font-weight:100 1000;font-display:swap;src:url(../../fonts/roboto-flex-latin-wght-normal.woff2) format('woff2')}
+@font-face{font-family:'Figtree';font-weight:100 1000;font-display:swap;src:url(../../fonts/roboto-flex-latin-wght-normal.woff2) format('woff2')}
+@font-face{font-family:'Frank Ruhl Libre';font-weight:100 1000;font-display:swap;src:url(../../fonts/roboto-flex-latin-wght-normal.woff2) format('woff2');unicode-range:U+0000-024F,U+2000-206F}
+@font-face{font-family:'FRL App';font-weight:100 1000;font-display:swap;src:url(../../fonts/roboto-flex-latin-wght-normal.woff2) format('woff2');unicode-range:U+0000-024F,U+2000-206F}
 @font-face{font-family:'FRL';font-weight:500;font-display:swap;src:url(../../fonts/frank-ruhl-libre-hebrew-500-normal.woff2) format('woff2');unicode-range:U+0590-05FF,U+FB1D-FB4F}
 :root{
   --bg:#f3f2fa;--sf:#ebeaf6;--sf2:#e2e1f1;--card:#fbfbff;
@@ -114,9 +117,17 @@ footer a{color:var(--p);text-decoration:none;font-weight:700}
 .shot{flex:none;width:232px;scroll-snap-align:center;text-align:center}
 .shot .phone{position:relative;width:100%;rotate:none;left:auto;right:auto;top:auto}
 .shot .scr{aspect-ratio:390/844;background:#0b0e22}
-.shot video,.shot .scr>img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-select:none;user-select:none}
-.shot b{display:block;margin-top:14px;font-size:16px}
-.shot span{display:block;font-size:14px;color:var(--mut);margin-top:3px;line-height:1.4}
+.shot .lv{position:absolute;left:0;top:0;width:390px;height:844px;transform-origin:0 0;pointer-events:none;contain:strict}
+.shot .lv *{white-space:nowrap}
+.shot .lv.off *{animation-play-state:paused!important}
+.lv .c-fh{transform-box:fill-box;transform-origin:50% 50%;animation:lvSpin 9s cubic-bezier(.34,1.4,.64,1) infinite}
+.lv .c-eyes{transform-box:fill-box;transform-origin:50% 50%;animation:lvBlink 5.3s infinite}
+@keyframes lvSpin{0%,84%{rotate:0deg}100%{rotate:360deg}}
+@keyframes lvBlink{0%,92%,100%{scale:1 1}95%{scale:1 .1}}
+.shot .scr{position:relative;overflow:hidden}
+.shot .scr>img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-select:none;user-select:none}
+.shot>b{display:block;margin-top:14px;font-size:16px}
+.shot>span{display:block;font-size:14px;color:var(--mut);margin-top:3px;line-height:1.4}
 .galbar{display:flex;justify-content:center;gap:7px;margin-top:2px}
 .galbar i{width:8px;height:8px;border-radius:99px;background:var(--ol);transition:width .4s var(--spring),background .3s}
 .galbar i.on{width:26px;background:var(--p)}
@@ -167,8 +178,8 @@ footer a{color:var(--p);text-decoration:none;font-weight:700}
   </section>
 
   <h2 class="rv">See it in action</h2>
-  <div class="gal" id="gal"><div class="shot"><div class="phone"><div class="scr"><video muted loop playsinline preload="none" poster="v/s1.jpg" data-src="v/s1.mp4" disablepictureinpicture tabindex="-1" aria-hidden="true"></video></div></div><b>Tonight’s sky</b><span>The Hebrew date in clear water letters under a living night sky.</span></div><div class="shot"><div class="phone"><div class="scr"><video muted loop playsinline preload="none" poster="v/s2.jpg" data-src="v/s2.mp4" disablepictureinpicture tabindex="-1" aria-hidden="true"></video></div></div><b>By day</b><span>The sun changes shape as it crosses the sky.</span></div><div class="shot"><div class="phone"><div class="scr"><video muted loop playsinline preload="none" poster="v/s3.jpg" data-src="v/s3.mp4" disablepictureinpicture tabindex="-1" aria-hidden="true"></video></div></div><b>Five shiurim a day</b><span>Tick one off and today’s shape fills with a flowing wave.</span></div><div class="shot"><div class="phone"><div class="scr"><video muted loop playsinline preload="none" poster="v/s4.jpg" data-src="v/s4.mp4" disablepictureinpicture tabindex="-1" aria-hidden="true"></video></div></div><b>Your streak</b><span>Wavy rings for the week, month and year.</span></div><div class="shot"><div class="phone"><div class="scr"><video muted loop playsinline preload="none" poster="v/s6.jpg" data-src="v/s6.mp4" disablepictureinpicture tabindex="-1" aria-hidden="true"></video></div></div><b>A siddur for today</b><span>Only what’s said today, with the arrow to daven toward.</span></div><div class="shot"><div class="phone"><div class="scr"><video muted loop playsinline preload="none" poster="v/s7.jpg" data-src="v/s7.mp4" disablepictureinpicture tabindex="-1" aria-hidden="true"></video></div></div><b>The month at a glance</b><span>Every special day, with a summary of the one you pick.</span></div></div>
-  <div class="galbar" id="galbar"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="gal" id="gal"><div class="shot"><div class="phone"><div class="scr live" data-g="g1"><img src="v/g1.webp" alt="" loading="lazy"><div class="lv"></div></div></div><b>Tonight’s sky</b><span>The Hebrew date in clear water letters under a living night sky; the moon changes shape.</span></div><div class="shot"><div class="phone"><div class="scr live" data-g="g2"><img src="v/g2.webp" alt="" loading="lazy"><div class="lv"></div></div></div><b>By day</b><span>The sun changes shape as it crosses the sky.</span></div><div class="shot"><div class="phone"><div class="scr live" data-g="g3"><img src="v/g3.webp" alt="" loading="lazy"><div class="lv"></div></div></div><b>Five shiurim a day</b><span>Tick one off and today’s shape fills with a flowing wave.</span></div><div class="shot"><div class="phone"><div class="scr live" data-g="g4"><img src="v/g4.webp" alt="" loading="lazy"><div class="lv"></div></div></div><b>Your streak</b><span>Wavy rings for the week, month and year.</span></div><div class="shot"><div class="phone"><div class="scr live" data-g="g7"><img src="v/g7.webp" alt="" loading="lazy"><div class="lv"></div></div></div><b>Just ask</b><span>Tell the assistant what you want planned.</span></div><div class="shot"><div class="phone"><div class="scr live" data-g="g5"><img src="v/g5.webp" alt="" loading="lazy"><div class="lv"></div></div></div><b>A siddur for today</b><span>Only what’s said today, with the arrow to daven toward.</span></div><div class="shot"><div class="phone"><div class="scr live" data-g="g6"><img src="v/g6.webp" alt="" loading="lazy"><div class="lv"></div></div></div><b>The month at a glance</b><span>Every special day, with a summary of the one you pick.</span></div></div>
+  <div class="galbar" id="galbar"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 
   <section class="android-only rv">
     <h2>Install in three steps</h2>
@@ -236,10 +247,23 @@ document.addEventListener('click',function(e){var a=e.target.closest&&e.target.c
  document.querySelectorAll('.rv').forEach(function(el){io.observe(el)});
 })();
 
-/* gallery: a video plays only while its screen is on show (saves battery and data); dots follow the swipe */
-(function(){var g=document.getElementById('gal');if(!g)return;var vs=[].slice.call(g.querySelectorAll('video')),dots=[].slice.call(document.querySelectorAll('#galbar i'));
- var io=new IntersectionObserver(function(es){es.forEach(function(e){var v=e.target;if(e.intersectionRatio>.6){if(!v.src)v.src=v.dataset.src;var pr=v.play();if(pr&&pr.catch)pr.catch(function(){})}else if(!v.paused)v.pause()})},{root:null,threshold:[0,.6,1]});
- vs.forEach(function(v){io.observe(v)});
+/* gallery (owner: "recreate the animations … looks like a screenshot … not affected by touching … save battery"): each screen = a still picture of the app + live copies of just its moving parts
+   (frozen from the app with their own CSS animations: wavy rings, the streak wave, the character's blink/head spin) and the sun/moon morphing like the app. Loaded and running only while on screen. */
+(function(){var g=document.getElementById('gal');if(!g)return;var dots=[].slice.call(document.querySelectorAll('#galbar i')),TAU=Math.PI*2;
+ var rad=function(sh,t,rot){var c=.5+.5*Math.cos(sh[0]*(t-rot)),r=1-sh[1]+sh[1]*Math.pow(c,sh[2]||1);if(sh[3])r+=sh[4]*Math.cos(sh[3]*(t-rot)+1.3);return r};
+ var poly=function(a,b,w,rot,rr,N){var o=[];for(var i=0;i<N;i++){var t=i/N*TAU,r=rr*((1-w)*rad(a,t,rot)+w*rad(b,t,rot));o.push((50+r*Math.sin(t)).toFixed(2)+'% '+(50-r*Math.cos(t)).toFixed(2)+'%')}return 'polygon('+o.join(',')+')'};
+ var seg=function(S,u){var x=u*S.length,i=Math.floor(x)%S.length,f=x-Math.floor(x),w=f<.3?0:(function(t){return t*t*(3-2*t)})((f-.3)/.7);return [S[i],S[(i+1)%S.length],w]};
+ var SS=[[9,.085,1],[4,.11,1.8],[7,.1,1],[2,.06,1,5,.05],[12,.06,1],[5,.1,1.3],[6,.12,1.6],[4,.07,1,7,.05],[10,.07,1],[2,.08,1,3,.035],[8,.09,1]],MM=[[9,.06,1],[4,.08,1.8],[7,.07,1],[2,.05,1,5,.035],[11,.045,1],[5,.08,1.4],[4,.05,1,7,.035],[8,.055,1],[2,.06,1,3,.025]];
+ var morph=[],css={},T0=performance.now(),RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ var fit=function(sc){var lv=sc.querySelector('.lv');lv.style.transform='scale('+(sc.clientWidth/390)+')'};
+ var load=function(sc){if(sc.dataset.ld)return;sc.dataset.ld=1;fit(sc);fetch('v/'+sc.dataset.g+'.json').then(function(r){return r.ok?r.json():null}).then(function(d){if(!d)return;
+   if(!css[d.css]){css[d.css]=1;var st=document.createElement('style');st.textContent=d.css;document.head.appendChild(st)}
+   var lv=sc.querySelector('.lv');lv.innerHTML=d.items.map(function(i){return '<div style="position:absolute;left:'+i.x+'px;top:'+i.y+'px;width:'+i.w+'px;height:'+i.h+'px">'+i.html+'</div>'}).join('');
+   d.items.forEach(function(i,n){if(i.k!=='sun'&&i.k!=='moon')return;var box=lv.children[n],els=[].filter.call(box.querySelectorAll('img,span'),function(e){return /polygon\(/.test(e.getAttribute('style')||'')});if(i.k==='moon')els=[].filter.call(box.querySelectorAll('img'),function(){return true});if(els.length)morph.push({el:els[els.length-1],k:i.k,sc:sc})})}).catch(function(){})};
+ var io=new IntersectionObserver(function(es){es.forEach(function(e){var sc=e.target,on=e.intersectionRatio>.25;if(on)load(sc);sc.dataset.on=on?1:'';var lv=sc.querySelector('.lv');if(lv)lv.classList.toggle('off',!on)})},{threshold:[0,.25,.6]});
+ g.querySelectorAll('.scr.live').forEach(function(sc){io.observe(sc)});
+ addEventListener('resize',function(){g.querySelectorAll('.scr.live[data-ld]').forEach(fit)});
+ if(!RM)setInterval(function(){if(document.hidden)return;var t=(performance.now()-T0)/1000;morph.forEach(function(m){if(!m.sc.dataset.on)return;if(m.k==='sun'){var u=(t%40)/40,s=seg(SS,u);m.el.style.clipPath=poly(s[0],s[1],s[2],u*TAU,50,72)}else{var v=(t%40)/40,q=seg(MM,v);m.el.style.clipPath=poly(q[0],q[1],q[2],v*TAU,47,72)}})},100);
  var on=function(){var r=g.getBoundingClientRect(),c=r.left+r.width/2,best=0,bd=1e9;g.querySelectorAll('.shot').forEach(function(s,i){var b=s.getBoundingClientRect(),d=Math.abs(b.left+b.width/2-c);if(d<bd){bd=d;best=i}});dots.forEach(function(d,i){d.classList.toggle('on',i===best)})};
  g.addEventListener('scroll',function(){requestAnimationFrame(on)},{passive:true});on();
 })();
