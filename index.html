@@ -5347,6 +5347,7 @@ aiEl('aiMemoryBtn').addEventListener('click',()=>{const p=aiPrefs(),names=Object
  <div class="qseg" id="ttWhen" style="margin-top:10px"><button type="button" data-w="am">Morning</button><button type="button" data-w="pm">Afternoon</button><button type="button" data-w="night">Night</button></div>
  <button class="btn" type="button" id="ttSdGo" style="width:100%;margin-top:10px">Go there and open the siddur</button><p class="mut" id="ttSdMsg" role="status" style="margin:8px 0 0;font-size:13px"></p>
  <h3 class="admh">Chabad.org English</h3><p class="mut" style="margin:0 0 6px">Downloads today's page on this phone and checks it lines up with the Hebrew.</p><div class="rw" style="flex-wrap:wrap;gap:8px"><button class="btn gh" type="button" id="ttChC">Test Chumash</button><button class="btn gh" type="button" id="ttChX" hidden>Copy page outline</button></div><p class="mut" id="ttChM" role="status" style="margin:8px 0 0;font-size:13px;white-space:pre-wrap"></p>
+ <h3 class="admh">2.0 launch</h3><p class="mut" style="margin:0 0 8px">See exactly what everyone will get when 2.0 is released (it opens in the test version, then brings you back). Nothing is saved.</p><button class="btn gh" type="button" id="ttL20">Preview the 2.0 launch</button>
  <h3 class="admh">Updates</h3><div id="ttUpdM" class="mut" style="margin:0 0 8px">Look for a newer version right now.</div><button class="btn gh" type="button" id="ttUpd">Check for an update now</button>
  <h3 class="admh">Test version</h3><div id="ttBeta" class="mut" style="margin:0 0 8px">Checking…</div><button class="btn gh" type="button" id="ttBetaGo">${window.CC_BETA?'Back to the main app':'Open the test version'}</button>
  <h3 class="admh">Usage</h3><div id="admUse" class="mut" style="margin:0 0 8px">Loading…</div><button class="btn gh" type="button" id="ttUse">Refresh</button>
@@ -5365,6 +5366,7 @@ aiEl('aiMemoryBtn').addEventListener('click',()=>{const p=aiPrefs(),names=Object
    catch(e){M.textContent='Could not download: '+(e&&e.message||e)}
    X.hidden=!raw};
   box.querySelector('#ttChC').onclick=()=>run('chumash');
+  {const l=box.querySelector('#ttL20');if(l)l.onclick=()=>{location.href=new URL('beta/?l20=1',document.baseURI).href}};
   // a compact outline of the page (tags + classes around the English text) so the reader can be adjusted
   X.onclick=()=>{try{const doc=new DOMParser().parseFromString(raw,'text/html');
     doc.querySelectorAll('script,style,noscript,svg,iframe,form,header,footer,nav,#PrimaryNavigationContainer,.menu_wrapper,[id*=Popup],[class*=popup],[class*=subscribe]').forEach(x=>x.remove());
