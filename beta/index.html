@@ -3767,9 +3767,9 @@ function aiHebrewDate(d){const h=hd(d);return `${h.d} ${h.n[0]} ${h.y}`}
    adm:1 = admin-only → counts as small in the version but is never announced.
    The shown version (bottom of ⋯, popups) is worked out from these sizes by ccVerStr(). A batch shows the biggest kind it contains.
    Whole new feature -> may also set `tour:'<id>'` (an id in SETS inside ccTourStart) so "Show me" runs a live tour. */
-const CC_VER=243;
+const CC_VER=244;
 const CC_LOG=[
-  {v:180,new:['The stats rings now use the new wavy style too.']},{v:181,new:['Clearer stats screen: rings and buttons easy to see in the evening, round day dots.']},{v:182,new:['Easier to read around sunset, clearer selected buttons, neater month boxes.']},{v:183,new:['Matching shapes: reminder cards, ticked shiurim and the streak days.']},{v:184,new:['Material 3 shapes for the calendar markers, the streak days and the stats.']},{v:185,new:['Each shiur has its own shape in the stats.']},{v:186,mid:1,new:['Month view: tap a day to see what’s on it right under the week; tap it again to open the day.']},{v:187,new:['Smoother and lighter on the battery: faster day changes, quieter when idle.']},{v:188,mid:1,new:['New motion everywhere: springy, physical animations — windows grow from where you tap and their content flows in.']},{v:189,mid:1,new:['Real Material 3 motion: windows grow out of the button you tap and shrink back into it, swipes between days and months follow your finger and keep its speed, selected buttons slide to their new place.']},{v:190,new:['Faster, smoother animations.']},{v:191,new:['No more blue flash when you tap something.']},{v:192,mid:1,new:['Shapes change into other shapes: ticking a box turns its square into a scalloped cookie, the selected day becomes a new shape, switches and buttons morph when you press them.']},{v:193,new:['Fixed: tapping a shiur box ticks it again.']},{v:194,mid:1,new:['The siddur has a little compass arrow at the top that points toward Yerushalayim. Tap it to see the direction.']},{v:195,new:['The siddur arrow is now a soft triangle that points the way to daven (map direction or shortest path — tap it to choose).']},{v:196,new:['The siddur direction arrow has its new shape.']},{v:197,new:['The drop arrow and its flying bubbles are gone; the cards now simply slide up as you scroll.']},{v:198,new:['Windows open and close a little slower, so the motion is easier to enjoy.']},{v:199,new:['The month view no longer looks stretched: shorter day boxes, and windows keep their shape while they open.']},{v:200,mid:1,new:['In the siddur, swipe sideways to move between Shacharis, Mincha, Maariv, Bentching and Shema; swipe in from the left edge to close it.']},{v:201,new:['Month view: the shapes behind today and the selected day are no longer stretched sideways.']},{v:202,big:1,new:['Material 3 everywhere, fixed and finished: every window grows from its button and shrinks back into it (also the full-screen ones), text stays crisp while windows move, sliding highlights in the siddur tabs, the week strip follows your finger, predictive back, moving wavy rings, a new loader, pressed buttons make room for each other, and Material 3’s Roboto Flex font.']},{v:203,new:['Cleaner look: one font for all English, solid sheets, crisper scrolling, clearer selected day, tidier settings and shiurim, calmer dusk.']},{v:204,new:['Fixes from a full check: stats now count today properly, the phone’s Back button closes the How & when guide, clearer choices at night, and small tidy-ups in the siddur and assistant.']},{v:205,new:['The stats page is much lighter and smoother (it could freeze or close the app).']},{v:206,new:['Today’s streak shape now spins into a new shape and fills up a quarter for every shiur you check off.']},{v:207,new:['Today’s streak shape now really spins (a full turn) as it changes shape.']},{v:208,new:['The assistant button is now a silhouette in the app’s colour, with a shape-shifting head that spins as you scroll.']},{v:209,new:['The assistant button has small eyes again, sized for his new head.']},{v:210,new:['The assistant has the new look everywhere he appears — every window and the notifications.']},{v:211,new:['His head stays still while he’s asleep.']},{v:229,new:['You can pull the siddur down to close it, and it follows your finger. The assistant\'s hat is now the same colour as his body.']},{v:230,mid:1,new:['Hayom Yom is now one of your daily shiurim: five a day instead of four. Check it off in the list, read it in the shiurim reader (Hebrew, Hebrew / English or English), or open the full English Hayom Yom card. Reading to the end checks it off.']},{v:231,new:['By day the assistant has a light blue book, a dark hat and a lighter head.']},{v:232,new:['Hayom Yom in Hebrew: in the Android app the reader now brings the Hebrew from Chabad.org.']},{v:233,new:['Hayom Yom now shows in the shiurim list on every day.']},{v:234,new:['By day the assistant\'s hat is the same light blue as his book.']},{v:235,new:['The assistant\'s hat and book are a deeper blue by day.']},{v:236,new:['The wavy progress lines have round ends, with no grey line underneath. The assistant\'s hat and book match the settings icons by day.']},{v:237,new:['By day the assistant has a pale head with a darker hat and book.']},{v:238,new:['The assistant\'s head is a little darker.']},{v:239,new:['The assistant\'s head is a drop darker.']},{v:240,new:['The assistant window now opens at the top of the screen, so the keyboard doesn\'t push it around.']},{v:241,new:['Fixed the siddur: the menu (☰) and the Shacharis, Mincha, Maariv and Bentching buttons work again.']},{v:242,new:['No more flash when the app opens or when the assistant window opens.']},{v:243,new:['The sun and moon keep turning into new shapes the whole time they are on the screen, with more shapes than before.']},
+  {v:180,new:['The stats rings now use the new wavy style too.']},{v:181,new:['Clearer stats screen: rings and buttons easy to see in the evening, round day dots.']},{v:182,new:['Easier to read around sunset, clearer selected buttons, neater month boxes.']},{v:183,new:['Matching shapes: reminder cards, ticked shiurim and the streak days.']},{v:184,new:['Material 3 shapes for the calendar markers, the streak days and the stats.']},{v:185,new:['Each shiur has its own shape in the stats.']},{v:186,mid:1,new:['Month view: tap a day to see what’s on it right under the week; tap it again to open the day.']},{v:187,new:['Smoother and lighter on the battery: faster day changes, quieter when idle.']},{v:188,mid:1,new:['New motion everywhere: springy, physical animations — windows grow from where you tap and their content flows in.']},{v:189,mid:1,new:['Real Material 3 motion: windows grow out of the button you tap and shrink back into it, swipes between days and months follow your finger and keep its speed, selected buttons slide to their new place.']},{v:190,new:['Faster, smoother animations.']},{v:191,new:['No more blue flash when you tap something.']},{v:192,mid:1,new:['Shapes change into other shapes: ticking a box turns its square into a scalloped cookie, the selected day becomes a new shape, switches and buttons morph when you press them.']},{v:193,new:['Fixed: tapping a shiur box ticks it again.']},{v:194,mid:1,new:['The siddur has a little compass arrow at the top that points toward Yerushalayim. Tap it to see the direction.']},{v:195,new:['The siddur arrow is now a soft triangle that points the way to daven (map direction or shortest path — tap it to choose).']},{v:196,new:['The siddur direction arrow has its new shape.']},{v:197,new:['The drop arrow and its flying bubbles are gone; the cards now simply slide up as you scroll.']},{v:198,new:['Windows open and close a little slower, so the motion is easier to enjoy.']},{v:199,new:['The month view no longer looks stretched: shorter day boxes, and windows keep their shape while they open.']},{v:200,mid:1,new:['In the siddur, swipe sideways to move between Shacharis, Mincha, Maariv, Bentching and Shema; swipe in from the left edge to close it.']},{v:201,new:['Month view: the shapes behind today and the selected day are no longer stretched sideways.']},{v:202,big:1,new:['Material 3 everywhere, fixed and finished: every window grows from its button and shrinks back into it (also the full-screen ones), text stays crisp while windows move, sliding highlights in the siddur tabs, the week strip follows your finger, predictive back, moving wavy rings, a new loader, pressed buttons make room for each other, and Material 3’s Roboto Flex font.']},{v:203,new:['Cleaner look: one font for all English, solid sheets, crisper scrolling, clearer selected day, tidier settings and shiurim, calmer dusk.']},{v:204,new:['Fixes from a full check: stats now count today properly, the phone’s Back button closes the How & when guide, clearer choices at night, and small tidy-ups in the siddur and assistant.']},{v:205,new:['The stats page is much lighter and smoother (it could freeze or close the app).']},{v:206,new:['Today’s streak shape now spins into a new shape and fills up a quarter for every shiur you check off.']},{v:207,new:['Today’s streak shape now really spins (a full turn) as it changes shape.']},{v:208,new:['The assistant button is now a silhouette in the app’s colour, with a shape-shifting head that spins as you scroll.']},{v:209,new:['The assistant button has small eyes again, sized for his new head.']},{v:210,new:['The assistant has the new look everywhere he appears — every window and the notifications.']},{v:211,new:['His head stays still while he’s asleep.']},{v:229,new:['You can pull the siddur down to close it, and it follows your finger. The assistant\'s hat is now the same colour as his body.']},{v:230,mid:1,new:['Hayom Yom is now one of your daily shiurim: five a day instead of four. Check it off in the list, read it in the shiurim reader (Hebrew, Hebrew / English or English), or open the full English Hayom Yom card. Reading to the end checks it off.']},{v:231,new:['By day the assistant has a light blue book, a dark hat and a lighter head.']},{v:232,new:['Hayom Yom in Hebrew: in the Android app the reader now brings the Hebrew from Chabad.org.']},{v:233,new:['Hayom Yom now shows in the shiurim list on every day.']},{v:234,new:['By day the assistant\'s hat is the same light blue as his book.']},{v:235,new:['The assistant\'s hat and book are a deeper blue by day.']},{v:236,new:['The wavy progress lines have round ends, with no grey line underneath. The assistant\'s hat and book match the settings icons by day.']},{v:237,new:['By day the assistant has a pale head with a darker hat and book.']},{v:238,new:['The assistant\'s head is a little darker.']},{v:239,new:['The assistant\'s head is a drop darker.']},{v:240,new:['The assistant window now opens at the top of the screen, so the keyboard doesn\'t push it around.']},{v:241,new:['Fixed the siddur: the menu (☰) and the Shacharis, Mincha, Maariv and Bentching buttons work again.']},{v:242,new:['No more flash when the app opens or when the assistant window opens.']},{v:243,new:['The sun and moon keep turning into new shapes the whole time they are on the screen, with more shapes than before.']},{v:244,big:1,launch:1,rebase:[2,0],new:['Chabad Calendar 2.0: a whole new look and feel in Material 3 Expressive.']},
 {v:228,new:['The assistant\'s hat stands out with a soft shadow instead of an outline, and his head is clearer at night.']},
 {v:227,new:['Swiping windows closed is smoother, and the Coming up date tiles have new rounded Material 3 shapes.']},
 {v:226,new:['Swiping a window closed now follows your finger exactly.']},
@@ -3980,13 +3980,16 @@ function ccNewsPopup(items,tourWhich){
  o.addEventListener('click',e=>{if(e.target===o||e.target.closest('[data-ok]'))close();
   else if(e.target.closest('[data-tour]')){close();setTimeout(()=>{try{ccTourStart('cc_tour_feat_'+tourWhich,false,tourWhich)}catch(e){}},420)}});
  requestAnimationFrame(()=>o.classList.add('on'));try{H.tap&&H.tap()}catch(e){}}
-function ccVerStr(b){let M=0,m=0,p=0;const by={};CC_LOG.forEach(x=>{const l=x.big||x.tour?3:x.mid?2:1;by[x.v]=Math.max(by[x.v]||0,l)});
- Object.keys(by).map(Number).sort((a,c)=>a-c).forEach(v=>{if(v>b)return;if(by[v]==3){M++;m=0;p=0}else if(by[v]==2){m++;p=0}else p++});return M+'.'+m+'.'+p}
+function ccVerStr(b){let M=0,m=0,p=0;const by={},rb={};CC_LOG.forEach(x=>{const l=x.big||x.tour?3:x.mid?2:1;by[x.v]=Math.max(by[x.v]||0,l);if(x.rebase)rb[x.v]=x.rebase});
+ /* v244 (owner: "instead of calling this version 20, we're going to call this version 2.0"): an entry with rebase:[2,0] starts the count again there */
+ Object.keys(by).map(Number).sort((a,c)=>a-c).forEach(v=>{if(v>b)return;if(rb[v]){M=rb[v][0];m=rb[v][1];p=0}else if(by[v]==3){M++;m=0;p=0}else if(by[v]==2){m++;p=0}else p++});return M+'.'+m+'.'+p}
 function ccWhatsNew(sv){let seen=0;try{seen=+localStorage.getItem(sv)||0}catch(e){}
  if(seen>=CC_VER)return;const fresh=CC_LOG.filter(e=>e.v>seen);
  try{localStorage.setItem(sv,String(CC_VER))}catch(e){}
  if(!fresh.length)return;
  const picked=seen===0?fresh.slice(-1):fresh;      /* first time tracking: show the latest only, not a backlog */
+ /* v244: the 2.0 launch replaces the popup (main app only; in the test version it's previewed from Admin tools) */
+ if(fresh.some(e=>e.launch)&&seen>0){if(!window.CC_BETA)setTimeout(()=>{try{ccLaunch20(false)}catch(e){}},700);return}
  const shown=picked.filter(e=>!e.adm),big=[],small=[];let tour=null;for(const e of shown){(e.new||[]).forEach(i=>(e.big||e.tour?big:small).push(i));if(e.tour)tour=e.tour}
  if(big.length||tour)setTimeout(()=>ccNewsPopup([...big,...small],tour),500);
  else if(shown.some(e=>e.mid))setTimeout(()=>ccNewsBar(small),900);
@@ -5350,6 +5353,7 @@ aiEl('aiMemoryBtn').addEventListener('click',()=>{const p=aiPrefs(),names=Object
  <div class="qseg" id="ttWhen" style="margin-top:10px"><button type="button" data-w="am">Morning</button><button type="button" data-w="pm">Afternoon</button><button type="button" data-w="night">Night</button></div>
  <button class="btn" type="button" id="ttSdGo" style="width:100%;margin-top:10px">Go there and open the siddur</button><p class="mut" id="ttSdMsg" role="status" style="margin:8px 0 0;font-size:13px"></p>
  <h3 class="admh">Chabad.org English</h3><p class="mut" style="margin:0 0 6px">Downloads today's page on this phone and checks it lines up with the Hebrew.</p><div class="rw" style="flex-wrap:wrap;gap:8px"><button class="btn gh" type="button" id="ttChC">Test Chumash</button><button class="btn gh" type="button" id="ttChH">Test Hebrew Hayom Yom</button><button class="btn gh" type="button" id="ttChX" hidden>Copy page outline</button></div><p class="mut" id="ttChM" role="status" style="margin:8px 0 0;font-size:13px;white-space:pre-wrap"></p>
+ <h3 class="admh">2.0 launch</h3><p class="mut" style="margin:0 0 8px">See exactly what everyone will get when 2.0 is released. Nothing is saved.</p><button class="btn gh" type="button" id="ttL20">Preview the 2.0 launch</button>
  <h3 class="admh">Updates</h3><div id="ttUpdM" class="mut" style="margin:0 0 8px">Look for a newer version right now.</div><button class="btn gh" type="button" id="ttUpd">Check for an update now</button>
  <h3 class="admh">Test version</h3><div id="ttBeta" class="mut" style="margin:0 0 8px">Checking…</div><button class="btn gh" type="button" id="ttBetaGo">${window.CC_BETA?'Back to the main app':'Open the test version'}</button>
  <h3 class="admh">Usage</h3><div id="admUse" class="mut" style="margin:0 0 8px">Loading…</div><button class="btn gh" type="button" id="ttUse">Refresh</button>
@@ -5368,6 +5372,7 @@ aiEl('aiMemoryBtn').addEventListener('click',()=>{const p=aiPrefs(),names=Object
    catch(e){M.textContent='Could not download: '+(e&&e.message||e)}
    X.hidden=!raw};
   box.querySelector('#ttChC').onclick=()=>run('chumash');
+  box.querySelector('#ttL20').onclick=()=>{try{const bd=document.getElementById('bd');if(document.body.classList.contains('op')&&bd)bd.click()}catch(e){}setTimeout(()=>{try{ccLaunch20(true)}catch(e){alert(e.message)}},450)};
   box.querySelector('#ttChH').onclick=async()=>{const d=new Date(shDay(t0));X.hidden=true;raw='';if(!chGrab()){M.textContent='Only works inside the Android app.';return}
    M.textContent='Opening '+hyHeUrl(d)+' in the hidden browser (up to 30 seconds)…';
    try{raw=await chGet(hyHeUrl(d),2500);const v=hyParse(raw),LS=window.CH_LAST||{};if(v.length){const C=hyHeAll();C[ds(d)]={p:v,t:Date.now()};try{localStorage.setItem('cc_hyhe',JSON.stringify(C))}catch(e){}}
@@ -6458,4 +6463,153 @@ body.wm-pb.sd-hide>*{visibility:visible!important}
 /* v227 fix: the tiles were 72 px in a 62 px column (overflow hidden), so their right edge was always cut off */
 #rail .rt{width:calc(100% - 2px)!important;max-width:none!important;min-width:0!important;box-sizing:border-box!important;margin-left:auto!important;margin-right:auto!important;padding-left:1px!important;padding-right:1px!important}
 </style>
+<style id="cc-l20">
+/* ===== v244: the 2.0 launch (owner: "a launch heavily focused on Material 3 Expressive … a button … the whole thing turning into Material 3 Expressive") ===== */
+.l20{position:fixed;inset:0;z-index:2147483000;overflow:auto;-webkit-overflow-scrolling:touch;background:#f3f2fa;color:#1b1d36;font-family:Figtree,system-ui,sans-serif;opacity:0;transition:opacity .35s ease}
+.l20.on{opacity:1}
+.l20.out{opacity:0;transition:opacity .32s ease}
+:root:is([data-night="1"],[data-theme="dark"]) .l20{background:#10132a;color:#eceefa}
+.l20-in{max-width:520px;margin:0 auto;padding:calc(40px + env(safe-area-inset-top,0px)) 22px calc(28px + env(safe-area-inset-bottom,0px));position:relative}
+.l20-hero{position:relative;height:210px;margin:0 0 6px}
+.l20-hero i{position:absolute;display:block;will-change:transform}
+.l20-hero .a{width:150px;height:150px;left:calc(50% - 128px);top:22px;background:#c9cdf0;animation:l20s 14s linear infinite}
+.l20-hero .b{width:118px;height:118px;left:calc(50% + 8px);top:8px;background:#9aa6d8;animation:l20s 11s linear infinite reverse}
+.l20-hero .c{width:86px;height:86px;left:calc(50% - 6px);top:118px;background:#7c6fb0;animation:l20s 9s linear infinite}
+:root:is([data-night="1"],[data-theme="dark"]) .l20-hero .a{background:#3a4170}:root:is([data-night="1"],[data-theme="dark"]) .l20-hero .b{background:#5a64a6}:root:is([data-night="1"],[data-theme="dark"]) .l20-hero .c{background:#9b8fe0}
+.l20-hero b{position:absolute;left:0;right:0;top:44px;text-align:center;font:900 112px/1 Figtree,system-ui,sans-serif;letter-spacing:-.06em;color:#1b1d36;mix-blend-mode:normal}
+:root:is([data-night="1"],[data-theme="dark"]) .l20-hero b{color:#f2f3ff}
+@keyframes l20s{to{rotate:360deg}}
+.l20 h1{font:800 34px/1.08 Figtree,system-ui,sans-serif;letter-spacing:-.025em;margin:6px 0 8px;text-align:center}
+.l20-sub{font-size:17px;line-height:1.45;text-align:center;margin:0 auto 22px;max-width:420px;opacity:.78}
+.l20-l{list-style:none;margin:0 0 26px;padding:0;display:grid;gap:10px}
+.l20-l li{display:flex;gap:14px;align-items:flex-start;padding:14px 16px;border-radius:28px;background:#e6e5f4}
+:root:is([data-night="1"],[data-theme="dark"]) .l20-l li{background:#1b1f3d}
+.l20-l li:nth-child(even){border-radius:28px 12px 28px 28px}
+.l20-l li:nth-child(3n){border-radius:12px 28px 28px 28px}
+.l20-l li i{flex:none;width:38px;height:38px;background:#565d86;margin-top:1px}
+:root:is([data-night="1"],[data-theme="dark"]) .l20-l li i{background:#aab2ec}
+.l20-l li b{display:block;font-weight:750;font-size:16px;margin-bottom:2px}
+.l20-l li span{display:block;font-size:14px;line-height:1.4;opacity:.75}
+.l20-go{display:block;width:100%;border:0;border-radius:999px;padding:20px 24px;font:800 19px Figtree,system-ui,sans-serif;letter-spacing:.01em;color:#fff;background:#565d86;box-shadow:0 10px 30px #565d8655;transition:border-radius .35s cubic-bezier(.34,1.56,.64,1),scale .35s cubic-bezier(.34,1.56,.64,1)}
+.l20-go:active{border-radius:18px;scale:.96}
+:root:is([data-night="1"],[data-theme="dark"]) .l20-go{background:#aab2ec;color:#1b1d36;box-shadow:0 10px 30px #0006}
+.l20-note{text-align:center;font-size:12px;opacity:.55;margin:12px 0 0}
+.l20 [data-l20in]{opacity:0;translate:0 18px;transition:opacity .5s ease,translate .7s cubic-bezier(.34,1.4,.64,1)}
+.l20.on [data-l20in]{opacity:1;translate:0 0}
+/* the transformation */
+.l20fx{position:fixed;inset:0;z-index:2147483001;pointer-events:auto;touch-action:none}
+.l20fx .scrim{position:absolute;inset:0;background:#eef0fa}
+:root:is([data-night="1"],[data-theme="dark"]) .l20fx .scrim{background:#0d1020}
+.l20fx svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.l20ch{position:absolute;left:0;top:0;transform-origin:0 0;opacity:0;pointer-events:none}
+.l20ch .cch{display:block;width:100%;height:100%}
+html.l20-old #aiFab{opacity:0!important}
+</style>
+<script>
+/* v244: Chabad Calendar 2.0 launch. ccLaunch20(preview): the welcome screen, then on "Turn on 2.0" the transformation:
+   ~44 small Material 3 shapes fade in (each its own shape list, spin speed, shade and timing), grow, drift together and melt into one
+   (an SVG "goo" filter = blur + alpha threshold, only while they merge); the single shape spins three times through triangle → square →
+   circle, then into the 9-sided cookie (the assistant's head), gets eyes, blinks, becomes the assistant (hat drops on, book rises)
+   and flies down to his place in the bottom-right corner. The page behind starts in the old look (tt-off-m3) and switches to
+   Material 3 while the shapes merge. One haptic pattern follows the whole timeline. */
+(function(){
+ const R=document.documentElement,RM=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const TAU=Math.PI*2,cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x)),sm=x=>{x=cl(x);return x*x*(3-2*x)},eio=x=>{x=cl(x);return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2},eob=x=>{x=cl(x);const c1=1.7,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2)};
+ /* shapes as r(θ), θ from the top, clockwise; 1 ≈ the outer edge */
+ const ck=(n,a,p)=>t=>1-a+a*Math.pow(.5+.5*Math.cos(n*t),p||1);
+ const tri=t=>{const s=TAU/3,u=((t%s)+s)%s-s/2;return .62/Math.cos(u)*.9+.1};
+ const sq=t=>Math.pow(Math.pow(Math.abs(Math.cos(t)),4)+Math.pow(Math.abs(Math.sin(t)),4),-.25)*.86;
+ const SH={circ:()=>.94,sq,tri,ck4:ck(4,.16),ck6:ck(6,.14),ck9:ck(9,.11),clv:ck(4,.34,1.6),sun:ck(8,.13),flw:ck(5,.26,1.3),bur:ck(12,.12),blob:t=>.9+.06*Math.cos(2*t)+.05*Math.cos(3*t+1),pil:t=>.95-.12*Math.pow(Math.sin(t),2),sq2:t=>sq(t)*.95+.04*Math.cos(3*t)};
+ const SWARM=['circ','sq','ck4','ck6','ck9','clv','sun','flw','bur','blob','pil','sq2','tri'];
+ const N=48,path=(f,g,w,cx,cy,r,rot)=>{let d='';for(let i=0;i<N;i++){const t=i/N*TAU,q=t-rot,rr=r*((1-w)*f(q)+w*g(q));d+=(i?'L':'M')+(cx+rr*Math.sin(t)).toFixed(1)+' '+(cy-rr*Math.cos(t)).toFixed(1)}return d+'Z'};
+ const hex=h=>{h=h.replace('#','');return[0,2,4].map(i=>parseInt(h.slice(i,i+2),16))},mixc=(a,b,w)=>'rgb('+a.map((v,i)=>Math.round(v+(b[i]-v)*w)).join(',')+')';
+ const rgbOf=s=>{s=String(s);const m=s.match(/-?\d*\.?\d+/g);if(!m||m.length<3)return[86,93,134];let v=m.slice(0,3).map(Number);if(/^color\(/.test(s)||v.every(x=>x<=1))v=v.map(x=>Math.round(x*255));return v};/* computed colours may come as color(srgb 0.3 0.4 0.5) */
+ /* haptics: one pattern for the whole show */
+ function haptics(ev){try{if(!navigator.vibrate)return;ev.sort((a,b)=>a[0]-b[0]);const p=[0];let end=0;for(const [t,d] of ev){if(t<end+40)continue;p.push(Math.round(t-end),d);end=t+d}navigator.vibrate(p)}catch(e){}}
+ const dark=()=>R.dataset.night==='1'||R.dataset.theme==='dark';
+ const HL=[['ck9','Shapes that come alive','Buttons, check-offs and days morph into new shapes as you use them.'],
+  ['clv','Motion you can feel','Springy windows grow out of what you tap and follow your finger when you slide them away.'],
+  ['sun','A brand-new assistant','He has a Material 3 head that spins into new shapes, and he’s now in every window.'],
+  ['flw','Hayom Yom is a shiur','Five shiurim a day, with Hayom Yom in Hebrew and English in the reader.'],
+  ['sq2','A smarter siddur','Slide between tefillos, pull it down to close, and an arrow shows which way to daven.'],
+  ['bur','A living sky','The sun and moon change shape as they cross the sky, and everything runs lighter on your battery.']];
+ const clipOf=k=>{const f=SH[k];let o=[];for(let i=0;i<40;i++){const t=i/40*TAU,r=f(t)*50;o.push((50+r*Math.sin(t)).toFixed(1)+'% '+(50-r*Math.cos(t)).toFixed(1)+'%')}return 'polygon('+o.join(',')+')'};
+ window.ccLaunch20=function(preview){
+  if(document.getElementById('l20'))return;
+  const hadOff=R.classList.contains('tt-off-m3');if(!hadOff)R.classList.add('tt-off-m3');R.classList.add('l20-old');
+  const o=document.createElement('div');o.id='l20';o.className='l20';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');o.setAttribute('aria-label','Chabad Calendar 2.0');
+  o.innerHTML='<div class="l20-in"><div class="l20-hero" aria-hidden="true"><i class="a" style="clip-path:'+clipOf('ck9')+'"></i><i class="b" style="clip-path:'+clipOf('sq2')+'"></i><i class="c" style="clip-path:'+clipOf('clv')+'"></i><b>2.0</b></div>'+
+   '<h1 data-l20in style="transition-delay:.05s">Chabad Calendar 2.0</h1><p class="l20-sub" data-l20in style="transition-delay:.12s">A whole new look and feel. Every shape and every motion, redesigned in Material&nbsp;3 Expressive.</p>'+
+   '<ul class="l20-l">'+HL.map((h,i)=>'<li data-l20in style="transition-delay:'+(.2+i*.07).toFixed(2)+'s"><i style="clip-path:'+clipOf(h[0])+'"></i><div><b>'+h[1]+'</b><span>'+h[2]+'</span></div></li>').join('')+'</ul>'+
+   '<button type="button" class="l20-go" data-l20in style="transition-delay:.7s">Turn on 2.0</button>'+(preview?'<p class="l20-note">Preview — nothing is saved</p>':'')+'</div>';
+  document.body.appendChild(o);requestAnimationFrame(()=>requestAnimationFrame(()=>o.classList.add('on')));try{navigator.vibrate&&navigator.vibrate([0,60,8,90,8])}catch(e){}
+  o.querySelector('.l20-go').onclick=()=>{try{navigator.vibrate&&navigator.vibrate(14)}catch(e){}o.classList.add('out');setTimeout(()=>{o.remove();show(hadOff)},300)}};
+ function finish(hadOff,fx){if(!hadOff)R.classList.remove('tt-off-m3');R.classList.remove('l20-old');if(fx)fx.remove();try{window.WMsync&&WMsync()}catch(e){}}
+ function show(hadOff){
+  if(RM()){finish(hadOff);return}
+  const W=innerWidth,Hh=innerHeight,fx=document.createElement('div');fx.className='l20fx';
+  const NS='http://www.w3.org/2000/svg';
+  fx.innerHTML='<div class="scrim"></div><svg viewBox="0 0 '+W+' '+Hh+'" aria-hidden="true"><defs><filter id="l20goo" x="0" y="0" width="'+W+'" height="'+Hh+'" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feGaussianBlur id="l20blur" in="SourceGraphic" stdDeviation="0"/><feColorMatrix id="l20cm" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/></filter></defs><g id="l20sw" filter="url(#l20goo)"></g><path id="l20hero"/><g id="l20eyes" opacity="0"><ellipse/><ellipse/></g></svg><div class="l20ch"></div>';
+  document.body.appendChild(fx);
+  const scrim=fx.querySelector('.scrim'),sw=fx.querySelector('#l20sw'),blur=fx.querySelector('#l20blur'),cm=fx.querySelector('#l20cm'),hero=fx.querySelector('#l20hero'),eyes=fx.querySelector('#l20eyes'),EL=eyes.querySelectorAll('ellipse'),chw=fx.querySelector('.l20ch');
+  /* the assistant, built now (hidden) so the shape can land exactly on his head */
+  const CW=Math.min(W*.62,260),CH=CW*400/340;chw.style.width=CW+'px';chw.style.height=CH+'px';chw.style.left=(W/2-CW/2)+'px';chw.style.top=(Hh*.42-CH*171.8/400)+'px';
+  chw.innerHTML=typeof cchHtml==='function'?cchHtml('curious'):'';const ch=chw.querySelector('.cch');if(ch)ch.dataset.zz='1';
+  let HC=[W/2,Hh*.42],HR=CW*88/340,headF=SH.ck9,eyeR=null,headCol=[86,93,134],eyeCol=[255,255,255];
+  const measure=()=>{try{if(window.CCFH&&ch)CCFH.set(ch,1);const hp=ch&&ch.querySelector('.c-fh');if(hp){const b=hp.getBoundingClientRect();if(b.width){HC=[b.left+b.width/2,b.top+b.height/2];HR=Math.max(b.width,b.height)/2;
+     /* his real head outline (48 points) → r(θ) */const pts=(hp.getAttribute('d')||'').match(/-?\d+(\.\d+)?/g);if(pts&&pts.length>=96){const bb=hp.getBBox(),cx=bb.x+bb.width/2,cy=bb.y+bb.height/2,R0=Math.max(bb.width,bb.height)/2,rs=[];for(let i=0;i<pts.length;i+=2){const x=+pts[i]-cx,y=+pts[i+1]-cy;rs.push([Math.atan2(x,-y),Math.hypot(x,y)/R0])}rs.sort((a,c)=>a[0]-c[0]);headF=t=>{let a=((t+Math.PI)%TAU+TAU)%TAU-Math.PI;let k=0;while(k<rs.length-1&&rs[k+1][0]<a)k++;const p=rs[k],q=rs[(k+1)%rs.length];let span=q[0]-p[0];if(span<=0)span+=TAU;let u=a-p[0];if(u<0)u+=TAU;return p[1]+(q[1]-p[1])*cl(u/span)}}
+     headCol=rgbOf(getComputedStyle(hp).fill)}}
+    const es=ch?[...ch.querySelectorAll('.c-e')]:[];if(es.length===2){eyeR=es.map(e=>e.getBoundingClientRect());eyeCol=rgbOf(getComputedStyle(es[0]).fill)}}catch(e){}};
+  measure();
+  const PAL=dark()?['#aab2ec','#8a93d6','#c9cdf0','#9b8fe0','#7f9be0','#b8a9e0','#6f78c0','#d6d9f7']:['#565d86','#6b72a0','#8a90bf','#7c6fb0','#5f7bb8','#9aa6d8','#4a5280','#b3b8e2'];
+  const heroC=hex(dark()?'#aab2ec':'#565d86');
+  const NS_=Math.round(cl(W*Hh/7600,30,52)),S=[];
+  for(let i=0;i<NS_;i++){const p=document.createElementNS(NS,'path');sw.appendChild(p);const seq=[];let k=SWARM[Math.floor(Math.random()*SWARM.length)];for(let j=0;j<4;j++){seq.push(k);let n;do{n=SWARM[Math.floor(Math.random()*SWARM.length)]}while(n===k);k=n}
+   const x0=20+Math.random()*(W-40),y0=40+Math.random()*(Hh-80),dist=Math.hypot(x0-HC[0],y0-HC[1])/Math.hypot(W,Hh);
+   S.push({p,x0,y0,r0:7+Math.random()*13,d:Math.random()*1300,sp:(Math.random()<.5?-1:1)*(.8+Math.random()*3.6),seq,P:650+Math.random()*900,c:hex(PAL[i%PAL.length]),a:.42+Math.random()*.38,mo:dist*900+Math.random()*350,ph:Math.random()*TAU})}
+  /* haptics timeline (ms) */
+  const ev=[];S.forEach(s=>ev.push([s.d+120,6]));for(let t=1700,g=240,d=8;t<3500;t+=g,g=Math.max(80,g*.86),d=Math.min(20,d+1.2))ev.push([t,Math.round(d)]);
+  ev.push([3620,34],[4200,7],[4560,26],[4900,7],[5260,26],[5600,7],[5960,30],[6760,46],[7020,10],[7330,6],[7430,6],[7930,22],[8130,16],[8780,8],[9450,42]);haptics(ev);
+  const T0=performance.now();let swapOK=false,flew=false,mDone=false;
+  const fab=document.getElementById('fabCh'),aiFab=document.getElementById('aiFab');
+  function frame(){const t=performance.now()-T0;
+   /* the page behind: the old look until the shapes merge, then Material 3; the cover thins out at the end */
+   if(!mDone&&t>3300){mDone=true;if(!hadOff)R.classList.remove('tt-off-m3');measure()}
+   scrim.style.opacity=t<7600?(.86*sm(t/700)).toFixed(3):(.86*(1-sm((t-7600)/1500))).toFixed(3);
+   /* swarm */
+   if(t<4000){const gs=t<1100?0:t<1900?9*sm((t-1100)/800):t<3350?9:9*(1-sm((t-3350)/450));blur.setAttribute('stdDeviation',gs.toFixed(2));{const g=gs/9;cm.setAttribute('values','1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 '+(1+21*g).toFixed(2)+' '+(-9*g).toFixed(2))}/* the melting (alpha threshold) grows with the blur, so the faint shapes stay faint until they merge */
+    const so=t<3550?1:1-sm((t-3550)/350);
+    for(const s of S){const u=t-s.d;if(u<0){s.p.setAttribute('opacity','0');continue}
+     const f=sm(u/550),m=eio((t-1500-s.mo)/1900),x=s.x0+(HC[0]-s.x0)*m,y=s.y0+(HC[1]-s.y0)*m;
+     const grow=s.r0*(1+.9*sm(u/1600)),r=grow+(HR*.86-grow)*sm((t-1700-s.mo*.6)/1700);
+     const pp=(u/s.P)+s.ph,ii=Math.floor(pp)%4,fr=pp-Math.floor(pp),w=fr<.35?0:sm((fr-.35)/.65);
+     s.p.setAttribute('d',path(SH[s.seq[ii]],SH[s.seq[(ii+1)%4]],w,x,y,r,s.sp*u/1000));
+     s.p.setAttribute('fill',mixc(s.c,heroC,m));s.p.setAttribute('opacity',((s.a+(1-s.a)*m)*f*so).toFixed(3))}
+    if(t>=3550&&sw.style.display!=='none'&&t>3950)sw.style.display='none'}
+   else if(sw.style.display!=='none')sw.style.display='none';
+   /* the one shape */
+   if(t>=3500){const ho=sm((t-3500)/350);let rot=0,a=SH.circ,b=SH.circ,w=0,sc=1;const spin=(t0,t1,from,to)=>{const k=eio((t-t0)/(t1-t0));return[k,from,to]};
+    const steps=[[3950,4560,SH.circ,SH.tri],[4620,5260,SH.tri,SH.sq],[5320,5960,SH.sq,SH.circ],[6020,6760,SH.circ,headF]];
+    let turns=0;for(let i=0;i<steps.length;i++){const [s0,s1,fA,fB]=steps[i];if(t>=s0){const k=eio((t-s0)/(s1-s0));a=fA;b=fB;w=k;rot=(turns+k)*TAU;sc=1+.1*Math.sin(Math.PI*cl((t-s0)/(s1-s0)))}turns=i+1;if(t<s1)break}
+    if(t>=6760){a=headF;b=headF;w=0;rot=0;sc=1}
+    const col=t<6020?heroC:hex('#000000').map((_,i)=>heroC[i]+(headCol[i]-heroC[i])*sm((t-6020)/740));
+    hero.setAttribute('d',path(a,b,w,HC[0],HC[1],HR*sc,t>=6760?0:rot));hero.setAttribute('fill','rgb('+col.map(Math.round).join(',')+')');hero.setAttribute('opacity',(t<7560?ho:0).toFixed(3));
+    /* eyes */
+    if(eyeR&&t>=6950&&t<7560){const e=sm((t-6950)/260),bl=t>7300&&t<7480?1-.9*Math.sin(Math.PI*(t-7300)/180):1;eyes.setAttribute('opacity','1');
+     EL.forEach((el,i)=>{const r=eyeR[i];el.setAttribute('cx',r.left+r.width/2);el.setAttribute('cy',r.top+r.height/2);el.setAttribute('rx',(r.width/2*e).toFixed(2));el.setAttribute('ry',(r.height/2*e*bl).toFixed(2));el.setAttribute('fill','rgb('+eyeCol.join(',')+')')})}
+    else if(t>=7560)eyes.setAttribute('opacity','0')}
+   /* he takes over: hat drops on, book rises */
+   if(t>=7540&&!swapOK&&ch){swapOK=true;chw.style.opacity='1';const hat=ch.querySelector('.c-hat'),book=ch.querySelector('.c-book');
+    try{hat&&hat.animate([{transform:'translate(0px,-170px)',opacity:0},{transform:'translate(0px,12px)',opacity:1,offset:.7},{transform:'translate(0px,0px)',opacity:1}],{duration:420,easing:'cubic-bezier(.3,0,.4,1)',fill:'backwards'});
+     book&&book.animate([{transform:'translate(0px,120px) scale(.6)',opacity:0},{transform:'translate(0px,0px) scale(1)',opacity:1}],{duration:520,delay:200,easing:'cubic-bezier(.34,1.56,.64,1)',fill:'backwards'})}catch(e){}}
+   /* and flies down to his place */
+   if(t>=8750&&!flew){flew=true;const f=fab&&fab.getBoundingClientRect(),c=chw.getBoundingClientRect();
+    if(f&&f.width){const s=f.width/c.width,dx=f.left-c.left,dy=f.top-c.top;const E=window.M3X&&M3X.ease?M3X.ease(260,.72):null;
+     try{chw.animate([{transform:'translate(0px,0px) scale(1)'},{transform:`translate(${dx}px,${dy}px) scale(${s})`}],{duration:Math.max(700,E&&E.d||0),easing:E&&E.e||'cubic-bezier(.34,1.3,.64,1)',fill:'forwards'})}catch(e){}}}
+   if(t<9650)requestAnimationFrame(frame);
+   else{R.classList.remove('l20-old');chw.animate([{opacity:1},{opacity:0}],{duration:160,fill:'forwards'});setTimeout(()=>finish(hadOff,fx),170)}}
+  requestAnimationFrame(frame)}
+})();
+</script>
+
 </body></html>
